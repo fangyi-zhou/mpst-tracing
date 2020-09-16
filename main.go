@@ -1,8 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
 func main() {
-	fmt.Println("Hello")
+	rand.Seed(time.Now().UnixNano())
+	fmt.Println("Two Buyer Protocol:")
 	runAll()
 }
