@@ -1,12 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"go.opentelemetry.io/otel/api/global"
+	"go.opentelemetry.io/otel/sdk/trace"
+	"log"
 	"math/rand"
 	"sync"
 )
 
-func (a *A) run(wg *sync.WaitGroup) {
+import "go.opentelemetry.io/otel/exporters/stdout"
+
+func (a *A) run(wg *sync.WaitGroup, ctx *context.Context) {
 	defer wg.Done()
 	fmt.Println("Running A")
 	// Send query to B
@@ -23,7 +29,7 @@ func (a *A) run(wg *sync.WaitGroup) {
 		a.sendB(0)
 	}
 }
-func (b *B) run(wg *sync.WaitGroup) {
+func (b *B) run(wg *sync.WaitGroup, ctx *context.Context) {
 	defer wg.Done()
 	fmt.Println("Running B")
 	// Receive a query
@@ -41,7 +47,7 @@ func (b *B) run(wg *sync.WaitGroup) {
 	}
 }
 
-func (c *C) run(wg *sync.WaitGroup) {
+func (c *C) run(wg *sync.WaitGroup, ctx *context.Context) {
 	defer wg.Done()
 	fmt.Println("Running C")
 	// Receive a quote
@@ -50,6 +56,26 @@ func (c *C) run(wg *sync.WaitGroup) {
 	var share = quote/2 + rand.Intn(10) - 5
 	fmt.Println("C: Proposing share", share)
 	c.sendA(share)
+}
+
+var tp *trace.TracerProvider
+
+// https://github.com/open-telemetry/opentelemetry-go/blob/master/example/namedtracer/main.go
+func initTracer() func() {
+	exp, err := stdout.NewExporter(stdout.WithPrettyPrint())
+	if err != nil {
+		log.Panicf("failed to initialise stdout exported %v\n", err)
+		return nil
+	}
+	bsp := trace.NewBatchSpanProcessor(exp)
+	tp = trace.NewTracerProvider(
+		trace.WithConfig(
+			trace.Config{
+				DefaultSampler: trace.AlwaysSample(),
+			}),
+			trace.WithSpanProcessor(bsp))
+	global.SetTracerProvider(tp)
+	return bsp.Shutdown
 }
 
 func spawn() (*A, *B, *C) {
@@ -81,11 +107,18 @@ func spawn() (*A, *B, *C) {
 }
 
 func runAll() {
+	shutdown := initTracer()
+	defer shutdown()
+
 	var wg sync.WaitGroup
+	tracer := tp.Tracer("TwoBuyer")
+	ctx := context.Background()
 	var a, b, c = spawn()
+	ctx, span := tracer.Start(ctx, "TwoBuyer")
+	defer span.End()
 	wg.Add(3)
-	go a.run(&wg)
-	go b.run(&wg)
-	go c.run(&wg)
+	go a.run(&wg, &ctx)
+	go b.run(&wg, &ctx)
+	go c.run(&wg, &ctx)
 	wg.Wait()
 }
