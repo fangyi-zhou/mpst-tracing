@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.opentelemetry.io/otel/api/global"
+	trace2 "go.opentelemetry.io/otel/api/trace"
 	"go.opentelemetry.io/otel/sdk/trace"
 	"log"
 	"math/rand"
@@ -12,33 +13,37 @@ import (
 
 import "go.opentelemetry.io/otel/exporters/stdout"
 
-func (a *A) run(wg *sync.WaitGroup, ctx *context.Context) {
+func (a *A) run(wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
-	fmt.Println("Running A")
+	var span trace2.Span
+	ctx, span = a.tracer.Start(ctx, "TwoBuyer Endpoint A")
+	defer span.End()
 	// Send query to B
 	var query = rand.Intn(100)
 	fmt.Println("A: Sending query", query)
-	a.sendB(query)
+	a.sendB("query", query)
 	// Receive a quote
 	var quote = <-a.ba
 	var otherShare = <-a.ca
 	if otherShare*2 >= quote {
 		// 1 stands for ok
-		a.sendB(1)
+		a.sendB("buy", 1)
 	} else {
-		a.sendB(0)
+		a.sendB("buy", 0)
 	}
 }
-func (b *B) run(wg *sync.WaitGroup, ctx *context.Context) {
+func (b *B) run(wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
-	fmt.Println("Running B")
+	var span trace2.Span
+	ctx, span = b.tracer.Start(ctx, "TwoBuyer Endpoint B")
+	defer span.End()
 	// Receive a query
 	var query = <-b.ab
 	// Send a quote
 	var quote = query * 2
 	fmt.Println("B: Sending quote", quote)
-	b.sendA(quote)
-	b.sendC(quote)
+	b.sendA("quote", quote)
+	b.sendC("quote", quote)
 	var decision = <-b.ab
 	if decision == 1 {
 		fmt.Println("Succeed!")
@@ -47,15 +52,17 @@ func (b *B) run(wg *sync.WaitGroup, ctx *context.Context) {
 	}
 }
 
-func (c *C) run(wg *sync.WaitGroup, ctx *context.Context) {
+func (c *C) run(wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
-	fmt.Println("Running C")
+	var span trace2.Span
+	ctx, span = c.tracer.Start(ctx, "TwoBuyer Endpoint C")
+	defer span.End()
 	// Receive a quote
 	var quote = <-c.bc
 	// Propose a share
 	var share = quote/2 + rand.Intn(10) - 5
 	fmt.Println("C: Proposing share", share)
-	c.sendA(share)
+	c.sendA("share", share)
 }
 
 var tp *trace.TracerProvider
@@ -84,18 +91,21 @@ func spawn() (*A, *B, *C) {
 		make(chan int, 1),
 		nil,
 		nil,
+		global.Tracer("TwoBuyer/A"),
 	}
 	var b = B{
 		make(chan int, 1),
 		make(chan int, 1),
 		nil,
 		nil,
+		global.Tracer("TwoBuyer/B"),
 	}
 	var c = C{
 		make(chan int, 1),
 		make(chan int, 1),
 		nil,
 		nil,
+		global.Tracer("TwoBuyer/C"),
 	}
 	b.a = &a
 	c.a = &a
@@ -117,8 +127,8 @@ func runAll() {
 	ctx, span := tracer.Start(ctx, "TwoBuyer")
 	defer span.End()
 	wg.Add(3)
-	go a.run(&wg, &ctx)
-	go b.run(&wg, &ctx)
-	go c.run(&wg, &ctx)
+	go a.run(&wg, ctx)
+	go b.run(&wg, ctx)
+	go c.run(&wg, ctx)
 	wg.Wait()
 }
