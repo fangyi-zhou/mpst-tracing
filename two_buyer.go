@@ -73,7 +73,7 @@ func initTracer() func() {
 			trace.Config{
 				DefaultSampler: trace.AlwaysSample(),
 			}),
-			trace.WithSpanProcessor(bsp))
+		trace.WithSpanProcessor(bsp))
 	global.SetTracerProvider(tp)
 	return bsp.Shutdown
 }
