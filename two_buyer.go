@@ -21,15 +21,15 @@ func (a *A) run(wg *sync.WaitGroup, ctx context.Context) {
 	// Send query to B
 	var query = rand.Intn(100)
 	fmt.Println("A: Sending query", query)
-	a.sendB("query", query)
+	a.sendB(ctx, "query", query)
 	// Receive a quote
 	var quote = <-a.ba
 	var otherShare = <-a.ca
 	if otherShare*2 >= quote {
 		// 1 stands for ok
-		a.sendB("buy", 1)
+		a.sendB(ctx, "buy", 1)
 	} else {
-		a.sendB("buy", 0)
+		a.sendB(ctx, "buy", 0)
 	}
 }
 func (b *B) run(wg *sync.WaitGroup, ctx context.Context) {
@@ -42,8 +42,8 @@ func (b *B) run(wg *sync.WaitGroup, ctx context.Context) {
 	// Send a quote
 	var quote = query * 2
 	fmt.Println("B: Sending quote", quote)
-	b.sendA("quote", quote)
-	b.sendC("quote", quote)
+	b.sendA(ctx, "quote", quote)
+	b.sendC(ctx, "quote", quote)
 	var decision = <-b.ab
 	if decision == 1 {
 		fmt.Println("Succeed!")
@@ -62,7 +62,7 @@ func (c *C) run(wg *sync.WaitGroup, ctx context.Context) {
 	// Propose a share
 	var share = quote/2 + rand.Intn(10) - 5
 	fmt.Println("C: Proposing share", share)
-	c.sendA("share", share)
+	c.sendA(ctx, "share", share)
 }
 
 var tp *trace.TracerProvider

@@ -1,6 +1,9 @@
 package main
 
-import "go.opentelemetry.io/otel/api/trace"
+import (
+	"context"
+	"go.opentelemetry.io/otel/api/trace"
+)
 
 type A struct {
 	ba     chan int
@@ -24,26 +27,44 @@ type C struct {
 	tracer trace.Tracer
 }
 
-func (a *A) sendB(label string, v int) {
+func (a *A) sendB(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = a.tracer.Start(ctx, "Send B "+label)
+	defer span.End()
 	a.b.ab <- v
 }
 
-func (a *A) sendC(label string, v int) {
+func (a *A) sendC(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = a.tracer.Start(ctx, "Send C "+label)
+	defer span.End()
 	a.c.ac <- v
 }
 
-func (b *B) sendA(label string, v int) {
+func (b *B) sendA(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = b.tracer.Start(ctx, "Send A "+label)
+	defer span.End()
 	b.a.ba <- v
 }
 
-func (b *B) sendC(label string, v int) {
+func (b *B) sendC(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = b.tracer.Start(ctx, "Send C "+label)
+	defer span.End()
 	b.c.bc <- v
 }
 
-func (c *C) sendA(label string, v int) {
+func (c *C) sendA(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = c.tracer.Start(ctx, "Send A "+label)
+	defer span.End()
 	c.a.ca <- v
 }
 
-func (c *C) sendB(label string, v int) {
+func (c *C) sendB(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = c.tracer.Start(ctx, "Send B "+label)
+	defer span.End()
 	c.b.cb <- v
 }
