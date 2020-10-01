@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -138,7 +138,7 @@ func spawn() (*A, *B, *C) {
 	return &a, &b, &c
 }
 
-func runAll() {
+func RunAll() {
 	shutdown := initJaegerTracer()
 	defer shutdown()
 
