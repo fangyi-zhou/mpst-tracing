@@ -24,8 +24,9 @@ import (
 
 import "go.opentelemetry.io/otel/exporters/stdout"
 
-func (a *A) run(wg *sync.WaitGroup, ctx context.Context) {
+func (a *A) run(wg *sync.WaitGroup) {
 	defer wg.Done()
+	ctx := context.Background()
 	var span trace2.Span
 	ctx, span = a.tracer.Start(ctx, "TwoBuyer Endpoint A")
 	defer span.End()
@@ -43,8 +44,9 @@ func (a *A) run(wg *sync.WaitGroup, ctx context.Context) {
 		a.sendB(ctx, "buy", 0)
 	}
 }
-func (b *B) run(wg *sync.WaitGroup, ctx context.Context) {
+func (b *B) run(wg *sync.WaitGroup) {
 	defer wg.Done()
+	ctx := context.Background()
 	var span trace2.Span
 	ctx, span = b.tracer.Start(ctx, "TwoBuyer Endpoint B")
 	defer span.End()
@@ -63,8 +65,9 @@ func (b *B) run(wg *sync.WaitGroup, ctx context.Context) {
 	}
 }
 
-func (c *C) run(wg *sync.WaitGroup, ctx context.Context) {
+func (c *C) run(wg *sync.WaitGroup) {
 	defer wg.Done()
+	ctx := context.Background()
 	var span trace2.Span
 	ctx, span = c.tracer.Start(ctx, "TwoBuyer Endpoint C")
 	defer span.End()
@@ -200,14 +203,10 @@ func RunAll() {
 	defer shutdown()
 
 	var wg sync.WaitGroup
-	tracer := global.Tracer("TwoBuyer")
-	ctx := context.Background()
 	var a, b, c = spawn()
-	ctx, span := tracer.Start(ctx, "TwoBuyer")
-	defer span.End()
 	wg.Add(3)
-	go a.run(&wg, ctx)
-	go b.run(&wg, ctx)
-	go c.run(&wg, ctx)
+	go a.run(&wg)
+	go b.run(&wg)
+	go c.run(&wg)
 	wg.Wait()
 }
