@@ -48,6 +48,7 @@ func components() (component.Factories, error) {
 
 	return factories, componenterror.CombineErrors(errs)
 }
+
 func main() {
 	// https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/master/cmd/otelcontribcol/main.go
 	factories, err := components()

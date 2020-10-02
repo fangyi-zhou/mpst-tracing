@@ -6,8 +6,9 @@ import (
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/propagation"
 	trace2 "go.opentelemetry.io/otel/api/trace"
-	"go.opentelemetry.io/otel/exporters/trace/jaeger"
 	"go.opentelemetry.io/otel/exporters/otlp"
+	"go.opentelemetry.io/otel/exporters/stdout"
+	"go.opentelemetry.io/otel/exporters/trace/jaeger"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/propagators"
 	"go.opentelemetry.io/otel/sdk/metric/controller/push"
@@ -21,8 +22,6 @@ import (
 	"sync"
 	"time"
 )
-
-import "go.opentelemetry.io/otel/exporters/stdout"
 
 func (a *A) run(wg *sync.WaitGroup) {
 	defer wg.Done()
