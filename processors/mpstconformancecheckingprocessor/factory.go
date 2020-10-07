@@ -2,7 +2,6 @@ package mpstconformancecheckingprocessor
 
 import (
 	"context"
-	"errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configmodels"
 	"go.opentelemetry.io/collector/consumer"
@@ -30,5 +29,9 @@ func createDefaultConfig() configmodels.Processor {
 }
 
 func createTraceProcessor(ctx context.Context, params component.ProcessorCreateParams, cfg configmodels.Processor, nextConsumer consumer.TraceConsumer) (component.TraceProcessor, error) {
-	return nil, errors.New("not Implemented")
+	tp, err := newMpstConformanceProcessor(params.Logger, nextConsumer, cfg.(*Config))
+	if err != nil {
+		return nil, err
+	}
+	return processorhelper.NewTraceProcessor(cfg, nextConsumer, tp)
 }
