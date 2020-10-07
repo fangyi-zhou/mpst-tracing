@@ -21,7 +21,12 @@ func NewFactory() component.ProcessorFactory {
 }
 
 func createDefaultConfig() configmodels.Processor {
-	return nil
+	return &Config{
+		ProcessorSettings: configmodels.ProcessorSettings{
+			NameVal: "MPSTConformanceChecking",
+			TypeVal: typeStr,
+		},
+	}
 }
 
 func createTraceProcessor(ctx context.Context, params component.ProcessorCreateParams, cfg configmodels.Processor, nextConsumer consumer.TraceConsumer) (component.TraceProcessor, error) {
