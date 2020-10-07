@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/fangyi-zhou/mpst-tracing/app"
 	"math/rand"
-	"mpst-tracing/app"
 	"time"
 )
 

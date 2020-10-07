@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/config/configmodels"
@@ -32,7 +33,7 @@ func components() (component.Factories, error) {
 
 	processors, err := component.MakeProcessorFactoryMap(
 		tailsamplingprocessor.NewFactory(),
-		// TODO: New MPST Processor
+		mpstconformancecheckingprocessor.NewFactory(),
 	)
 
 	if err != nil {

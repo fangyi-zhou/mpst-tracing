@@ -1,4 +1,4 @@
-module mpst-tracing
+module github.com/fangyi-zhou/mpst-tracing
 
 go 1.15
 
