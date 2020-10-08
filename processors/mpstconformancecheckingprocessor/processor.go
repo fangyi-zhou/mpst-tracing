@@ -21,6 +21,25 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 		}
 		serviceName := processor.ServiceNameForResource(span.Resource())
 		m.logger.Info("Found trace for service", zap.String("serviceName", serviceName))
+		spanSlices := span.InstrumentationLibrarySpans()
+		for j := 0; j < spanSlices.Len(); j++ {
+			slice := spanSlices.At(j)
+			if slice.IsNil() {
+				continue
+			}
+			library := slice.InstrumentationLibrary()
+			if !library.IsNil() {
+				m.logger.Info("Instrumentation Library", zap.String("library", library.Name()))
+			}
+			innerSpans := slice.Spans()
+			for k := 0; k < innerSpans.Len(); k++ {
+				innerSpan := innerSpans.At(k)
+				if innerSpan.IsNil() {
+					continue
+				}
+				m.logger.Info("Found inner span name", zap.String("spanName", innerSpan.Name()))
+			}
+		}
 	}
 	return traces, nil
 }
