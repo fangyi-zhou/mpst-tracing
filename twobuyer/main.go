@@ -1,8 +1,7 @@
-package main
+package twobuyer
 
 import (
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/app"
 	"math/rand"
 	"time"
 )
@@ -10,5 +9,5 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	fmt.Println("Two Buyer Protocol:")
-	app.RunAll()
+	RunAll()
 }
