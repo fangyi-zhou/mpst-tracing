@@ -1,4 +1,4 @@
-module github.com/fangyi-zhou/mpst-tracing
+module github.com/fangyi-zhou/mpst-tracing/twobuyer
 
 go 1.15
 
@@ -16,4 +16,4 @@ require (
 	google.golang.org/genproto v0.0.0-20201001141541-efaab9d3c4f7 // indirect
 )
 
-replace github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor => ./processors/mpstconformancecheckingprocessor
+replace github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor => ../processors/mpstconformancecheckingprocessor

@@ -1,7 +1,5 @@
 package twobuyer
 
-
-
 import (
 	"context"
 	"fmt"
@@ -124,7 +122,7 @@ func initOtlpTracer() func() {
 	// https://github.com/open-telemetry/opentelemetry-go/blob/master/example/otel-collector/main.go
 	exp, err := otlp.NewExporter(
 		otlp.WithInsecure(),
-		otlp.WithAddress("localhost:30080"),
+		otlp.WithAddress("localhost:55680"),
 	)
 	if err != nil {
 		log.Panicf("Failed to create exporter, %v\n", err)
@@ -200,7 +198,7 @@ func spawn() (*A, *B, *C) {
 }
 
 func RunAll() {
-	shutdown := initJaegerTracer()
+	shutdown := initOtlpTracer()
 	defer shutdown()
 
 	var wg sync.WaitGroup
