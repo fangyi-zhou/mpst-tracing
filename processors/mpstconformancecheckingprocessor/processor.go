@@ -2,6 +2,8 @@ package mpstconformancecheckingprocessor
 
 import (
 	"context"
+	"fmt"
+	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/consumer/pdata"
 	"go.opentelemetry.io/collector/processor"
@@ -14,14 +16,14 @@ type mpstConformanceProcessor struct {
 }
 
 type message struct {
-	label  string
-	origin string
+	label string
+	//	origin string
 }
 
 func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
 	spans := traces.ResourceSpans()
-	messageQueue := map[string][]message{}
-	_ = messageQueue // Make code compile
+	sendQueues := map[string]map[string][]message{}
+	recvQueues := map[string]map[string][]message{}
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
 		if span.IsNil() {
@@ -53,28 +55,67 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 					separated := strings.Split(spanName, " ")
 					partner := separated[1]
 					label := separated[2]
-					message := message{label: label, origin: currentEndpoint}
-					// TODO
-
-					// Make code compile
-					_ = partner
-					_ = message
+					if sendQueues[currentEndpoint] == nil {
+						sendQueues[currentEndpoint] = map[string][]message{}
+					}
+					sendQueues[currentEndpoint][partner] = append(sendQueues[currentEndpoint][partner], message{label})
 				} else if strings.HasPrefix(spanName, "Recv") {
 					separated := strings.Split(spanName, " ")
 					partner := separated[1]
 					label := separated[2]
-					// TODO
-
-					// Make code compile
-					_ = partner
-					_ = label
+					if recvQueues[partner] == nil {
+						recvQueues[partner] = map[string][]message{}
+					}
+					recvQueues[partner][currentEndpoint] = append(recvQueues[partner][currentEndpoint], message{label})
 				} else {
 					m.logger.Info("Skipping unknown inner span name", zap.String("spanName", innerSpan.Name()))
 				}
 			}
 		}
 	}
+
+	var errs []error
+	for orig, sendPartialQueue := range sendQueues {
+		for dest, sendQueue := range sendPartialQueue {
+			for _, sendMsg := range sendQueue {
+				if len(recvQueues[orig][dest]) == 0 {
+					errs = append(errs, missingRecvMessageErr(orig, dest, sendMsg))
+					continue
+				}
+				recvMsg := recvQueues[orig][dest][0]
+				if sendMsg.label != recvMsg.label {
+					errs = append(errs, mismatchLabelErr(orig, dest, sendMsg, recvMsg))
+					continue
+				}
+				recvQueues[orig][dest] = recvQueues[orig][dest][1:]
+			}
+		}
+	}
+
+	for orig, recvPartialQueue := range recvQueues {
+		for dest, recvQueue := range recvPartialQueue {
+			for _, recvMsg := range recvQueue {
+				errs = append(errs, recvWithoutSendErr(orig, dest, recvMsg))
+			}
+		}
+	}
+
+	if len(errs) != 0 {
+		return traces, componenterror.CombineErrors(errs)
+	}
 	return traces, nil
+}
+
+func recvWithoutSendErr(orig string, dest string, msg message) error {
+	return fmt.Errorf("message labelled %s received by %s without matching send, allegedly from %s", msg.label, dest, orig)
+}
+
+func mismatchLabelErr(orig string, dest string, sendMsg message, recvMsg message) error {
+	return fmt.Errorf("message label mismatch, sent from %s to %s, label %s is sent, but %s is received", orig, dest, sendMsg.label, recvMsg.label)
+}
+
+func missingRecvMessageErr(orig string, dest string, msg message) error {
+	return fmt.Errorf("message labelled %s sent from %s is not received by %s", msg.label, orig, dest)
 }
 
 func getEndpointFromLibraryName(libraryName string) string {
