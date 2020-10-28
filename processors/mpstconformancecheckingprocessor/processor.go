@@ -88,6 +88,7 @@ func (m mpstConformanceProcessor) extractLocalTraces(traces pdata.Traces) map[st
 func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
 	localTraces := m.extractLocalTraces(traces)
 	err := checkSendRecvMatching(localTraces)
+	_ = tracegraph.Construct(localTraces)
 	return traces, err
 }
 
