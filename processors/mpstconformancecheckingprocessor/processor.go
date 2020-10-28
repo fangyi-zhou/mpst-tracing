@@ -3,6 +3,7 @@ package mpstconformancecheckingprocessor
 import (
 	"context"
 	"fmt"
+	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/tracegraph"
 	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/consumer/pdata"
@@ -15,21 +16,15 @@ type mpstConformanceProcessor struct {
 	logger *zap.Logger
 }
 
-type message struct {
-	label string
-	//	origin string
-}
-
 var (
 	actionKey   = "mpst/action"
 	msgLabelKey = "mpst/msgLabel"
 	partnerKey  = "mpst/partner"
 )
 
-func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
+func (m mpstConformanceProcessor) extractLocalTraces(traces pdata.Traces) map[string]tracegraph.LocalTrace {
+	var processedTraces = map[string]tracegraph.LocalTrace{}
 	spans := traces.ResourceSpans()
-	sendQueues := map[string]map[string][]message{}
-	recvQueues := map[string]map[string][]message{}
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
 		if span.IsNil() {
@@ -65,15 +60,21 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 					action := action_.StringVal()
 					label := msgLabel_.StringVal()
 					if action == "send" {
-						if sendQueues[currentEndpoint] == nil {
-							sendQueues[currentEndpoint] = map[string][]message{}
+						message := tracegraph.Message{
+							Label:  label,
+							Origin: currentEndpoint,
+							Dest:   partner,
+							Action: "send",
 						}
-						sendQueues[currentEndpoint][partner] = append(sendQueues[currentEndpoint][partner], message{label})
+						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
 					} else if action == "recv" {
-						if recvQueues[partner] == nil {
-							recvQueues[partner] = map[string][]message{}
+						message := tracegraph.Message{
+							Label:  label,
+							Origin: partner,
+							Dest:   currentEndpoint,
+							Action: "recv",
 						}
-						recvQueues[partner][currentEndpoint] = append(recvQueues[partner][currentEndpoint], message{label})
+						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
 					} else {
 						m.logger.Warn("Invalid action", zap.String("action", action))
 					}
@@ -81,8 +82,34 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 			}
 		}
 	}
+	return processedTraces
+}
 
+func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
+	localTraces := m.extractLocalTraces(traces)
+	err := checkSendRecvMatching(localTraces)
+	return traces, err
+}
+
+func checkSendRecvMatching(traces map[string]tracegraph.LocalTrace) error {
+	sendQueues := map[string]map[string][]tracegraph.Message{}
+	recvQueues := map[string]map[string][]tracegraph.Message{}
 	var errs []error
+	for endpoint, localTrace := range traces {
+		for _, message := range localTrace {
+			if message.Action == "send" {
+				if sendQueues[endpoint] == nil {
+					sendQueues[endpoint] = map[string][]tracegraph.Message{}
+				}
+				sendQueues[endpoint][message.Dest] = append(sendQueues[endpoint][message.Dest], message)
+			} else {
+				if recvQueues[message.Origin] == nil {
+					recvQueues[message.Origin] = map[string][]tracegraph.Message{}
+				}
+				recvQueues[message.Origin][endpoint] = append(recvQueues[message.Origin][endpoint], message)
+			}
+		}
+	}
 	for orig, sendPartialQueue := range sendQueues {
 		for dest, sendQueue := range sendPartialQueue {
 			for _, sendMsg := range sendQueue {
@@ -91,7 +118,7 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 					continue
 				}
 				recvMsg := recvQueues[orig][dest][0]
-				if sendMsg.label != recvMsg.label {
+				if sendMsg.Label != recvMsg.Label {
 					errs = append(errs, mismatchLabelErr(orig, dest, sendMsg, recvMsg))
 					continue
 				}
@@ -109,9 +136,9 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 	}
 
 	if len(errs) != 0 {
-		return traces, componenterror.CombineErrors(errs)
+		return componenterror.CombineErrors(errs)
 	}
-	return traces, nil
+	return nil
 }
 
 func hasMpstMetadata(attributes pdata.AttributeMap) bool {
@@ -121,16 +148,16 @@ func hasMpstMetadata(attributes pdata.AttributeMap) bool {
 	return hasAction && hasLabel && hasPartner
 }
 
-func recvWithoutSendErr(orig string, dest string, msg message) error {
-	return fmt.Errorf("message labelled %s received by %s without matching send, allegedly from %s", msg.label, dest, orig)
+func recvWithoutSendErr(orig string, dest string, msg tracegraph.Message) error {
+	return fmt.Errorf("message labelled %s received by %s without matching send, allegedly from %s", msg.Label, dest, orig)
 }
 
-func mismatchLabelErr(orig string, dest string, sendMsg message, recvMsg message) error {
-	return fmt.Errorf("message label mismatch, sent from %s to %s, label %s is sent, but %s is received", orig, dest, sendMsg.label, recvMsg.label)
+func mismatchLabelErr(orig string, dest string, sendMsg tracegraph.Message, recvMsg tracegraph.Message) error {
+	return fmt.Errorf("message label mismatch, sent from %s to %s, label %s is sent, but %s is received", orig, dest, sendMsg.Label, recvMsg.Label)
 }
 
-func missingRecvMessageErr(orig string, dest string, msg message) error {
-	return fmt.Errorf("message labelled %s sent from %s is not received by %s", msg.label, orig, dest)
+func missingRecvMessageErr(orig string, dest string, msg tracegraph.Message) error {
+	return fmt.Errorf("message labelled %s sent from %s is not received by %s", msg.Label, orig, dest)
 }
 
 func getEndpointFromLibraryName(libraryName string) string {
