@@ -20,6 +20,12 @@ type message struct {
 	//	origin string
 }
 
+var (
+	actionKey   = "mpst/action"
+	msgLabelKey = "mpst/msgLabel"
+	partnerKey  = "mpst/partner"
+)
+
 func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
 	spans := traces.ResourceSpans()
 	sendQueues := map[string]map[string][]message{}
@@ -50,25 +56,27 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 				if innerSpan.IsNil() {
 					continue
 				}
-				spanName := innerSpan.Name()
-				if strings.HasPrefix(spanName, "Send") {
-					separated := strings.Split(spanName, " ")
-					partner := separated[1]
-					label := separated[2]
-					if sendQueues[currentEndpoint] == nil {
-						sendQueues[currentEndpoint] = map[string][]message{}
+				attributes := innerSpan.Attributes()
+				if hasMpstMetadata(attributes) {
+					partner_, _ := attributes.Get(partnerKey)
+					msgLabel_, _ := attributes.Get(msgLabelKey)
+					action_, _ := attributes.Get(actionKey)
+					partner := partner_.StringVal()
+					action := action_.StringVal()
+					label := msgLabel_.StringVal()
+					if action == "send" {
+						if sendQueues[currentEndpoint] == nil {
+							sendQueues[currentEndpoint] = map[string][]message{}
+						}
+						sendQueues[currentEndpoint][partner] = append(sendQueues[currentEndpoint][partner], message{label})
+					} else if action == "recv" {
+						if recvQueues[partner] == nil {
+							recvQueues[partner] = map[string][]message{}
+						}
+						recvQueues[partner][currentEndpoint] = append(recvQueues[partner][currentEndpoint], message{label})
+					} else {
+						m.logger.Warn("Invalid action", zap.String("action", action))
 					}
-					sendQueues[currentEndpoint][partner] = append(sendQueues[currentEndpoint][partner], message{label})
-				} else if strings.HasPrefix(spanName, "Recv") {
-					separated := strings.Split(spanName, " ")
-					partner := separated[1]
-					label := separated[2]
-					if recvQueues[partner] == nil {
-						recvQueues[partner] = map[string][]message{}
-					}
-					recvQueues[partner][currentEndpoint] = append(recvQueues[partner][currentEndpoint], message{label})
-				} else {
-					m.logger.Info("Skipping unknown inner span name", zap.String("spanName", innerSpan.Name()))
 				}
 			}
 		}
@@ -104,6 +112,13 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 		return traces, componenterror.CombineErrors(errs)
 	}
 	return traces, nil
+}
+
+func hasMpstMetadata(attributes pdata.AttributeMap) bool {
+	_, hasAction := attributes.Get(actionKey)
+	_, hasLabel := attributes.Get(msgLabelKey)
+	_, hasPartner := attributes.Get(partnerKey)
+	return hasAction && hasLabel && hasPartner
 }
 
 func recvWithoutSendErr(orig string, dest string, msg message) error {
