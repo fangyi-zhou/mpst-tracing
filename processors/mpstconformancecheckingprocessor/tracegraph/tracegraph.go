@@ -49,10 +49,9 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 		msgGraph.AddNode(makeNode(&traceGraph, idx))
 		idx ++
 		if len(localTrace) > 1 {
-			for i := 0; i < len(localTrace)-1; i++ {
-				items = append(items, localTrace[0])
+			for i := 1; i < len(localTrace); i++ {
+				items = append(items, localTrace[i])
 				msgGraph.AddNode(makeNode(&traceGraph, idx))
-				// TODO: Fix dupe nodes
 				edge := msgGraph.NewEdge(makeNode(&traceGraph, idx-1), makeNode(&traceGraph, idx))
 				msgGraph.SetEdge(edge)
 				idx ++
