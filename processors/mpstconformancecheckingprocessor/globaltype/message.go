@@ -93,7 +93,17 @@ func (r Recv) ConsumePrefix(m types.Message) (GlobalType, error) {
 	}
 	if m.Subject() != r.dest {
 		// Reduction under prefix
-		return r.cont.ConsumePrefix(m)
+		newCont, err := r.cont.ConsumePrefix(m)
+		if err != nil {
+			return nil, err
+		} else {
+			return Recv{
+				origin: r.origin,
+				dest:   r.dest,
+				label:  r.label,
+				cont:   newCont,
+			}, nil
+		}
 	}
 	return nil, errors.New("cannot consume message " + m.String())
 }

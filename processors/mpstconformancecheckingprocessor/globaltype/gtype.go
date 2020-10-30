@@ -24,7 +24,7 @@ func TwoBuyer() GlobalType {
 				origin: "A",
 				dest:   "B",
 				label:  "query",
-				cont:   Send{
+				cont: Send{
 					origin: "B",
 					dest:   "A",
 					conts: map[string]GlobalType{
@@ -32,7 +32,7 @@ func TwoBuyer() GlobalType {
 							origin: "B",
 							dest:   "A",
 							label:  "quote",
-							cont:   Send{
+							cont: Send{
 								origin: "B",
 								dest:   "C",
 								conts: map[string]GlobalType{
@@ -40,7 +40,7 @@ func TwoBuyer() GlobalType {
 										origin: "B",
 										dest:   "C",
 										label:  "quote",
-										cont:  Send{
+										cont: Send{
 											origin: "C",
 											dest:   "A",
 											conts: map[string]GlobalType{
@@ -48,7 +48,7 @@ func TwoBuyer() GlobalType {
 													origin: "C",
 													dest:   "A",
 													label:  "share",
-													cont:  Send{
+													cont: Send{
 														origin: "A",
 														dest:   "B",
 														conts: map[string]GlobalType{
