@@ -73,7 +73,11 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 			if msg.Action == "send" {
 				if buf, exists := recvBuffer[mIdx]; exists {
 					rIdx := buf[0]
-					recvBuffer[mIdx] = buf[1:]
+					if len(buf) == 1 {
+						delete(recvBuffer, mIdx)
+					} else {
+						recvBuffer[mIdx] = buf[1:]
+					}
 					edge := msgGraph.NewEdge(makeNode(&traceGraph, idx), makeNode(&traceGraph, rIdx))
 					msgGraph.SetEdge(edge)
 				} else {
@@ -86,7 +90,11 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 			} else if msg.Action == "recv" {
 				if buf, exists := sendBuffer[mIdx]; exists {
 					sIdx := buf[0]
-					sendBuffer[mIdx] = buf[1:]
+					if len(buf) == 1 {
+						delete(sendBuffer, mIdx)
+					} else {
+						sendBuffer[mIdx] = buf[1:]
+					}
 					edge := msgGraph.NewEdge(makeNode(&traceGraph, sIdx), makeNode(&traceGraph, idx))
 					msgGraph.SetEdge(edge)
 				} else {
