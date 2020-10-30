@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.opentelemetry.io/otel/api/global"
-	"go.opentelemetry.io/otel/api/propagation"
-	trace2 "go.opentelemetry.io/otel/api/trace"
+	apitrace "go.opentelemetry.io/otel/api/trace"
 	"go.opentelemetry.io/otel/exporters/otlp"
 	"go.opentelemetry.io/otel/exporters/stdout"
 	"go.opentelemetry.io/otel/exporters/trace/jaeger"
@@ -15,7 +14,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/processor/basic"
 	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv"
 	"log"
 	"math/rand"
@@ -26,7 +25,7 @@ import (
 func (a *A) run(wg *sync.WaitGroup) {
 	defer wg.Done()
 	ctx := context.Background()
-	var span trace2.Span
+	var span apitrace.Span
 	ctx, span = a.tracer.Start(ctx, "TwoBuyer Endpoint A")
 	defer span.End()
 	// Send query to B
@@ -46,7 +45,7 @@ func (a *A) run(wg *sync.WaitGroup) {
 func (b *B) run(wg *sync.WaitGroup) {
 	defer wg.Done()
 	ctx := context.Background()
-	var span trace2.Span
+	var span apitrace.Span
 	ctx, span = b.tracer.Start(ctx, "TwoBuyer Endpoint B")
 	defer span.End()
 	// Receive a query
@@ -67,7 +66,7 @@ func (b *B) run(wg *sync.WaitGroup) {
 func (c *C) run(wg *sync.WaitGroup) {
 	defer wg.Done()
 	ctx := context.Background()
-	var span trace2.Span
+	var span apitrace.Span
 	ctx, span = c.tracer.Start(ctx, "TwoBuyer Endpoint C")
 	defer span.End()
 	// Receive a quote
@@ -78,24 +77,25 @@ func (c *C) run(wg *sync.WaitGroup) {
 	c.sendA(ctx, "share", share)
 }
 
-var tp *trace.TracerProvider
-
 // https://github.com/open-telemetry/opentelemetry-go/blob/master/example/namedtracer/main.go
 func initStdoutTracer() func() {
+	var err error
 	exp, err := stdout.NewExporter(stdout.WithPrettyPrint())
 	if err != nil {
-		log.Panicf("failed to initialise jaeger exporter %v\n", err)
-		return nil
+		log.Panicf("failed to initialize stdout exporter %v\n", err)
+		return func() {}
 	}
-	bsp := trace.NewBatchSpanProcessor(exp)
-	tp = trace.NewTracerProvider(
-		trace.WithConfig(
-			trace.Config{
-				DefaultSampler: trace.AlwaysSample(),
-			}),
-		trace.WithSpanProcessor(bsp))
+	bsp := sdktrace.NewBatchSpanProcessor(exp)
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithConfig(
+			sdktrace.Config{
+				DefaultSampler: sdktrace.AlwaysSample(),
+			},
+		),
+		sdktrace.WithSpanProcessor(bsp),
+	)
 	global.SetTracerProvider(tp)
-	return bsp.Shutdown
+	return func() {}
 }
 
 // https://github.com/open-telemetry/opentelemetry-go/blob/master/example/jaeger/main.go
@@ -107,15 +107,13 @@ func initJaegerTracer() func() {
 			ServiceName: "TwoBuyer",
 			Tags:        []label.KeyValue{},
 		}),
-		jaeger.WithSDK(&trace.Config{DefaultSampler: trace.AlwaysSample()}),
+		jaeger.WithSDK(&sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return func() {
-		flush()
-	}
+	return flush
 }
 
 func initOtlpTracer() func() {
@@ -129,14 +127,14 @@ func initOtlpTracer() func() {
 		return nil
 	}
 
-	bsp := trace.NewBatchSpanProcessor(exp)
-	tracerProvider := trace.NewTracerProvider(
-		trace.WithConfig(trace.Config{DefaultSampler: trace.AlwaysSample()}),
-		trace.WithResource(resource.New(
+	bsp := sdktrace.NewBatchSpanProcessor(exp)
+	tracerProvider := sdktrace.NewTracerProvider(
+		sdktrace.WithConfig(sdktrace.Config{DefaultSampler: sdktrace.AlwaysSample()}),
+		sdktrace.WithResource(resource.New(
 			// the service name used to display traces in backends
 			semconv.ServiceNameKey.String("TwoBuyer"),
 		)),
-		trace.WithSpanProcessor(bsp),
+		sdktrace.WithSpanProcessor(bsp),
 	)
 
 	pusher := push.New(
@@ -148,10 +146,7 @@ func initOtlpTracer() func() {
 		push.WithPeriod(2*time.Second),
 	)
 
-	tcPropagator := propagators.TraceContext{}
-	props := propagation.New(propagation.WithExtractors(tcPropagator),
-		propagation.WithInjectors(tcPropagator))
-	global.SetPropagators(props)
+	global.SetTextMapPropagator(propagators.TraceContext{})
 	global.SetTracerProvider(tracerProvider)
 	global.SetMeterProvider(pusher.MeterProvider())
 	pusher.Start()
