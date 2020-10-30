@@ -7,7 +7,6 @@ import (
 	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/consumer/pdata"
-	"go.opentelemetry.io/collector/processor"
 	"go.uber.org/zap"
 	"strings"
 )
@@ -30,8 +29,6 @@ func (m mpstConformanceProcessor) extractLocalTraces(traces pdata.Traces) map[st
 		if span.IsNil() {
 			continue
 		}
-		serviceName := processor.ServiceNameForResource(span.Resource())
-		m.logger.Info("Found trace for service", zap.String("serviceName", serviceName))
 		spanSlices := span.InstrumentationLibrarySpans()
 		for j := 0; j < spanSlices.Len(); j++ {
 			slice := spanSlices.At(j)
