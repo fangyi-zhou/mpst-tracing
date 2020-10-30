@@ -15,6 +15,6 @@ func (Done) ConsumePrefix(message types.Message) (GlobalType, error) {
 	return nil, errors.New("done cannot consume prefix")
 }
 
-func (Done) isDone() bool {
+func (Done) IsDone() bool {
 	return true
 }
