@@ -23,6 +23,7 @@ jobs:
 
     - name: Get dependencies
       run: |
+        git config --global url."https://github.com/".insteadOf git@github.com:
         go get -v -t -d ./...
 
     - name: Build
