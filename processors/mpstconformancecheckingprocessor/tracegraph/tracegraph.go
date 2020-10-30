@@ -1,11 +1,14 @@
 package tracegraph
 
 import (
+	"errors"
 	"fmt"
+	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
 	"gonum.org/v1/gonum/graph/simple"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
+	"gonum.org/v1/gonum/graph/topo"
 )
 
 type myMessage struct {
@@ -117,4 +120,23 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 		fmt.Print(string(dotGraph))
 	}
 	return traceGraph
+}
+
+func (g TraceGraph) CheckProtocolConformance(gty globaltype.GlobalType) error {
+	tsort, err := topo.Sort(g.graph)
+	if err != nil {
+		return err
+	}
+	for _, node := range tsort {
+		msg := g.items[node.ID()]
+		gty, err = gty.ConsumePrefix(msg)
+		if err != nil {
+			return err
+		}
+	}
+	if gty.IsDone() {
+		return nil
+	} else {
+		return errors.New("global type is not done")
+	}
 }

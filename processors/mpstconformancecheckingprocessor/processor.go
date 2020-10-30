@@ -3,6 +3,7 @@ package mpstconformancecheckingprocessor
 import (
 	"context"
 	"fmt"
+	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/tracegraph"
 	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
 	"go.opentelemetry.io/collector/component/componenterror"
@@ -89,7 +90,11 @@ func (m mpstConformanceProcessor) extractLocalTraces(traces pdata.Traces) map[st
 func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
 	localTraces := m.extractLocalTraces(traces)
 	err := checkSendRecvMatching(localTraces)
-	_ = tracegraph.Construct(localTraces)
+	if err != nil {
+		return traces, err
+	}
+	tracegraph := tracegraph.Construct(localTraces)
+	err = tracegraph.CheckProtocolConformance(globaltype.TwoBuyer())
 	return traces, err
 }
 
