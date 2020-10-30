@@ -8,24 +8,24 @@ import (
 )
 
 type Message struct {
-	Label string
+	Label  string
 	Origin string
-	Dest string
+	Dest   string
 	Action string
 }
 
 func (m Message) toIndex() messageIndex {
 	return messageIndex{
-		label: m.Label,
+		label:  m.Label,
 		origin: m.Origin,
-		dest: m.Dest,
+		dest:   m.Dest,
 	}
 }
 
 type messageIndex struct {
-	label string
+	label  string
 	origin string
-	dest string
+	dest   string
 }
 
 type LocalTrace []Message
@@ -37,7 +37,7 @@ type TraceGraph struct {
 
 type graphNode struct {
 	graph *TraceGraph
-	idx int64
+	idx   int64
 }
 
 func (n graphNode) ID() int64 {
@@ -107,7 +107,7 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 			} else {
 				panic("unknown action " + msg.Action)
 			}
-			idx ++
+			idx++
 		}
 	}
 	traceGraph.items = items
