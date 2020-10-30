@@ -11,6 +11,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pkg: ["twobuyer", "processors/mpstconformancecheckingprocessor"]
     steps:
 
     - name: Set up Go 1.x
@@ -22,10 +25,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Get dependencies
-      run: go mod download all
+      run: cd ${{ matrix.pkg }} && go mod download all
 
     - name: Build
-      run: go build -v .
+      run: cd ${{ matrix.pkg }} && go build -v .
 
     - name: Test
-      run: go test -v .
+      run: cd ${{ matrix.pkg }} && go test -v .
