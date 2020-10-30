@@ -57,7 +57,7 @@ func makeNode(traceGraph *TraceGraph, id int64) graphNode {
 func Construct(traces map[string]LocalTrace) TraceGraph {
 	msgGraph := simple.NewDirectedGraph()
 	var idx int64 = 0
-	var traceGraph TraceGraph
+	var traceGraph = TraceGraph{}
 	var items = make([]types.Message, 0)
 	var sendBuffer = map[messageIndex][]int64{}
 	var recvBuffer = map[messageIndex][]int64{}
@@ -112,6 +112,7 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 		}
 	}
 	traceGraph.items = items
+	traceGraph.graph = msgGraph
 	// TODO: Remove debug printings
 	dotGraph, err := dot.Marshal(msgGraph, "Messages", "", "  ")
 	if err != nil {
