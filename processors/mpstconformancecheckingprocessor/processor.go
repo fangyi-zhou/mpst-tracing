@@ -92,47 +92,42 @@ func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdat
 	return traces, err
 }
 
+type participantPair struct {
+	from string
+	to   string
+}
+
 func checkSendRecvMatching(traces map[string]tracegraph.LocalTrace) error {
-	sendQueues := map[string]map[string][]tracegraph.Message{}
-	recvQueues := map[string]map[string][]tracegraph.Message{}
+	sendQueues := map[participantPair][]tracegraph.Message{}
+	recvQueues := map[participantPair][]tracegraph.Message{}
 	var errs []error
 	for endpoint, localTrace := range traces {
 		for _, message := range localTrace {
 			if message.Action == "send" {
-				if sendQueues[endpoint] == nil {
-					sendQueues[endpoint] = map[string][]tracegraph.Message{}
-				}
-				sendQueues[endpoint][message.Dest] = append(sendQueues[endpoint][message.Dest], message)
+				sendQueues[participantPair{endpoint, message.Dest}] = append(sendQueues[participantPair{endpoint, message.Dest}], message)
 			} else {
-				if recvQueues[message.Origin] == nil {
-					recvQueues[message.Origin] = map[string][]tracegraph.Message{}
-				}
-				recvQueues[message.Origin][endpoint] = append(recvQueues[message.Origin][endpoint], message)
+				recvQueues[participantPair{message.Origin, endpoint}] = append(recvQueues[participantPair{message.Origin, endpoint}], message)
 			}
 		}
 	}
-	for orig, sendPartialQueue := range sendQueues {
-		for dest, sendQueue := range sendPartialQueue {
-			for _, sendMsg := range sendQueue {
-				if len(recvQueues[orig][dest]) == 0 {
-					errs = append(errs, missingRecvMessageErr(orig, dest, sendMsg))
-					continue
-				}
-				recvMsg := recvQueues[orig][dest][0]
-				if sendMsg.Label != recvMsg.Label {
-					errs = append(errs, mismatchLabelErr(orig, dest, sendMsg, recvMsg))
-					continue
-				}
-				recvQueues[orig][dest] = recvQueues[orig][dest][1:]
+	for ppair, sendQueue := range sendQueues {
+		for _, sendMsg := range sendQueue {
+			if len(recvQueues[ppair]) == 0 {
+				errs = append(errs, missingRecvMessageErr(ppair.from, ppair.to, sendMsg))
+				continue
 			}
+			recvMsg := recvQueues[ppair][0]
+			if sendMsg.Label != recvMsg.Label {
+				errs = append(errs, mismatchLabelErr(ppair.from, ppair.to, sendMsg, recvMsg))
+				continue
+			}
+			recvQueues[ppair] = recvQueues[ppair][1:]
 		}
 	}
 
-	for orig, recvPartialQueue := range recvQueues {
-		for dest, recvQueue := range recvPartialQueue {
-			for _, recvMsg := range recvQueue {
-				errs = append(errs, recvWithoutSendErr(orig, dest, recvMsg))
-			}
+	for ppair, recvQueue := range recvQueues {
+		for _, recvMsg := range recvQueue {
+			errs = append(errs, recvWithoutSendErr(ppair.from, ppair.to, recvMsg))
 		}
 	}
 
