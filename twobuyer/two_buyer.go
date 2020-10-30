@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.opentelemetry.io/otel/api/global"
-	trace2 "go.opentelemetry.io/otel/api/trace"
+	"go.opentelemetry.io/otel/api/trace"
 	"math/rand"
 	"sync"
 )
@@ -12,7 +12,7 @@ import (
 func (a *A) run(wg *sync.WaitGroup) {
 	defer wg.Done()
 	ctx := context.Background()
-	var span trace2.Span
+	var span trace.Span
 	ctx, span = a.tracer.Start(ctx, "TwoBuyer Endpoint A")
 	defer span.End()
 	// Send query to B
@@ -32,7 +32,7 @@ func (a *A) run(wg *sync.WaitGroup) {
 func (b *B) run(wg *sync.WaitGroup) {
 	defer wg.Done()
 	ctx := context.Background()
-	var span trace2.Span
+	var span trace.Span
 	ctx, span = b.tracer.Start(ctx, "TwoBuyer Endpoint B")
 	defer span.End()
 	// Receive a query
@@ -53,7 +53,7 @@ func (b *B) run(wg *sync.WaitGroup) {
 func (c *C) run(wg *sync.WaitGroup) {
 	defer wg.Done()
 	ctx := context.Background()
-	var span trace2.Span
+	var span trace.Span
 	ctx, span = c.tracer.Start(ctx, "TwoBuyer Endpoint C")
 	defer span.End()
 	// Receive a quote
