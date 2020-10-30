@@ -5,16 +5,14 @@ import (
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
 	"gonum.org/v1/gonum/graph/simple"
+	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
 )
 
-type Message struct {
-	Label  string
-	Origin string
-	Dest   string
-	Action string
+type myMessage struct {
+	types.Message
 }
 
-func (m Message) toIndex() messageIndex {
+func (m myMessage) toIndex() messageIndex {
 	return messageIndex{
 		label:  m.Label,
 		origin: m.Origin,
@@ -28,10 +26,10 @@ type messageIndex struct {
 	dest   string
 }
 
-type LocalTrace []Message
+type LocalTrace []types.Message
 
 type TraceGraph struct {
-	items []Message
+	items []types.Message
 	graph graph.Directed
 }
 
@@ -57,7 +55,7 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 	msgGraph := simple.NewDirectedGraph()
 	var idx int64 = 0
 	var traceGraph TraceGraph
-	var items = make([]Message, 0)
+	var items = make([]types.Message, 0)
 	var sendBuffer = map[messageIndex][]int64{}
 	var recvBuffer = map[messageIndex][]int64{}
 	for _, localTrace := range traces {
@@ -69,7 +67,7 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 				edge := msgGraph.NewEdge(makeNode(&traceGraph, idx-1), makeNode(&traceGraph, idx))
 				msgGraph.SetEdge(edge)
 			}
-			mIdx := msg.toIndex()
+			mIdx := myMessage{msg}.toIndex()
 			if msg.Action == "send" {
 				if buf, exists := recvBuffer[mIdx]; exists {
 					rIdx := buf[0]
