@@ -47,7 +47,7 @@ func (n graphNode) ID() int64 {
 
 func (n graphNode) DOTID() string {
 	message := n.graph.items[n.idx]
-	return fmt.Sprintf("%s_%s_%s:%s", message.Origin, message.Action, message.Dest, message.Label)
+	return message.String()
 }
 
 func makeNode(traceGraph *TraceGraph, id int64) graphNode {

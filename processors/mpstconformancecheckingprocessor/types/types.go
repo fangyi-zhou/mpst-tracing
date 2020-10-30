@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type Message struct {
 	Label  string
 	Origin string
@@ -15,4 +17,8 @@ func (m Message) Subject() string {
 	} else {
 		panic("invalid action: " + m.Action)
 	}
+}
+
+func (m Message) String() string {
+	return fmt.Sprintf("%s_%s_%s:%s", m.Origin, m.Action, m.Dest, m.Label)
 }

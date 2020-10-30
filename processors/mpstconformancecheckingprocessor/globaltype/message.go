@@ -57,7 +57,7 @@ func (s Send) ConsumePrefix(m types.Message) (GlobalType, error) {
 			conts:  newCont,
 		}, nil
 	}
-	return nil, errors.New("todo: error message")
+	return nil, errors.New("cannot consume message " + m.String())
 }
 
 func (s Send) IsDone() bool {
@@ -95,7 +95,7 @@ func (r Recv) ConsumePrefix(m types.Message) (GlobalType, error) {
 		// Reduction under prefix
 		return r.cont.ConsumePrefix(m)
 	}
-	return nil, errors.New("todo: error message")
+	return nil, errors.New("cannot consume message " + m.String())
 }
 
 func (r Recv) IsDone() bool {
