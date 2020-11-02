@@ -3,7 +3,6 @@ package twobuyer
 import (
 	"context"
 	"go.opentelemetry.io/otel/api/global"
-	"go.opentelemetry.io/otel/api/propagation"
 	"go.opentelemetry.io/otel/exporters/otlp"
 	"go.opentelemetry.io/otel/exporters/stdout"
 	"go.opentelemetry.io/otel/exporters/trace/jaeger"
@@ -21,20 +20,23 @@ import (
 
 // https://github.com/open-telemetry/opentelemetry-go/blob/master/example/namedtracer/main.go
 func initStdoutTracer() func() {
+	var err error
 	exp, err := stdout.NewExporter(stdout.WithPrettyPrint())
 	if err != nil {
-		log.Panicf("failed to initialise jaeger exporter %v\n", err)
-		return nil
+		log.Panicf("failed to initialize stdout exporter %v\n", err)
+		return func() {}
 	}
 	bsp := trace.NewBatchSpanProcessor(exp)
 	tp := trace.NewTracerProvider(
 		trace.WithConfig(
 			trace.Config{
 				DefaultSampler: trace.AlwaysSample(),
-			}),
-		trace.WithSpanProcessor(bsp))
+			},
+		),
+		trace.WithSpanProcessor(bsp),
+	)
 	global.SetTracerProvider(tp)
-	return bsp.Shutdown
+	return func() {}
 }
 
 // https://github.com/open-telemetry/opentelemetry-go/blob/master/example/jaeger/main.go
@@ -52,9 +54,7 @@ func initJaegerTracer() func() {
 		log.Fatal(err)
 	}
 
-	return func() {
-		flush()
-	}
+	return flush
 }
 
 func initOtlpTracer() func() {
@@ -87,10 +87,7 @@ func initOtlpTracer() func() {
 		push.WithPeriod(2*time.Second),
 	)
 
-	tcPropagator := propagators.TraceContext{}
-	props := propagation.New(propagation.WithExtractors(tcPropagator),
-		propagation.WithInjectors(tcPropagator))
-	global.SetPropagators(props)
+	global.SetTextMapPropagator(propagators.TraceContext{})
 	global.SetTracerProvider(tracerProvider)
 	global.SetMeterProvider(pusher.MeterProvider())
 	pusher.Start()
@@ -104,4 +101,3 @@ func initOtlpTracer() func() {
 		pusher.Stop() // pushes any last exports to the receiver
 	}
 }
-
