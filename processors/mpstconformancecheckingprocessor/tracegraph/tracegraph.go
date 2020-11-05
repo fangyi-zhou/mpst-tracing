@@ -2,7 +2,6 @@ package tracegraph
 
 import (
 	"errors"
-	"fmt"
 	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
 	"gonum.org/v1/gonum/graph"
@@ -113,14 +112,17 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 	}
 	traceGraph.items = items
 	traceGraph.graph = msgGraph
-	// TODO: Remove debug printings
-	dotGraph, err := dot.Marshal(msgGraph, "Messages", "", "  ")
-	if err != nil {
-		panic("unable to export to DOT")
-	} else {
-		fmt.Print(string(dotGraph))
-	}
 	return traceGraph
+}
+
+func (g TraceGraph) DotFormat() (string, error) {
+	// TODO: Remove debug printings
+	dotGraph, err := dot.Marshal(g.graph, "Messages", "", "  ")
+	if err != nil {
+		return "", err
+	} else {
+		return string(dotGraph), nil
+	}
 }
 
 func (g TraceGraph) CheckProtocolConformance(gty globaltype.GlobalType) error {
