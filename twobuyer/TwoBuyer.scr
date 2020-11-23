@@ -1,0 +1,7 @@
+protocol TwoBuyer(role A, role B, role C) {
+  query from A to B;
+  quote from B to A;
+  quote from B to C;
+  share from C to A;
+  buy from A to B;
+}
