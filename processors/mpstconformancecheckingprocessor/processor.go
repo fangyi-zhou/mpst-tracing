@@ -166,7 +166,7 @@ func getEndpointFromLibraryName(libraryName string) string {
 }
 
 func newMpstConformanceProcessor(logger *zap.Logger, nextConsumer consumer.TraceConsumer, cfg *Config) (*mpstConformanceProcessor, error) {
-	gtype, err := globaltype.LoadFromSexp(cfg.Protocol)
+	gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
 	if err != nil {
 		return nil, err
 	}
