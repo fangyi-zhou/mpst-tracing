@@ -15,6 +15,7 @@ import (
 
 type mpstConformanceProcessor struct {
 	logger *zap.Logger
+	gtype  globaltype.GlobalType
 }
 
 var (
@@ -164,8 +165,13 @@ func getEndpointFromLibraryName(libraryName string) string {
 	return separated[len(separated)-1]
 }
 
-func newMpstConformanceProcessor(logger *zap.Logger, nextConsumer consumer.TraceConsumer, cfg *Config) (mpstConformanceProcessor, error) {
-	return mpstConformanceProcessor{
+func newMpstConformanceProcessor(logger *zap.Logger, nextConsumer consumer.TraceConsumer, cfg *Config) (*mpstConformanceProcessor, error) {
+	gtype, err := globaltype.LoadFromSexp(cfg.Protocol)
+	if err != nil {
+		return nil, err
+	}
+	return &mpstConformanceProcessor{
 		logger: logger,
+		gtype:  gtype,
 	}, nil
 }
