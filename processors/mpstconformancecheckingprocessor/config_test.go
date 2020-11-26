@@ -19,4 +19,7 @@ func TestLoadConfig(t *testing.T) {
 	cfg, err := configtest.LoadConfigFile(t, path.Join(".", "testdata", "config.yaml"), factories)
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
+
+	mpstConfig := cfg.Processors["mpstconformancechecking"]
+	assert.Equal(t, mpstConfig.(*Config).Protocol, "gtype.sexp")
 }

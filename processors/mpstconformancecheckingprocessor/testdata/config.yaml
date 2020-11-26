@@ -3,6 +3,7 @@ receivers:
 
 processors:
   mpstconformancechecking:
+    protocol: gtype.sexp
 
 exporters:
   exampleexporter:
