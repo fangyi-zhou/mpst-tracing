@@ -13,25 +13,41 @@ var (
 )
 
 type A struct {
+	sa     chan int
 	ba     chan int
-	ca     chan int
+	s      *S
 	b      *B
-	c      *C
+	tracer trace.Tracer
+}
+type S struct {
+	as     chan int
+	bs     chan int
+	a      *A
+	b      *B
 	tracer trace.Tracer
 }
 type B struct {
 	ab     chan int
-	cb     chan int
+	sb     chan int
 	a      *A
-	c      *C
+	s      *S
 	tracer trace.Tracer
 }
-type C struct {
-	ac     chan int
-	bc     chan int
-	a      *A
-	b      *B
-	tracer trace.Tracer
+
+func (a *A) sendS(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = a.tracer.Start(ctx, "Send S "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("S"), actionKey.String("send"))
+	defer span.End()
+	a.s.as <- v
+}
+
+func (a *A) recvS(ctx context.Context, label string) int {
+	var span trace.Span
+	ctx, span = a.tracer.Start(ctx, "Recv S "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("S"), actionKey.String("recv"))
+	defer span.End()
+	return <-a.sa
 }
 
 func (a *A) sendB(ctx context.Context, label string, v int) {
@@ -50,20 +66,36 @@ func (a *A) recvB(ctx context.Context, label string) int {
 	return <-a.ba
 }
 
-func (a *A) sendC(ctx context.Context, label string, v int) {
+func (s *S) sendA(ctx context.Context, label string, v int) {
 	var span trace.Span
-	ctx, span = a.tracer.Start(ctx, "Send C "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("C"), actionKey.String("send"))
+	ctx, span = s.tracer.Start(ctx, "Send A "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("A"), actionKey.String("send"))
 	defer span.End()
-	a.c.ac <- v
+	s.a.sa <- v
 }
 
-func (a *A) recvC(ctx context.Context, label string) int {
+func (s *S) recvA(ctx context.Context, label string) int {
 	var span trace.Span
-	ctx, span = a.tracer.Start(ctx, "Recv C "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("C"), actionKey.String("recv"))
+	ctx, span = s.tracer.Start(ctx, "Recv A "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("A"), actionKey.String("recv"))
 	defer span.End()
-	return <-a.ca
+	return <-s.as
+}
+
+func (s *S) sendB(ctx context.Context, label string, v int) {
+	var span trace.Span
+	ctx, span = s.tracer.Start(ctx, "Send B "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("B"), actionKey.String("send"))
+	defer span.End()
+	s.b.sb <- v
+}
+
+func (s *S) recvB(ctx context.Context, label string) int {
+	var span trace.Span
+	ctx, span = s.tracer.Start(ctx, "Recv B "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("B"), actionKey.String("recv"))
+	defer span.End()
+	return <-s.bs
 }
 
 func (b *B) sendA(ctx context.Context, label string, v int) {
@@ -82,50 +114,18 @@ func (b *B) recvA(ctx context.Context, label string) int {
 	return <-b.ab
 }
 
-func (b *B) sendC(ctx context.Context, label string, v int) {
+func (b *B) sendS(ctx context.Context, label string, v int) {
 	var span trace.Span
-	ctx, span = b.tracer.Start(ctx, "Send C "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("C"), actionKey.String("send"))
+	ctx, span = b.tracer.Start(ctx, "Send S "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("S"), actionKey.String("send"))
 	defer span.End()
-	b.c.bc <- v
+	b.s.bs <- v
 }
 
-func (b *B) recvC(ctx context.Context, label string) int {
+func (b *B) recvS(ctx context.Context, label string) int {
 	var span trace.Span
-	ctx, span = b.tracer.Start(ctx, "Recv C "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("C"), actionKey.String("recv"))
+	ctx, span = b.tracer.Start(ctx, "Recv S "+label)
+	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("S"), actionKey.String("recv"))
 	defer span.End()
-	return <-b.cb
-}
-
-func (c *C) sendA(ctx context.Context, label string, v int) {
-	var span trace.Span
-	ctx, span = c.tracer.Start(ctx, "Send A "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("A"), actionKey.String("send"))
-	defer span.End()
-	c.a.ca <- v
-}
-
-func (c *C) recvA(ctx context.Context, label string) int {
-	var span trace.Span
-	ctx, span = c.tracer.Start(ctx, "Recv A "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("A"), actionKey.String("recv"))
-	defer span.End()
-	return <-c.ac
-}
-
-func (c *C) sendB(ctx context.Context, label string, v int) {
-	var span trace.Span
-	ctx, span = c.tracer.Start(ctx, "Send B "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("B"), actionKey.String("send"))
-	defer span.End()
-	c.b.cb <- v
-}
-
-func (c *C) recvB(ctx context.Context, label string) int {
-	var span trace.Span
-	ctx, span = c.tracer.Start(ctx, "Recv B "+label)
-	span.SetAttributes(msgLabelKey.String(label), partnerKey.String("B"), actionKey.String("recv"))
-	defer span.End()
-	return <-c.bc
+	return <-b.sb
 }
