@@ -22,43 +22,43 @@ func Parse(input string) (GlobalType, error) {
 func TwoBuyer() GlobalType {
 	return Send{
 		origin: "A",
-		dest:   "B",
+		dest:   "S",
 		conts: map[string]GlobalType{
 			"query": Recv{
 				origin: "A",
-				dest:   "B",
+				dest:   "S",
 				label:  "query",
 				cont: Send{
-					origin: "B",
+					origin: "S",
 					dest:   "A",
 					conts: map[string]GlobalType{
 						"quote": Recv{
-							origin: "B",
+							origin: "S",
 							dest:   "A",
 							label:  "quote",
 							cont: Send{
-								origin: "B",
-								dest:   "C",
+								origin: "S",
+								dest:   "B",
 								conts: map[string]GlobalType{
 									"quote": Recv{
-										origin: "B",
-										dest:   "C",
+										origin: "S",
+										dest:   "B",
 										label:  "quote",
 										cont: Send{
-											origin: "C",
+											origin: "B",
 											dest:   "A",
 											conts: map[string]GlobalType{
 												"share": Recv{
-													origin: "C",
+													origin: "B",
 													dest:   "A",
 													label:  "share",
 													cont: Send{
 														origin: "A",
-														dest:   "B",
+														dest:   "S",
 														conts: map[string]GlobalType{
 															"buy": Recv{
 																origin: "A",
-																dest:   "B",
+																dest:   "S",
 																label:  "buy",
 																cont:   Done{},
 															},
