@@ -3,12 +3,16 @@ package globaltype
 import (
 	"errors"
 	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
+	"strings"
 )
 
 type GlobalType interface {
 	PossiblePrefixes() []types.Message
 	ConsumePrefix(message types.Message) (GlobalType, error)
 	IsDone() bool
+	String() string
+
+	stringWithBuilder(*strings.Builder)
 }
 
 func Parse(input string) (GlobalType, error) {

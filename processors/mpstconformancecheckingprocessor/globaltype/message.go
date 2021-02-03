@@ -3,6 +3,7 @@ package globaltype
 import (
 	"errors"
 	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
+	"strings"
 )
 
 type Send struct {
@@ -38,7 +39,7 @@ func (s Send) ConsumePrefix(m types.Message) (GlobalType, error) {
 			// Send prefix consumed
 			return cont, nil
 		} else {
-			return nil, errors.New("label " + m.Label + " not permitted")
+			return nil, errors.New("label " + m.Label + " not permitted in the global type " + s.String())
 		}
 	}
 	if s.origin != m.Subject() && s.dest != m.Subject() {
@@ -57,11 +58,31 @@ func (s Send) ConsumePrefix(m types.Message) (GlobalType, error) {
 			conts:  newCont,
 		}, nil
 	}
-	return nil, errors.New("cannot consume message " + m.String())
+	return nil, errors.New("cannot consume message " + m.String() + " in the global type " + s.String())
 }
 
 func (s Send) IsDone() bool {
 	return false
+}
+
+func (s Send) String() string {
+	var b strings.Builder
+	s.stringWithBuilder(&b)
+	return b.String()
+}
+
+func (s Send) stringWithBuilder(b *strings.Builder) {
+	b.WriteString(s.origin)
+	b.WriteString(" --> ")
+	b.WriteString(s.dest)
+	b.WriteString(": {\n")
+	for label, cont := range s.conts {
+		b.WriteString(label)
+		b.WriteString(": ")
+		cont.stringWithBuilder(b)
+		b.WriteString("\n")
+	}
+	b.WriteString("}\n")
 }
 
 type Recv struct {
@@ -105,9 +126,25 @@ func (r Recv) ConsumePrefix(m types.Message) (GlobalType, error) {
 			}, nil
 		}
 	}
-	return nil, errors.New("cannot consume message " + m.String())
+	return nil, errors.New("cannot consume message " + m.String() + " in the global type " + r.String())
 }
 
 func (r Recv) IsDone() bool {
 	return false
+}
+
+func (r Recv) String() string {
+	var b strings.Builder
+	r.stringWithBuilder(&b)
+	return b.String()
+}
+
+func (r Recv) stringWithBuilder(b *strings.Builder) {
+	b.WriteString(r.origin)
+	b.WriteString(" -~> ")
+	b.WriteString(r.dest)
+	b.WriteString(" ")
+	b.WriteString(r.label)
+	b.WriteString(": ")
+	r.cont.stringWithBuilder(b)
 }
