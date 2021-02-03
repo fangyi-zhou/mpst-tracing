@@ -166,12 +166,12 @@ func getEndpointFromLibraryName(libraryName string) string {
 }
 
 func newMpstConformanceProcessor(logger *zap.Logger, nextConsumer consumer.TraceConsumer, cfg *Config) (*mpstConformanceProcessor, error) {
-	gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
-	if err != nil {
-		return nil, err
-	}
+	// gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
+	// if err != nil {
+	//	return nil, err
+	// }
 	return &mpstConformanceProcessor{
 		logger: logger,
-		gtype:  gtype,
+		gtype:  globaltype.TwoBuyer(), // Hard code to Two Buyer for now
 	}, nil
 }
