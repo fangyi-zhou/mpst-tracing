@@ -5,10 +5,10 @@ receivers:
         endpoint: localhost:55680
 
 processors:
-  mpstconformancechecking:
 
 exporters:
   logging:
+  mpstconformancemonitoring:
 
 service:
   pipelines:
@@ -16,6 +16,6 @@ service:
       receivers:
       - otlp
       processors:
-      - mpstconformancechecking
       exporters:
       - logging
+      - mpstconformancemonitoring

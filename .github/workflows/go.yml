@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pkg: ["twobuyer", "processors/mpstconformancecheckingprocessor"]
+        pkg: ["twobuyer", "exporters/mpstconformancemonitoringexporter"]
     steps:
 
     - name: Set up Go 1.x

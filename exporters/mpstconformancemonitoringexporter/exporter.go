@@ -1,56 +1,37 @@
-package mpstconformancecheckingprocessor
+package mpstconformancemonitoringexporter
 
 import (
 	"context"
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/globaltype"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/tracegraph"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/tracegraph"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
+	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenterror"
-	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/consumer/pdata"
 	"go.uber.org/zap"
 	"strings"
 )
 
-type mpstConformanceProcessor struct {
+type mpstConformanceMonitoringExporter struct {
 	logger *zap.Logger
 	gtype  globaltype.GlobalType
 }
 
-var (
-	actionKey   = "mpst/action"
-	msgLabelKey = "mpst/msgLabel"
-	partnerKey  = "mpst/partner"
-)
-
-func (m mpstConformanceProcessor) extractLocalTraces(traces pdata.Traces) map[string]tracegraph.LocalTrace {
+func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Traces) map[string]tracegraph.LocalTrace {
 	var processedTraces = map[string]tracegraph.LocalTrace{}
 	spans := traces.ResourceSpans()
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
-		if span.IsNil() {
-			continue
-		}
 		spanSlices := span.InstrumentationLibrarySpans()
 		for j := 0; j < spanSlices.Len(); j++ {
 			slice := spanSlices.At(j)
-			if slice.IsNil() {
-				continue
-			}
 			library := slice.InstrumentationLibrary()
-			if library.IsNil() {
-				m.logger.Warn("Cannot get instrumentation library, skipping")
-				continue
-			}
 			libraryName := library.Name()
 			currentEndpoint := getEndpointFromLibraryName(libraryName)
 			innerSpans := slice.Spans()
 			for k := 0; k < innerSpans.Len(); k++ {
 				innerSpan := innerSpans.At(k)
-				if innerSpan.IsNil() {
-					continue
-				}
 				attributes := innerSpan.Attributes()
 				if hasMpstMetadata(attributes) {
 					partner_, _ := attributes.Get(partnerKey)
@@ -85,16 +66,30 @@ func (m mpstConformanceProcessor) extractLocalTraces(traces pdata.Traces) map[st
 	return processedTraces
 }
 
-func (m mpstConformanceProcessor) ProcessTraces(ctx context.Context, traces pdata.Traces) (pdata.Traces, error) {
-	localTraces := m.extractLocalTraces(traces)
+func (m mpstConformanceMonitoringExporter) Start(ctx context.Context, host component.Host) error {
+	return nil
+}
+
+func (m mpstConformanceMonitoringExporter) Shutdown(ctx context.Context) error {
+	return nil
+}
+
+func (m mpstConformanceMonitoringExporter) ConsumeTraces(ctx context.Context, td pdata.Traces) error {
+	localTraces := m.extractLocalTraces(td)
 	err := checkSendRecvMatching(localTraces)
 	if err != nil {
-		return traces, err
+		return err
 	}
-	tracegraph := tracegraph.Construct(localTraces)
-	err = tracegraph.CheckProtocolConformance(globaltype.TwoBuyer())
-	return traces, err
+	traceGraph := tracegraph.Construct(localTraces)
+	err = traceGraph.CheckProtocolConformance(globaltype.TwoBuyer())
+	return err
 }
+
+var (
+	actionKey   = "mpst/action"
+	msgLabelKey = "mpst/msgLabel"
+	partnerKey  = "mpst/partner"
+)
 
 type participantPair struct {
 	from string
@@ -164,13 +159,12 @@ func getEndpointFromLibraryName(libraryName string) string {
 	separated := strings.Split(libraryName, "/")
 	return separated[len(separated)-1]
 }
-
-func newMpstConformanceProcessor(logger *zap.Logger, nextConsumer consumer.TraceConsumer, cfg *Config) (*mpstConformanceProcessor, error) {
+func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConformanceMonitoringExporter, error) {
 	// gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
 	// if err != nil {
 	//	return nil, err
 	// }
-	return &mpstConformanceProcessor{
+	return &mpstConformanceMonitoringExporter{
 		logger: logger,
 		gtype:  globaltype.TwoBuyer(), // Hard code to Two Buyer for now
 	}, nil

@@ -2,8 +2,8 @@ package tracegraph
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/globaltype"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
 	"gonum.org/v1/gonum/graph/simple"
@@ -116,7 +116,6 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 }
 
 func (g TraceGraph) DotFormat() (string, error) {
-	// TODO: Remove debug printings
 	dotGraph, err := dot.Marshal(g.graph, "Messages", "", "  ")
 	if err != nil {
 		return "", err

@@ -2,11 +2,11 @@ receivers:
   examplereceiver:
 
 processors:
-  mpstconformancechecking:
-    protocol: gtype.sexp
+  exampleprocessor:
 
 exporters:
-  exampleexporter:
+  mpstconformancechecking:
+    protocol: gtype.sexp
 
 service:
   pipelines:
@@ -14,6 +14,6 @@ service:
       receivers:
       - examplereceiver
       processors:
-      - mpstconformancechecking
+      - exampleprocessor
       exporters:
-      - exampleexporter
+      - mpstconformancemonitoring

@@ -1,4 +1,4 @@
-package mpstconformancecheckingprocessor
+package mpstconformancemonitoringexporter
 
 import (
 	"path"
@@ -14,12 +14,12 @@ func TestLoadConfig(t *testing.T) {
 	factories, err := componenttest.ExampleComponents()
 	assert.NoError(t, err)
 
-	factories.Processors[typeStr] = NewFactory()
+	factories.Exporters[typeStr] = NewFactory()
 
 	cfg, err := configtest.LoadConfigFile(t, path.Join(".", "testdata", "config.yaml"), factories)
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	mpstConfig := cfg.Processors["mpstconformancechecking"]
+	mpstConfig := cfg.Exporters["mpstconformancechecking"]
 	assert.Equal(t, mpstConfig.(*Config).Protocol, "gtype.sexp")
 }

@@ -2,7 +2,7 @@ package globaltype
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor/types"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
 	"strings"
 )
 

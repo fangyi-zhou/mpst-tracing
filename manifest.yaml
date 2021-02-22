@@ -1,11 +1,11 @@
 dist:
     module: github.com/fangyi-zhou/mpst-tracing
-    name: mpst-conformance-checker
-    description: MPST Conformance Checker
+    name: mpst-conformance-monitor
+    description: MPST Conformance Monitor
     version: 0.1.0
     output_path: ./_build
-    otelcol_version: 0.13.0
+    otelcol_version: 0.20.0
 
-processors:
-  - gomod: github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancecheckingprocessor v0.0.0
-    path: ./processors/mpstconformancecheckingprocessor
+exporters:
+  - gomod: github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter v0.0.0
+    path: ./exporters/mpstconformancemonitoringexporter
