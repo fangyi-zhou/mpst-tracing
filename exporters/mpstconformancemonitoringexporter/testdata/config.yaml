@@ -5,7 +5,7 @@ processors:
   exampleprocessor:
 
 exporters:
-  mpstconformancechecking:
+  mpstconformancemonitoring:
     protocol: gtype.sexp
 
 service:
