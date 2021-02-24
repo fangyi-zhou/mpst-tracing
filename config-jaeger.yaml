@@ -1,0 +1,20 @@
+receivers:
+  jaeger:
+    protocols:
+      thrift_compact:
+
+processors:
+
+exporters:
+  logging:
+  mpstconformancemonitoring:
+
+service:
+  pipelines:
+    traces:
+      receivers:
+      - jaeger
+      processors:
+      exporters:
+      - logging
+      - mpstconformancemonitoring
