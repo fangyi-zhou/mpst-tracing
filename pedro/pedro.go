@@ -2,9 +2,7 @@ package pedro
 
 import "errors"
 
-type PetriNet interface{}
-
-type petriNet struct {
+type PetriNet struct {
 	tokens              []token
 	placesOrTransitions []placeOrTransition
 	arcs                []arc
@@ -13,7 +11,7 @@ type petriNet struct {
 type arc struct {
 	source      placeOrTransition
 	destination placeOrTransition
-	tokens      []token
+	tokens      []tokenWithMultiplicity
 }
 
 type token string
@@ -25,15 +23,11 @@ type tokenWithMultiplicity struct {
 	multiplicity int
 }
 
-type marking map[placeOrTransition]tokenWithMultiplicity
+type marking map[placeOrTransition][]tokenWithMultiplicity
 
 type MarkedPetriNet struct {
 	pn      PetriNet
 	marking marking
-}
-
-func LoadFromSexpFile(filename string) (error, *MarkedPetriNet) {
-	return errors.New("I didn't implement"), nil
 }
 
 func (m MarkedPetriNet) Reduce(label label) (error, marking) {
