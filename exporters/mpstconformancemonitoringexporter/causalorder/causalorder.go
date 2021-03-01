@@ -1,4 +1,4 @@
-package tracegraph
+package causalorder
 
 import (
 	"errors"

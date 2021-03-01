@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/globaltype"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/tracegraph"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/causalorder"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenterror"
@@ -18,8 +18,8 @@ type mpstConformanceMonitoringExporter struct {
 	gtype  globaltype.GlobalType
 }
 
-func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Traces) map[string]tracegraph.LocalTrace {
-	var processedTraces = map[string]tracegraph.LocalTrace{}
+func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Traces) map[string]causalorder.LocalTrace {
+	var processedTraces = map[string]causalorder.LocalTrace{}
 	spans := traces.ResourceSpans()
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
@@ -80,8 +80,8 @@ func (m mpstConformanceMonitoringExporter) ConsumeTraces(ctx context.Context, td
 	if err != nil {
 		return err
 	}
-	traceGraph := tracegraph.Construct(localTraces)
-	err = traceGraph.CheckProtocolConformance(globaltype.TwoBuyer())
+	causalOrder := causalorder.Construct(localTraces)
+	err = causalOrder.CheckProtocolConformance(globaltype.TwoBuyer())
 	return err
 }
 
@@ -96,7 +96,7 @@ type participantPair struct {
 	to   string
 }
 
-func checkSendRecvMatching(traces map[string]tracegraph.LocalTrace) error {
+func checkSendRecvMatching(traces map[string]causalorder.LocalTrace) error {
 	sendQueues := map[participantPair][]types.Message{}
 	recvQueues := map[participantPair][]types.Message{}
 	var errs []error
