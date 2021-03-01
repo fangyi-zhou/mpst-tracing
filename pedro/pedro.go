@@ -36,6 +36,6 @@ func LoadFromSexpFile(filename string) (error, *MarkedPetriNet) {
 	return errors.New("I didn't implement"), nil
 }
 
-func (m *MarkedPetriNet) Reduce(label label) error {
-	return errors.New("I didn't implement")
+func (m MarkedPetriNet) Reduce(label label) (error, marking) {
+	return errors.New("I didn't implement"), nil
 }
