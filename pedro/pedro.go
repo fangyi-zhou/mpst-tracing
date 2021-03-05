@@ -4,14 +4,14 @@ import "errors"
 
 type PetriNet struct {
 	tokens              []token
-	placesOrTransitions []label
+	placesOrTransitions []label // these may not be a great idea, some transitions need to be marked as silent
 	arcs                []arc
 }
 
 type arc struct {
 	source      label
 	destination label
-	tokens      []tokenWithMultiplicity
+	tokens      []tokenWithMultiplicity //These should be fifos of tokens, no multiplicity, has to be changed in pedro(OCaml)
 }
 
 type token string
