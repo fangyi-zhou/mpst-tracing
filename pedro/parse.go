@@ -46,7 +46,7 @@ func LoadFromSexp(node *sexp.Node) (*MarkedPetriNet, error) {
 	placesExpression := tokensExpression.Next
 	transitionsExpression := placesExpression.Next
 	arcsExpression := transitionsExpression.Next
-	placesOrTransitions := make([]placeOrTransition, 0)
+	placesOrTransitions := make([]label, 0)
 	marking := make(marking)
 
 	tokens, err := loadTokensExpression(tokensExpression)
@@ -103,7 +103,7 @@ func loadTokensExpression(node *sexp.Node) ([]token, error) {
 	return tokens, nil
 }
 
-func loadPlacesExpression(node *sexp.Node, placesOrTransitions []placeOrTransition, marking marking) ([]placeOrTransition, marking, error) {
+func loadPlacesExpression(node *sexp.Node, placesOrTransitions []label, marking marking) ([]label, marking, error) {
 	node = node.Children
 	if err := ensureKeyword(node, "places"); err != nil {
 		return nil, nil, err
@@ -115,7 +115,7 @@ func loadPlacesExpression(node *sexp.Node, placesOrTransitions []placeOrTransiti
 			return nil, nil, err
 		}
 		placeExpression = placeExpression.Next
-		placeValue := placeOrTransition(placeExpression.Value)
+		placeValue := label(placeExpression.Value)
 		initialMarkingExpression := placeExpression.Next.Children
 		for initialMarkingExpression != nil {
 			markingExpression := initialMarkingExpression.Children
@@ -136,7 +136,7 @@ func loadPlacesExpression(node *sexp.Node, placesOrTransitions []placeOrTransiti
 	return placesOrTransitions, marking, nil
 }
 
-func loadTransitionsExpression(node *sexp.Node, placesOrTransitions []placeOrTransition) ([]placeOrTransition, error) {
+func loadTransitionsExpression(node *sexp.Node, placesOrTransitions []label) ([]label, error) {
 	node = node.Children
 	if err := ensureKeyword(node, "transitions"); err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func loadTransitionsExpression(node *sexp.Node, placesOrTransitions []placeOrTra
 			return nil, err
 		}
 		transitionExpression = transitionExpression.Next
-		transitionValue := placeOrTransition(transitionExpression.Value)
+		transitionValue := label(transitionExpression.Value)
 		placesOrTransitions = append(placesOrTransitions, transitionValue)
 		node = node.Next
 	}
@@ -168,9 +168,9 @@ func loadArcsExpression(node *sexp.Node) ([]arc, error) {
 			return nil, err
 		}
 		srcExpression := arcExpression.Next
-		source := placeOrTransition(srcExpression.Value)
+		source := label(srcExpression.Value)
 		dstExpresion := srcExpression.Next
-		destination := placeOrTransition(dstExpresion.Value)
+		destination := label(dstExpresion.Value)
 		markingsExpression := dstExpresion.Next.Next.Children
 		tokens := make([]tokenWithMultiplicity, 0)
 		for markingsExpression != nil {
