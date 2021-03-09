@@ -3,7 +3,7 @@ module github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringex
 go 1.15
 
 require (
-	github.com/fangyi-zhou/mpst-tracing/globaltype v0.0.0
+	github.com/fangyi-zhou/mpst-tracing/globaltype v0.0.0-20210309160926-6e0ad4f311d7
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/collector v0.20.0
