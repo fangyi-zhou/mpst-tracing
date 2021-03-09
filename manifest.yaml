@@ -9,3 +9,6 @@ dist:
 exporters:
   - gomod: github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter v0.0.0
     path: ./exporters/mpstconformancemonitoringexporter
+
+processors:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/groupbytraceprocessor v0.20.0

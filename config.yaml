@@ -5,6 +5,7 @@ receivers:
         endpoint: localhost:55680
 
 processors:
+  groupbytrace:
 
 exporters:
   logging:
@@ -17,6 +18,7 @@ service:
       receivers:
       - otlp
       processors:
+      - groupbytrace
       exporters:
       - logging
       - mpstconformancemonitoring
