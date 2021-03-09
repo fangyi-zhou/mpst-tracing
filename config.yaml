@@ -9,6 +9,7 @@ processors:
 exporters:
   logging:
   mpstconformancemonitoring:
+    protocol: twobuyer/TwoBuyer_global_type.sexp
 
 service:
   pipelines:
