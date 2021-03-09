@@ -11,4 +11,4 @@ require (
 	gonum.org/v1/gonum v0.6.0
 )
 
-replace github.com/fangyi-zhou/mpst-tracing/globaltype v0.0.0 => ../../globaltype
+replace github.com/fangyi-zhou/mpst-tracing/globaltype => ../../globaltype
