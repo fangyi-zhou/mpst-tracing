@@ -3,5 +3,9 @@ protocol TwoBuyer(role A, role B, role S) {
   quote from S to A;
   quote from S to B;
   share from B to A;
-  buy from A to S;
+  choice at A {
+    buy from A to S;
+  } or {
+    cancel from A to S;
+  }
 }
