@@ -2,17 +2,16 @@ package globaltype
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
 	"strings"
 )
 
 type Done struct{}
 
-func (Done) PossiblePrefixes() []types.Message {
+func (Done) PossiblePrefixes() []Message {
 	return nil
 }
 
-func (Done) ConsumePrefix(message types.Message) (GlobalType, error) {
+func (Done) ConsumePrefix(message Message) (GlobalType, error) {
 	return nil, errors.New("end cannot consume prefix")
 }
 

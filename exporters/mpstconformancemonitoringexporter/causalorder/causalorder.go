@@ -2,8 +2,7 @@ package causalorder
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/globaltype"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
+	"github.com/fangyi-zhou/mpst-tracing/globaltype"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
 	"gonum.org/v1/gonum/graph/simple"
@@ -11,7 +10,7 @@ import (
 )
 
 type myMessage struct {
-	types.Message
+	globaltype.Message
 }
 
 func (m myMessage) toIndex() messageIndex {
@@ -28,10 +27,10 @@ type messageIndex struct {
 	dest   string
 }
 
-type LocalTrace []types.Message
+type LocalTrace []globaltype.Message
 
 type TraceGraph struct {
-	items []types.Message
+	items []globaltype.Message
 	graph graph.Directed
 }
 
@@ -57,7 +56,7 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 	msgGraph := simple.NewDirectedGraph()
 	var idx int64 = 0
 	var traceGraph = TraceGraph{}
-	var items = make([]types.Message, 0)
+	var items = make([]globaltype.Message, 0)
 	var sendBuffer = map[messageIndex][]int64{}
 	var recvBuffer = map[messageIndex][]int64{}
 	for _, localTrace := range traces {

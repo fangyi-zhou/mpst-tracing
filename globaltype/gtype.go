@@ -2,13 +2,12 @@ package globaltype
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
 	"strings"
 )
 
 type GlobalType interface {
-	PossiblePrefixes() []types.Message
-	ConsumePrefix(message types.Message) (GlobalType, error)
+	PossiblePrefixes() []Message
+	ConsumePrefix(message Message) (GlobalType, error)
 	IsDone() bool
 	String() string
 

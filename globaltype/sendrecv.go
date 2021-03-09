@@ -2,7 +2,6 @@ package globaltype
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
 	"strings"
 )
 
@@ -12,11 +11,11 @@ type Send struct {
 	conts  map[string]GlobalType
 }
 
-func (s Send) PossiblePrefixes() []types.Message {
-	var prefixes []types.Message
+func (s Send) PossiblePrefixes() []Message {
+	var prefixes []Message
 	for label, cont := range s.conts {
 		// First add the send action
-		prefixes = append(prefixes, types.Message{
+		prefixes = append(prefixes, Message{
 			Label:  label,
 			Origin: s.origin,
 			Dest:   s.dest,
@@ -32,7 +31,7 @@ func (s Send) PossiblePrefixes() []types.Message {
 	return prefixes
 }
 
-func (s Send) ConsumePrefix(m types.Message) (GlobalType, error) {
+func (s Send) ConsumePrefix(m Message) (GlobalType, error) {
 	if m.Origin == s.origin && m.Dest == s.dest && m.Action == "send" {
 		cont, exists := s.conts[m.Label]
 		if exists {
@@ -92,8 +91,8 @@ type Recv struct {
 	cont   GlobalType
 }
 
-func (r Recv) PossiblePrefixes() []types.Message {
-	prefixes := []types.Message{{
+func (r Recv) PossiblePrefixes() []Message {
+	prefixes := []Message{{
 		Label:  r.label,
 		Origin: r.origin,
 		Dest:   r.dest,
@@ -108,7 +107,7 @@ func (r Recv) PossiblePrefixes() []types.Message {
 	return prefixes
 }
 
-func (r Recv) ConsumePrefix(m types.Message) (GlobalType, error) {
+func (r Recv) ConsumePrefix(m Message) (GlobalType, error) {
 	if m.Origin == r.origin && m.Dest == r.dest && m.Action == "recv" {
 		return r.cont, nil
 	}

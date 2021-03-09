@@ -3,9 +3,8 @@ package mpstconformancemonitoringexporter
 import (
 	"context"
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/causalorder"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/types"
+	"github.com/fangyi-zhou/mpst-tracing/globaltype"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/consumer/pdata"
@@ -41,7 +40,7 @@ func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Trace
 					action := action_.StringVal()
 					label := msgLabel_.StringVal()
 					if action == "send" {
-						message := types.Message{
+						message := globaltype.Message{
 							Label:  label,
 							Origin: currentEndpoint,
 							Dest:   partner,
@@ -49,7 +48,7 @@ func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Trace
 						}
 						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
 					} else if action == "recv" {
-						message := types.Message{
+						message := globaltype.Message{
 							Label:  label,
 							Origin: partner,
 							Dest:   currentEndpoint,
@@ -97,8 +96,8 @@ type participantPair struct {
 }
 
 func checkSendRecvMatching(traces map[string]causalorder.LocalTrace) error {
-	sendQueues := map[participantPair][]types.Message{}
-	recvQueues := map[participantPair][]types.Message{}
+	sendQueues := map[participantPair][]globaltype.Message{}
+	recvQueues := map[participantPair][]globaltype.Message{}
 	var errs []error
 	for endpoint, localTrace := range traces {
 		for _, message := range localTrace {
@@ -143,15 +142,15 @@ func hasMpstMetadata(attributes pdata.AttributeMap) bool {
 	return hasAction && hasLabel && hasPartner
 }
 
-func recvWithoutSendErr(orig string, dest string, msg types.Message) error {
+func recvWithoutSendErr(orig string, dest string, msg globaltype.Message) error {
 	return fmt.Errorf("message labelled %s received by %s without matching send, allegedly from %s", msg.Label, dest, orig)
 }
 
-func mismatchLabelErr(orig string, dest string, sendMsg types.Message, recvMsg types.Message) error {
+func mismatchLabelErr(orig string, dest string, sendMsg globaltype.Message, recvMsg globaltype.Message) error {
 	return fmt.Errorf("message label mismatch, sent from %s to %s, label %s is sent, but %s is received", orig, dest, sendMsg.Label, recvMsg.Label)
 }
 
-func missingRecvMessageErr(orig string, dest string, msg types.Message) error {
+func missingRecvMessageErr(orig string, dest string, msg globaltype.Message) error {
 	return fmt.Errorf("message labelled %s sent from %s is not received by %s", msg.Label, orig, dest)
 }
 
