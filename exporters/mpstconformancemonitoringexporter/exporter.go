@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/causalorder"
 	"github.com/fangyi-zhou/mpst-tracing/globaltype"
+	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/consumer/pdata"
@@ -159,12 +160,12 @@ func getEndpointFromLibraryName(libraryName string) string {
 	return separated[len(separated)-1]
 }
 func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConformanceMonitoringExporter, error) {
-	// gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
-	// if err != nil {
-	//	return nil, err
-	// }
+	gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error in parsing global type s-expression")
+	}
 	return &mpstConformanceMonitoringExporter{
 		logger: logger,
-		gtype:  globaltype.TwoBuyer(), // Hard code to Two Buyer for now
+		gtype:  gtype,
 	}, nil
 }
