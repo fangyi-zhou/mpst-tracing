@@ -7,7 +7,7 @@ import (
 )
 
 func TestParseTwoBuyer(t *testing.T) {
-	file := path.Join("..", "twobuyer", "TwoBuyer.sexp")
+	file := path.Join("..", "twobuyer", "TwoBuyer_petri_net.sexp")
 	pn, err := LoadFromSexpFile(file)
 	assert.NoError(t, err)
 	assert.NotNil(t, pn)
