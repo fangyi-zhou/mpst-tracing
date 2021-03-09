@@ -26,3 +26,7 @@ func (Done) String() string {
 func (Done) stringWithBuilder(b *strings.Builder) {
 	b.WriteString("end")
 }
+
+func NewDone() Done {
+	return Done{}
+}
