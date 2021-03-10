@@ -9,7 +9,7 @@ type PetriNet struct {
 type arc struct {
 	source      label
 	destination label
-	tokens      []entityMarking //These should be fifos of tokens, no multiplicity, has to be changed in pedro(OCaml)
+	tokens      entityMarking //These should be fifos of tokens, no multiplicity, has to be changed in pedro(OCaml)
 }
 
 type token string
