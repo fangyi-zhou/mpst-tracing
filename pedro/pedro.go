@@ -2,6 +2,7 @@ package pedro
 
 type PetriNet struct {
 	tokens              []token
+	tokenSorts          map[token]sort
 	placesOrTransitions []label // these may not be a great idea, some transitions need to be marked as silent
 	arcs                []arc
 }
@@ -14,6 +15,7 @@ type arc struct {
 
 type token string
 type label string // the label of a place or a transition
+type sort string
 
 /*type tokenWithMultiplicity struct {
 	token        token
@@ -22,7 +24,7 @@ type label string // the label of a place or a transition
 
 type tokenQueue = []token
 
-type entityMarking = map[label]tokenQueue
+type entityMarking = map[sort]tokenQueue
 
 type marking map[label]entityMarking
 
