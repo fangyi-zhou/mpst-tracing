@@ -20,9 +20,9 @@ type label string // the label of a place or a transition
 	multiplicity int
 }*/
 
-type tokenQueue = [] token
+type tokenQueue = []token
 
-type entityMarking = map[label] tokenQueue
+type entityMarking = map[label]tokenQueue
 
 type marking map[label]entityMarking
 
