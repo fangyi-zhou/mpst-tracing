@@ -45,34 +45,33 @@ func LoadFromSexp(node *sexp.Node) (*MarkedPetriNet, error) {
 	placesExpression := tokensExpression.Next
 	transitionsExpression := placesExpression.Next
 	arcsExpression := transitionsExpression.Next
-	placesOrTransitions := make([]label, 0)
 	marking := make(marking)
 
-	tokens, tokenSorts, err := loadTokensExpression(tokensExpression)
+	tokens, err := loadTokensExpression(tokensExpression)
 	if err != nil {
 		return nil, err
 	}
 
-	placesOrTransitions, marking, err = loadPlacesExpression(placesExpression, tokenSorts, placesOrTransitions, marking)
+	places, marking, err := loadPlacesExpression(placesExpression, marking)
 	if err != nil {
 		return nil, err
 	}
 
-	placesOrTransitions, err = loadTransitionsExpression(transitionsExpression, placesOrTransitions)
+	transitions, err := loadTransitionsExpression(transitionsExpression)
 	if err != nil {
 		return nil, err
 	}
 
-	arcs, err := loadArcsExpression(arcsExpression, tokenSorts)
+	arcs, err := loadArcsExpression(arcsExpression)
 	if err != nil {
 		return nil, err
 	}
 
 	pn := PetriNet{
-		tokens:              tokens,
-		tokenSorts:          tokenSorts,
-		placesOrTransitions: placesOrTransitions,
-		arcs:                arcs,
+		tokens:      tokens,
+		places:      places,
+		transitions: transitions,
+		arcs:        arcs,
 	}
 	pnMarked := MarkedPetriNet{
 		pn:      pn,
@@ -82,32 +81,29 @@ func LoadFromSexp(node *sexp.Node) (*MarkedPetriNet, error) {
 	return &pnMarked, nil
 }
 
-func loadTokensExpression(node *sexp.Node) ([]token, map[token]sort, error) {
-	tokenSorts := make(map[token]sort)
+func loadTokensExpression(node *sexp.Node) ([]token, error) {
 	tokens := make([]token, 0)
 	node = node.Children
 	if err := ensureKeyword(node, "tokens"); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	node = node.Next
 	for node != nil {
 		tokenExpression := node.Children
 		if err := ensureKeyword(tokenExpression, "token"); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		tokenExpression = tokenExpression.Next
 		tokenValue := token(tokenExpression.Value)
-		sortExpression := tokenExpression.Next
-		sortValue := sort(sortExpression.Value)
 		// Token sort is ignored
 		tokens = append(tokens, tokenValue)
-		tokenSorts[tokenValue] = sortValue
 		node = node.Next
 	}
-	return tokens, tokenSorts, nil
+	return tokens, nil
 }
 
-func loadPlacesExpression(node *sexp.Node, tokenSorts map[token]sort, placesOrTransitions []label, marking marking) ([]label, marking, error) {
+func loadPlacesExpression(node *sexp.Node, marking marking) ([]label, marking, error) {
+	places := make([]label, 0)
 	node = node.Children
 	if err := ensureKeyword(node, "places"); err != nil {
 		return nil, nil, err
@@ -123,25 +119,22 @@ func loadPlacesExpression(node *sexp.Node, tokenSorts map[token]sort, placesOrTr
 		if _, exists := marking[placeValue]; exists {
 			return nil, nil, fmt.Errorf("redefined place %s", placeValue)
 		}
-		initialTokenQueue := make(map[sort]tokenQueue)
+		initialTokenQueue := make(entityMarking, 0)
 		initialMarkingExpression := placeExpression.Next.Children
 		for initialMarkingExpression != nil {
 			token := token(initialMarkingExpression.Value)
-			sort, exists := tokenSorts[token]
-			if !exists {
-				return nil, nil, fmt.Errorf("unbound token %s", token)
-			}
-			initialTokenQueue[sort] = append(initialTokenQueue[sort], token)
+			initialTokenQueue = append(initialTokenQueue, token)
 			initialMarkingExpression = initialMarkingExpression.Next
 		}
 		marking[placeValue] = initialTokenQueue
-		placesOrTransitions = append(placesOrTransitions, placeValue)
+		places = append(places, placeValue)
 		node = node.Next
 	}
-	return placesOrTransitions, marking, nil
+	return places, marking, nil
 }
 
-func loadTransitionsExpression(node *sexp.Node, placesOrTransitions []label) ([]label, error) {
+func loadTransitionsExpression(node *sexp.Node) (map[label]bool, error) {
+	transitions := make(map[label]bool)
 	node = node.Children
 	if err := ensureKeyword(node, "transitions"); err != nil {
 		return nil, err
@@ -154,13 +147,20 @@ func loadTransitionsExpression(node *sexp.Node, placesOrTransitions []label) ([]
 		}
 		transitionExpression = transitionExpression.Next
 		transitionValue := label(transitionExpression.Value)
-		placesOrTransitions = append(placesOrTransitions, transitionValue)
+		labelledOrSilent := transitionExpression.Next.Value
+		if labelledOrSilent == "labelled" {
+			transitions[transitionValue] = true
+		} else if labelledOrSilent == "silent" {
+			transitions[transitionValue] = false
+		} else {
+			return nil, fmt.Errorf("unrecognised transition type %s", labelledOrSilent)
+		}
 		node = node.Next
 	}
-	return placesOrTransitions, nil
+	return transitions, nil
 }
 
-func loadArcsExpression(node *sexp.Node, tokenSorts map[token]sort) ([]arc, error) {
+func loadArcsExpression(node *sexp.Node) ([]arc, error) {
 	node = node.Children
 	arcs := make([]arc, 0)
 	if err := ensureKeyword(node, "arcs"); err != nil {
@@ -177,14 +177,10 @@ func loadArcsExpression(node *sexp.Node, tokenSorts map[token]sort) ([]arc, erro
 		dstExpresion := srcExpression.Next
 		destination := label(dstExpresion.Value)
 		markingsExpression := dstExpresion.Next.Next.Children
-		tokens := make(entityMarking)
+		tokens := make(entityMarking, 0)
 		for markingsExpression != nil {
 			token := token(markingsExpression.Value)
-			sort, exists := tokenSorts[token]
-			if !exists {
-				return nil, fmt.Errorf("unbound token %s", token)
-			}
-			tokens[sort] = append(tokens[sort], token)
+			tokens = append(tokens, token)
 			markingsExpression = markingsExpression.Next
 		}
 		arc := arc{
