@@ -164,6 +164,7 @@ func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConforman
 	if err != nil {
 		return nil, errors.Wrap(err, "Error in parsing global type s-expression")
 	}
+	logger.Info("Loaded global type", zap.String("global-type", gtype.String()))
 	return &mpstConformanceMonitoringExporter{
 		logger: logger,
 		gtype:  gtype,
