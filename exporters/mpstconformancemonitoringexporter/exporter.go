@@ -80,7 +80,7 @@ func (m mpstConformanceMonitoringExporter) ConsumeTraces(ctx context.Context, td
 	if err != nil {
 		return err
 	}
-	causalOrder := causalorder.Construct(localTraces)
+	causalOrder := causalorder.Construct(m.logger, localTraces)
 	err = causalOrder.CheckProtocolConformance(globaltype.TwoBuyer())
 	return err
 }

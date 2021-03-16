@@ -3,6 +3,7 @@ package causalorder
 import (
 	"errors"
 	"github.com/fangyi-zhou/mpst-tracing/globaltype"
+	"go.uber.org/zap"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
 	"gonum.org/v1/gonum/graph/simple"
@@ -32,6 +33,7 @@ type LocalTrace []globaltype.Message
 type TraceGraph struct {
 	items []globaltype.Message
 	graph graph.Directed
+	logger *zap.Logger
 }
 
 type graphNode struct {
@@ -52,7 +54,7 @@ func makeNode(traceGraph *TraceGraph, id int64) graphNode {
 	return graphNode{traceGraph, id}
 }
 
-func Construct(traces map[string]LocalTrace) TraceGraph {
+func Construct(logger *zap.Logger, traces map[string]LocalTrace) TraceGraph {
 	msgGraph := simple.NewDirectedGraph()
 	var idx int64 = 0
 	var traceGraph = TraceGraph{}
@@ -111,6 +113,7 @@ func Construct(traces map[string]LocalTrace) TraceGraph {
 	}
 	traceGraph.items = items
 	traceGraph.graph = msgGraph
+	traceGraph.logger = logger
 	return traceGraph
 }
 
@@ -134,6 +137,7 @@ func (g TraceGraph) CheckProtocolConformance(gty globaltype.GlobalType) error {
 		if err != nil {
 			return err
 		}
+		g.logger.Info("Consuming prefix", zap.String("msg", msg.String()), zap.String("gtype-cont", gty.String()))
 	}
 	if gty.IsDone() {
 		return nil
