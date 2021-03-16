@@ -9,7 +9,7 @@ This repos contains preliminary investigations of using opentelemetry and multip
   
 - `exporters/mpstconformancemonitoringexporter` is a WIP implementation of a MPST conformance monitor, as an opentelemetry exporter.
   
-  To build a collector, follow the instruction on https://github.com/observatorium/opentelemetry-collector-builder and use `manifest.yaml` for the config.
+  To build a collector, follow the instruction on https://github.com/open-telemetry/opentelemetry-collector-builder and use `manifest.yaml` for the config.
   To run the built collector, use the `config.yaml` for the config.
 
 - `globaltype` is a simple implementation of multiparty session types and their semantics.
