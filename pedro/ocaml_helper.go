@@ -1,6 +1,7 @@
 package pedro
 
 // #include "ocaml_binding.h"
+// #cgo LDFLAGS: -ldl
 import "C"
 import "errors"
 
