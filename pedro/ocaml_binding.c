@@ -6,6 +6,13 @@
 
 static pedro_binding_t binding;
 
+#define LOAD_SYM(SYMBOL)                                                       \
+  SYMBOL##_t SYMBOL = dlsym(handle, #SYMBOL);                                  \
+  if (!SYMBOL) {                                                               \
+    return dlerror();                                                          \
+  }                                                                            \
+  binding.SYMBOL = SYMBOL;
+
 // Returns an error string in case of failure, NULL in case of success
 char *pedro_binding_init(char *path) {
   // Load shared object handle
@@ -13,36 +20,14 @@ char *pedro_binding_init(char *path) {
   if (!handle) {
     return dlerror();
   }
+  binding.handle = handle;
 
   // Load function symbols
-  void (*caml_startup)(char **argv) = dlsym(handle, "caml_startup");
-  if (!caml_startup) {
-    return dlerror();
-  }
-  void (*caml_shutdown)(void) = dlsym(handle, "caml_shutdown");
-  if (!caml_shutdown) {
-    return dlerror();
-  }
-  value (*caml_callback)(value, value) = dlsym(handle, "caml_callback");
-  if (!caml_callback) {
-    return dlerror();
-  }
-  value *(*caml_named_value)(char const *) = dlsym(handle, "caml_named_value");
-  if (!caml_named_value) {
-    return dlerror();
-  }
-  value (*caml_copy_string)(char const *) = dlsym(handle, "caml_copy_string");
-  if (!caml_copy_string) {
-    return dlerror();
-  }
-
-  // Store the pointers to the binding
-  binding.handle = handle;
-  binding.caml_startup = caml_startup;
-  binding.caml_shutdown = caml_shutdown;
-  binding.caml_callback = caml_callback;
-  binding.caml_named_value = caml_named_value;
-  binding.caml_copy_string = caml_copy_string;
+  LOAD_SYM(caml_startup);
+  LOAD_SYM(caml_shutdown);
+  LOAD_SYM(caml_callback);
+  LOAD_SYM(caml_named_value);
+  LOAD_SYM(caml_copy_string);
 
   // Initialise OCaml runtime
   char *argv[1] = {NULL};
@@ -66,3 +51,5 @@ void pedro_call_main(char *filename) {
   }
   binding.caml_callback(*main_closure, binding.caml_copy_string(filename));
 }
+
+#undef LOAD_SYM
