@@ -13,6 +13,13 @@ static pedro_binding_t binding;
   }                                                                            \
   binding.SYMBOL = SYMBOL;
 
+#define LOAD_OCAML_VALUE(VALUE)                                                \
+  value *VALUE = caml_named_value(#VALUE);                                     \
+  if (!VALUE) {                                                                \
+    return "Unable to get OCaml value " #VALUE;                                \
+  }                                                                            \
+  binding.VALUE = *VALUE;
+
 // Returns an error string in case of failure, NULL in case of success
 char *pedro_binding_init(char *path) {
   // Load shared object handle
@@ -32,6 +39,12 @@ char *pedro_binding_init(char *path) {
   // Initialise OCaml runtime
   char *argv[1] = {NULL};
   caml_startup(argv);
+
+  LOAD_OCAML_VALUE(main);
+  LOAD_OCAML_VALUE(load_from_file);
+  LOAD_OCAML_VALUE(save_to_file);
+  LOAD_OCAML_VALUE(get_enabled_transitions);
+  LOAD_OCAML_VALUE(do_transition);
 
   return NULL;
 }
@@ -53,3 +66,4 @@ void pedro_call_main(char *filename) {
 }
 
 #undef LOAD_SYM
+#undef LOAD_OCAML_VALUE
