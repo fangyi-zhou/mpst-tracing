@@ -25,29 +25,29 @@ func (*OcamlRuntime) RunMain(filename string) {
 	C.pedro_call_main(C.CString(filename))
 }
 
-func (*OcamlRuntime) LoadFromFile(filename string) bool {
+func (*OcamlRuntime) LoadFromFile(filename string) error {
 	ret := C.pedro_load_from_file(C.CString(filename))
 	if ret == 0 {
-		return false
+		return nil
 	} else {
-		return true
+		return errors.New("unable to load from file")
 	}
 }
 
-func (*OcamlRuntime) SaveToFile(filename string) bool {
+func (*OcamlRuntime) SaveToFile(filename string) error {
 	ret := C.pedro_save_to_file(C.CString(filename))
 	if ret == 0 {
-		return false
+		return nil
 	} else {
-		return true
+		return errors.New("unable to save to file")
 	}
 }
 
-func (*OcamlRuntime) DoTransition(transition string) bool {
+func (*OcamlRuntime) DoTransition(transition string) error {
 	ret := C.pedro_do_transition(C.CString(transition))
 	if ret == 0 {
-		return false
+		return nil
 	} else {
-		return true
+		return errors.New("unable to do transition")
 	}
 }
