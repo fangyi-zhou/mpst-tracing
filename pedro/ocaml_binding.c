@@ -65,21 +65,21 @@ int pedro_load_from_file(char *filename) {
   value ret = binding.caml_callback(binding.load_from_file,
                                     binding.caml_copy_string(filename));
   // interpret the return value as a boolean
-  return (ret >> 1) ? true : false;
+  return (ret >> 1) ? 1 : 0;
 }
 
 int pedro_save_to_file(char *filename) {
   value ret = binding.caml_callback(binding.save_to_file,
                                     binding.caml_copy_string(filename));
   // interpret the return value as a boolean
-  return (ret >> 1) ? true : false;
+  return (ret >> 1) ? 1 : 0;
 }
 
 int pedro_do_transition(char *transition) {
   value ret = binding.caml_callback(binding.do_transition,
                                     binding.caml_copy_string(transition));
   // interpret the return value as a boolean
-  return (ret >> 1) ? true : false;
+  return (ret >> 1) ? 1 : 0;
 }
 
 #undef LOAD_SYM
