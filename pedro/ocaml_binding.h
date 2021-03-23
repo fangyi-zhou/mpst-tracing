@@ -43,5 +43,8 @@ typedef struct {
 char *pedro_binding_init(char *);
 void pedro_binding_deinit(void);
 void pedro_call_main(char *);
+int pedro_load_from_file(char *);
+int pedro_save_to_file(char *);
+int pedro_do_transition(char *);
 
 #endif // PEDRO_BINDING_H

@@ -58,11 +58,28 @@ void pedro_binding_deinit(void) {
 }
 
 void pedro_call_main(char *filename) {
-  static const value *main_closure = NULL;
-  if (main_closure == NULL) {
-    main_closure = binding.caml_named_value("main");
-  }
-  binding.caml_callback(*main_closure, binding.caml_copy_string(filename));
+  binding.caml_callback(binding.main, binding.caml_copy_string(filename));
+}
+
+int pedro_load_from_file(char *filename) {
+  value ret = binding.caml_callback(binding.load_from_file,
+                                    binding.caml_copy_string(filename));
+  // interpret the return value as a boolean
+  return (ret >> 1) ? true : false;
+}
+
+int pedro_save_to_file(char *filename) {
+  value ret = binding.caml_callback(binding.save_to_file,
+                                    binding.caml_copy_string(filename));
+  // interpret the return value as a boolean
+  return (ret >> 1) ? true : false;
+}
+
+int pedro_do_transition(char *transition) {
+  value ret = binding.caml_callback(binding.do_transition,
+                                    binding.caml_copy_string(transition));
+  // interpret the return value as a boolean
+  return (ret >> 1) ? true : false;
 }
 
 #undef LOAD_SYM
