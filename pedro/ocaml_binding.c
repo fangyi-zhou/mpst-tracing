@@ -82,5 +82,34 @@ int pedro_do_transition(char *transition) {
   return (ret >> 1) ? 1 : 0;
 }
 
+void pedro_get_enabled_transitions(string_array_t *out) {
+  // FIXME: Check memory allocation failures and handle them gracefully
+  size_t ptr_buf_size = 4;
+  size_t idx = 0;
+  char **ptr_out = malloc(ptr_buf_size * sizeof(char *));
+  // 1 is an unit
+  value ret = binding.caml_callback(binding.get_enabled_transitions, 1);
+  value i = ret;
+
+  // 1 is the empty list
+  while (i != 1) {
+    // A list is an object with two fields
+    value *object = (value *)i;
+    // first field is the list head
+    const char *list_val = (const char *)object[0];
+    if (ptr_buf_size == idx) {
+      // Enlarge the array if full
+      ptr_buf_size *= 2;
+      ptr_out = realloc(ptr_out, ptr_buf_size * sizeof(char *));
+    }
+    ptr_out[idx] = strdup(list_val);
+    idx++;
+    // second field is the list tail
+    i = object[1];
+  }
+  out->data = ptr_out;
+  out->size = idx;
+}
+
 #undef LOAD_SYM
 #undef LOAD_OCAML_VALUE

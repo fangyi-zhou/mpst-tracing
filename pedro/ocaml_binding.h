@@ -2,9 +2,14 @@
 #define PEDRO_BINDING_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 // FIXME: This does not work across all archs
 typedef intptr_t value;
+typedef struct {
+  char **data;
+  size_t size;
+} string_array_t;
 
 typedef void (*caml_startup_t)(char **);
 typedef void (*caml_shutdown_t)(void);
@@ -46,5 +51,6 @@ void pedro_call_main(char *);
 int pedro_load_from_file(char *);
 int pedro_save_to_file(char *);
 int pedro_do_transition(char *);
+void pedro_get_enabled_transitions(string_array_t *t);
 
 #endif // PEDRO_BINDING_H

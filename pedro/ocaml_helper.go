@@ -3,7 +3,10 @@ package pedro
 // #include "ocaml_binding.h"
 // #cgo LDFLAGS: -ldl
 import "C"
-import "errors"
+import (
+	"errors"
+	"unsafe"
+)
 
 type OcamlRuntime struct{}
 
@@ -50,4 +53,23 @@ func (*OcamlRuntime) DoTransition(transition string) error {
 	} else {
 		return errors.New("unable to do transition")
 	}
+}
+
+func (*OcamlRuntime) GetEnabledTransitions() []string {
+	var ret C.string_array_t
+	C.pedro_get_enabled_transitions(&ret)
+	retSize := ret.size
+	retArray := ret.data
+	i := 0
+	size := int(retSize)
+	transitions := make([]string, size)
+	ptr := unsafe.Pointer(retArray)
+	for i < size {
+		transitions[i] = C.GoString(*(**C.char)(ptr))
+		C.free(unsafe.Pointer(*(**C.char)(ptr)))
+		ptr = unsafe.Pointer(uintptr(ptr) + unsafe.Sizeof(ptr))
+		i++
+	}
+	C.free(unsafe.Pointer(retArray))
+	return transitions
 }

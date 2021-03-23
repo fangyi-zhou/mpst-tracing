@@ -22,10 +22,20 @@ func main() {
 	if err != nil {
 		log.Panicf("%s", err)
 	}
+	transitions1 := pedroHandle.GetEnabledTransitions()
+	fmt.Println("Enabled transitions:")
+	for _, t := range transitions1 {
+		fmt.Println(t)
+	}
 	err = pedroHandle.DoTransition("P!Q<m1>");
 	if err != nil {
 		log.Panicf("%s", err)
 	}
 	fmt.Println("Successfully performed transition P!Q<m1>")
+	transitions2 := pedroHandle.GetEnabledTransitions()
+	fmt.Println("Enabled transitions:")
+	for _, t := range transitions2 {
+		fmt.Println(t)
+	}
 	defer pedroHandle.Close()
 }
