@@ -75,3 +75,7 @@ func (*OcamlRuntime) GetEnabledTransitions() []string {
 	C.free(unsafe.Pointer(retArray))
 	return transitions
 }
+
+func (*OcamlRuntime) HasFinished() bool {
+	return C.pedro_has_finished() == 1
+}
