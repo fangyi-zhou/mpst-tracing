@@ -45,6 +45,13 @@ char *pedro_binding_init(char *path) {
   LOAD_OCAML_VALUE(save_to_file);
   LOAD_OCAML_VALUE(get_enabled_transitions);
   LOAD_OCAML_VALUE(do_transition);
+  LOAD_OCAML_VALUE(has_finished);
+  LOAD_OCAML_VALUE(commit_hash);
+
+  char *hash = (char *)*commit_hash;
+  if (strcmp(hash, PEDRO_API_HASH)) {
+    return "Pedrolib version mismatch, expect commit hash " PEDRO_API_HASH;
+  }
 
   return NULL;
 }

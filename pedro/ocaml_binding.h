@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define PEDRO_API_HASH "4b4b509a17bfba57625dcb194ef98329d8217794"
+
 // FIXME: This does not work across all archs
 typedef intptr_t value;
 typedef struct {
@@ -41,6 +43,10 @@ typedef struct {
   value get_enabled_transitions;
   // val do_transition : string -> bool
   value do_transition;
+  // val has_finished : unit -> bool
+  value has_finished;
+  // val commit_hash : string
+  value commit_hash;
 } pedro_binding_t;
 
 #undef FUNC_PTR
@@ -52,5 +58,6 @@ char *pedro_load_from_file(char *);
 int pedro_save_to_file(char *);
 int pedro_do_transition(char *);
 void pedro_get_enabled_transitions(string_array_t *t);
+int pedro_has_finished(void);
 
 #endif // PEDRO_BINDING_H
