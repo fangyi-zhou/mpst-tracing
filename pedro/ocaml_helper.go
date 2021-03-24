@@ -30,10 +30,12 @@ func (*OcamlRuntime) RunMain(filename string) {
 
 func (*OcamlRuntime) LoadFromFile(filename string) error {
 	ret := C.pedro_load_from_file(C.CString(filename))
-	if ret != 0 {
+	if ret == nil {
 		return nil
 	} else {
-		return errors.New("unable to load from file")
+		errMsg := C.GoString(ret)
+		C.free(unsafe.Pointer(ret))
+		return errors.New(errMsg)
 	}
 }
 

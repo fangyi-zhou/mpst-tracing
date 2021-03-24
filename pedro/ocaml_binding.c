@@ -62,12 +62,22 @@ void pedro_call_main(char *filename) {
   free(filename);
 }
 
-int pedro_load_from_file(char *filename) {
+char *pedro_load_from_file(char *filename) {
   value ret = binding.caml_callback(binding.load_from_file,
                                     binding.caml_copy_string(filename));
-  // interpret the return value as a boolean
   free(filename);
-  return (ret >> 1) ? 1 : 0;
+  // interpret the return value as a string option
+  if (ret == 1) {
+    // None
+    return NULL;
+  }
+  value *object = (value *)ret;
+  char *err_string = (char *)(object[0]);
+  char *dup = strdup(err_string);
+  if (!dup) {
+    return "pedro_load_from_file: Unable to get error message";
+  }
+  return dup;
 }
 
 int pedro_save_to_file(char *filename) {

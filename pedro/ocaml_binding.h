@@ -33,7 +33,7 @@ typedef struct {
   // Pointers to exported OCaml functions
   // val main : string -> unit
   value main;
-  // val load_from_file : string -> bool
+  // val load_from_file : string -> string option
   value load_from_file;
   // val save_to_file : string -> bool
   value save_to_file;
@@ -48,7 +48,7 @@ typedef struct {
 char *pedro_binding_init(char *);
 void pedro_binding_deinit(void);
 void pedro_call_main(char *);
-int pedro_load_from_file(char *);
+char *pedro_load_from_file(char *);
 int pedro_save_to_file(char *);
 int pedro_do_transition(char *);
 void pedro_get_enabled_transitions(string_array_t *t);
