@@ -18,15 +18,15 @@ func (a *A) run(wg *sync.WaitGroup) {
 	// Send query to S
 	var query = rand.Intn(100)
 	fmt.Println("A: Sending query", query)
-	a.sendS(ctx, "query", query)
+	a.SendS(ctx, "query", query)
 	// Receive a quote
-	var quote = a.recvS(ctx, "quote")
-	var otherShare = a.recvB(ctx, "share")
+	var quote = a.RecvS(ctx, "quote")
+	var otherShare = a.RecvB(ctx, "share")
 	if otherShare*2 >= quote {
 		// 1 stands for ok
-		a.sendS(ctx, "buy", 1)
+		a.SendS(ctx, "buy", 1)
 	} else {
-		a.sendS(ctx, "buy", 0)
+		a.SendS(ctx, "buy", 0)
 	}
 }
 func (s *S) run(wg *sync.WaitGroup) {
@@ -36,13 +36,13 @@ func (s *S) run(wg *sync.WaitGroup) {
 	ctx, span = s.tracer.Start(ctx, "TwoBuyer Endpoint S")
 	defer span.End()
 	// Receive a query
-	var query = s.recvA(ctx, "query")
+	var query = s.RecvA(ctx, "query")
 	// Send a quote
 	var quote = query * 2
 	fmt.Println("S: Sending quote", quote)
-	s.sendA(ctx, "quote", quote)
-	s.sendB(ctx, "quote", quote)
-	var decision = s.recvA(ctx, "buy")
+	s.SendA(ctx, "quote", quote)
+	s.SendB(ctx, "quote", quote)
+	var decision = s.RecvA(ctx, "buy")
 	if decision == 1 {
 		fmt.Println("Succeed!")
 	} else {
@@ -57,11 +57,11 @@ func (b *B) run(wg *sync.WaitGroup) {
 	ctx, span = b.tracer.Start(ctx, "TwoBuyer Endpoint B")
 	defer span.End()
 	// Receive a quote
-	var quote = b.recvS(ctx, "quote")
+	var quote = b.RecvS(ctx, "quote")
 	// Propose a share
 	var share = quote/2 + rand.Intn(10) - 5
 	fmt.Println("B: Proposing share", share)
-	b.sendA(ctx, "share", share)
+	b.SendA(ctx, "share", share)
 }
 
 func spawn() (*A, *B, *S) {
@@ -96,7 +96,7 @@ func spawn() (*A, *B, *S) {
 }
 
 func RunAll() {
-	shutdown := initOtlpTracer()
+	shutdown := InitOtlpTracer()
 	defer shutdown()
 
 	var wg sync.WaitGroup

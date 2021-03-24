@@ -19,7 +19,7 @@ import (
 )
 
 // https://github.com/open-telemetry/opentelemetry-go/blob/master/example/namedtracer/main.go
-func initStdoutTracer() func() {
+func InitStdoutTracer() func() {
 	var err error
 	exp, err := stdout.NewExporter(stdout.WithPrettyPrint())
 	if err != nil {
@@ -40,7 +40,7 @@ func initStdoutTracer() func() {
 }
 
 // https://github.com/open-telemetry/opentelemetry-go/blob/master/example/jaeger/main.go
-func initJaegerTracer() func() {
+func InitJaegerTracer() func() {
 	// Create and install Jaeger export pipeline
 	flush, err := jaeger.InstallNewPipeline(
 		jaeger.WithCollectorEndpoint("http://localhost:14268/api/traces"),
@@ -57,7 +57,7 @@ func initJaegerTracer() func() {
 	return flush
 }
 
-func initOtlpTracer() func() {
+func InitOtlpTracer() func() {
 	// https://github.com/open-telemetry/opentelemetry-go/blob/master/example/otel-collector/main.go
 	exp, err := otlp.NewExporter(
 		otlp.WithInsecure(),
