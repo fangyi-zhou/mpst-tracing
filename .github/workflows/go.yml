@@ -32,3 +32,9 @@ jobs:
 
     - name: Test
       run: cd ${{ matrix.pkg }} && go test -v .
+
+    - name: Lint
+      uses: golangci/golangci-lint-action@v2
+      with:
+        version: v1.29
+        working-directory: ${{ matrix.pkg }}
