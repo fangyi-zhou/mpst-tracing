@@ -18,7 +18,7 @@ func (g globalTypeSemanticModel) GetAllActions() []string {
 	panic("implement me")
 }
 
-func createGlobalTypeSemanticModel(globalTypeSexpFileName string) (model.SemanticModel, error) {
+func CreateGlobalTypeSemanticModel(globalTypeSexpFileName string) (model.SemanticModel, error) {
 	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
 	if err != nil {
 		return nil, err
