@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// go run cmd/test.go ~/repos/Pedro/_build/default/src/pedrolib.so ~/repos/Pedro/examples/Simple.scr
+// go run cmd/test.go ~/repos/Pedro/_build/default/src/pedrolib.so ~/repos/Pedro/examples/Simple.scr TwoBuyer
 func main() {
 	if len(os.Args) < 3 {
 		panic("test.go PEDRO_SHARED_OBJECT PEDRO_FILE")
@@ -18,7 +18,7 @@ func main() {
 	if err != nil {
 		log.Panicf("unable to load Pedro, err %s", err)
 	}
-	err = pedroHandle.ImportNuscrFile(os.Args[2])
+	err = pedroHandle.ImportNuscrFile(os.Args[2], os.Args[3])
 	if err != nil {
 		log.Panicf("%s", err)
 	}

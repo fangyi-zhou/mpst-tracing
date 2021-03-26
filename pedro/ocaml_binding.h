@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define PEDRO_API_HASH "d8f9519e394a4c667aa5d3444dc6fd321b0f3361"
+#define PEDRO_API_HASH "220674b77973727b472a56ffca4d0f8f3af95b71"
 
 // FIXME: This does not work across all archs
 typedef intptr_t value;
@@ -16,6 +16,7 @@ typedef struct {
 typedef void (*caml_startup_t)(char **);
 typedef void (*caml_shutdown_t)(void);
 typedef value (*caml_callback_t)(value, value);
+typedef value (*caml_callback2_t)(value, value, value);
 typedef value *(*caml_named_value_t)(char const *);
 typedef value (*caml_copy_string_t)(char const *);
 
@@ -29,13 +30,14 @@ typedef struct {
   FUNC_PTR(caml_startup);
   FUNC_PTR(caml_shutdown);
   FUNC_PTR(caml_callback);
+  FUNC_PTR(caml_callback2);
   FUNC_PTR(caml_named_value);
   FUNC_PTR(caml_copy_string);
 
   // Pointers to exported OCaml functions
   // val main : string -> unit
   value main;
-  // val import_nuscr_file : string -> string option
+  // val import_nuscr_file : string -> string -> string option
   value import_nuscr_file;
   // val load_from_file : string -> string option
   value load_from_file;
@@ -56,7 +58,7 @@ typedef struct {
 char *pedro_binding_init(char *);
 void pedro_binding_deinit(void);
 void pedro_call_main(char *);
-char *pedro_import_nuscr_file(char *);
+char *pedro_import_nuscr_file(char *, char *);
 char *pedro_load_from_file(char *);
 int pedro_save_to_file(char *);
 int pedro_do_transition(char *);

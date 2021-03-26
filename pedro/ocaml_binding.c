@@ -33,6 +33,7 @@ char *pedro_binding_init(char *path) {
   LOAD_SYM(caml_startup);
   LOAD_SYM(caml_shutdown);
   LOAD_SYM(caml_callback);
+  LOAD_SYM(caml_callback2);
   LOAD_SYM(caml_named_value);
   LOAD_SYM(caml_copy_string);
 
@@ -88,10 +89,12 @@ char *pedro_load_from_file(char *filename) {
   return dup;
 }
 
-char *pedro_import_nuscr_file(char *filename) {
-  value ret = binding.caml_callback(binding.import_nuscr_file,
-                                    binding.caml_copy_string(filename));
+char *pedro_import_nuscr_file(char *filename, char *protoname) {
+  value ret = binding.caml_callback2(binding.import_nuscr_file,
+                                     binding.caml_copy_string(filename),
+                                     binding.caml_copy_string(protoname));
   free(filename);
+  free(protoname);
   // interpret the return value as a string option
   if (ret == 1) {
     // None

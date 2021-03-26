@@ -39,8 +39,8 @@ func (*OcamlRuntime) LoadFromFile(filename string) error {
 	}
 }
 
-func (*OcamlRuntime) ImportNuscrFile(filename string) error {
-	ret := C.pedro_import_nuscr_file(C.CString(filename))
+func (*OcamlRuntime) ImportNuscrFile(filename string, protocolName string) error {
+	ret := C.pedro_import_nuscr_file(C.CString(filename), C.CString(protocolName))
 	if ret == nil {
 		return nil
 	} else {
