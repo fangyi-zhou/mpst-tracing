@@ -3,7 +3,7 @@ module github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringex
 go 1.15
 
 require (
-	github.com/fangyi-zhou/mpst-tracing/globaltype v0.0.0-20210310143055-7177088869b1
+	github.com/fangyi-zhou/mpst-tracing/semanticmodel latest
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/collector v0.20.0
@@ -11,4 +11,4 @@ require (
 	gonum.org/v1/gonum v0.6.0
 )
 
-replace github.com/fangyi-zhou/mpst-tracing/globaltype => ../../globaltype
+replace github.com/fangyi-zhou/mpst-tracing/semanticmodel => ./../../semanticmodel

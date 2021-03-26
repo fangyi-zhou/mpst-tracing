@@ -1,4 +1,4 @@
-module github.com/fangyi-zhou/mpst-tracing/pedro
+module "github.com/fangyi-zhou/mpst-tracing/semanticmodel"
 
 go 1.15
 
