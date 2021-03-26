@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/causalorder"
-	"github.com/fangyi-zhou/mpst-tracing/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenterror"

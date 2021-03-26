@@ -2,7 +2,7 @@ package causalorder
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype"
 	"go.uber.org/zap"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
