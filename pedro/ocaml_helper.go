@@ -39,6 +39,17 @@ func (*OcamlRuntime) LoadFromFile(filename string) error {
 	}
 }
 
+func (*OcamlRuntime) ImportNuscrFile(filename string) error {
+	ret := C.pedro_import_nuscr_file(C.CString(filename))
+	if ret == nil {
+		return nil
+	} else {
+		errMsg := C.GoString(ret)
+		C.free(unsafe.Pointer(ret))
+		return errors.New(errMsg)
+	}
+}
+
 func (*OcamlRuntime) SaveToFile(filename string) error {
 	ret := C.pedro_save_to_file(C.CString(filename))
 	if ret != 0 {

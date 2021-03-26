@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// go run cmd/test.go ~/repos/Pedro/_build/default/src/pedrolib.so ~/repos/Pedro/examples/proto.pdr
+// go run cmd/test.go ~/repos/Pedro/_build/default/src/pedrolib.so ~/repos/Pedro/examples/Simple.scr
 func main() {
 	if len(os.Args) < 3 {
 		panic("test.go PEDRO_SHARED_OBJECT PEDRO_FILE")
@@ -18,7 +18,7 @@ func main() {
 	if err != nil {
 		log.Panicf("unable to load Pedro, err %s", err)
 	}
-	err = pedroHandle.LoadFromFile(os.Args[2])
+	err = pedroHandle.ImportNuscrFile(os.Args[2])
 	if err != nil {
 		log.Panicf("%s", err)
 	}
@@ -27,15 +27,25 @@ func main() {
 	for _, t := range transitions1 {
 		fmt.Println(t)
 	}
-	err = pedroHandle.DoTransition("P!Q<m1>");
+	err = pedroHandle.DoTransition("C!A<share>");
 	if err != nil {
 		log.Panicf("%s", err)
 	}
-	fmt.Println("Successfully performed transition P!Q<m1>")
+	fmt.Println("Successfully performed transition C!A<share>")
 	transitions2 := pedroHandle.GetEnabledTransitions()
 	fmt.Println("Enabled transitions:")
 	for _, t := range transitions2 {
 		fmt.Println(t)
 	}
-	defer pedroHandle.Close()
+	err = pedroHandle.DoTransition("C?A<share>");
+	if err != nil {
+		log.Panicf("%s", err)
+	}
+	fmt.Println("Successfully performed transition C?A<share>")
+	transitions3 := pedroHandle.GetEnabledTransitions()
+	fmt.Println("Enabled transitions:")
+	for _, t := range transitions3 {
+		fmt.Println(t)
+	}
+	pedroHandle.Close()
 }

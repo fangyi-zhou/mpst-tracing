@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define PEDRO_API_HASH "4b4b509a17bfba57625dcb194ef98329d8217794"
+#define PEDRO_API_HASH "d8f9519e394a4c667aa5d3444dc6fd321b0f3361"
 
 // FIXME: This does not work across all archs
 typedef intptr_t value;
@@ -35,6 +35,8 @@ typedef struct {
   // Pointers to exported OCaml functions
   // val main : string -> unit
   value main;
+  // val import_nuscr_file : string -> string option
+  value import_nuscr_file;
   // val load_from_file : string -> string option
   value load_from_file;
   // val save_to_file : string -> bool
@@ -54,6 +56,7 @@ typedef struct {
 char *pedro_binding_init(char *);
 void pedro_binding_deinit(void);
 void pedro_call_main(char *);
+char *pedro_import_nuscr_file(char *);
 char *pedro_load_from_file(char *);
 int pedro_save_to_file(char *);
 int pedro_do_transition(char *);

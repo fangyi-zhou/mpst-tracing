@@ -41,6 +41,7 @@ char *pedro_binding_init(char *path) {
   caml_startup(argv);
 
   LOAD_OCAML_VALUE(main);
+  LOAD_OCAML_VALUE(import_nuscr_file);
   LOAD_OCAML_VALUE(load_from_file);
   LOAD_OCAML_VALUE(save_to_file);
   LOAD_OCAML_VALUE(get_enabled_transitions);
@@ -83,6 +84,24 @@ char *pedro_load_from_file(char *filename) {
   char *dup = strdup(err_string);
   if (!dup) {
     return "pedro_load_from_file: Unable to get error message";
+  }
+  return dup;
+}
+
+char *pedro_import_nuscr_file(char *filename) {
+  value ret = binding.caml_callback(binding.import_nuscr_file,
+                                    binding.caml_copy_string(filename));
+  free(filename);
+  // interpret the return value as a string option
+  if (ret == 1) {
+    // None
+    return NULL;
+  }
+  value *object = (value *)ret;
+  char *err_string = (char *)(object[0]);
+  char *dup = strdup(err_string);
+  if (!dup) {
+    return "pedro_import_nuscr_file: Unable to get error message";
   }
   return dup;
 }
