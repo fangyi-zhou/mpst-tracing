@@ -14,7 +14,7 @@ func (g globalTypeSemanticModel) TryReduce(action model.Action) bool {
 	panic("implement me")
 }
 
-func (g globalTypeSemanticModel) GetAllActions() []string {
+func (g globalTypeSemanticModel) GetEnabledActions() []model.Action {
 	panic("implement me")
 }
 

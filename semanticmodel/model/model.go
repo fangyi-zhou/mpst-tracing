@@ -9,7 +9,7 @@ type Action struct {
 type SemanticModel interface {
 	IsTerminated() bool
 	TryReduce(action Action) bool
-	GetAllActions() []string
+	GetEnabledActions() []Action
 }
 
 type Model struct {
