@@ -2,6 +2,7 @@ package globaltype
 
 import (
 	"errors"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
 )
 
@@ -11,15 +12,15 @@ type Send struct {
 	conts  map[string]GlobalType
 }
 
-func (s Send) PossiblePrefixes() []Message {
-	var prefixes []Message
+func (s Send) PossiblePrefixes() []model.Action {
+	var prefixes []model.Action
 	for label, cont := range s.conts {
 		// First add the send action
-		prefixes = append(prefixes, Message{
+		prefixes = append(prefixes, model.Action{
 			Label:  label,
-			Origin: s.origin,
+			Src:    s.origin,
 			Dest:   s.dest,
-			Action: "send",
+			IsSend: true,
 		})
 		contPrefixes := cont.PossiblePrefixes()
 		for _, contPrefix := range contPrefixes {
@@ -31,8 +32,8 @@ func (s Send) PossiblePrefixes() []Message {
 	return prefixes
 }
 
-func (s Send) ConsumePrefix(m Message) (GlobalType, error) {
-	if m.Origin == s.origin && m.Dest == s.dest && m.Action == "send" {
+func (s Send) ConsumePrefix(m model.Action) (GlobalType, error) {
+	if m.Src == s.origin && m.Dest == s.dest && m.IsSend {
 		cont, exists := s.conts[m.Label]
 		if exists {
 			// Send prefix consumed
@@ -91,12 +92,12 @@ type Recv struct {
 	cont   GlobalType
 }
 
-func (r Recv) PossiblePrefixes() []Message {
-	prefixes := []Message{{
+func (r Recv) PossiblePrefixes() []model.Action {
+	prefixes := []model.Action{{
 		Label:  r.label,
-		Origin: r.origin,
+		Src:    r.origin,
 		Dest:   r.dest,
-		Action: "recv",
+		IsSend: false,
 	}}
 	contPrefixes := r.cont.PossiblePrefixes()
 	for _, prefix := range contPrefixes {
@@ -107,8 +108,8 @@ func (r Recv) PossiblePrefixes() []Message {
 	return prefixes
 }
 
-func (r Recv) ConsumePrefix(m Message) (GlobalType, error) {
-	if m.Origin == r.origin && m.Dest == r.dest && m.Action == "recv" {
+func (r Recv) ConsumePrefix(m model.Action) (GlobalType, error) {
+	if m.Src == r.origin && m.Dest == r.dest && !m.IsSend {
 		return r.cont, nil
 	}
 	if m.Subject() != r.dest {

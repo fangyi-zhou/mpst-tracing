@@ -2,12 +2,13 @@ package globaltype
 
 import (
 	"errors"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
 )
 
 type GlobalType interface {
-	PossiblePrefixes() []Message
-	ConsumePrefix(message Message) (GlobalType, error)
+	PossiblePrefixes() []model.Action
+	ConsumePrefix(message model.Action) (GlobalType, error)
 	IsDone() bool
 	String() string
 
