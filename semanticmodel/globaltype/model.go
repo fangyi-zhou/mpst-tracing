@@ -3,19 +3,24 @@ package globaltype
 import "github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 
 type globalTypeSemanticModel struct {
-	gtype GlobalType
+	gtype *GlobalType
 }
 
 func (g globalTypeSemanticModel) IsTerminated() bool {
-	return g.gtype.IsDone()
+	return (*g.gtype).IsDone()
 }
 
 func (g globalTypeSemanticModel) TryReduce(action model.Action) bool {
-	panic("implement me")
+	next, err := (*g.gtype).ConsumePrefix(action)
+	if err != nil {
+		return false
+	}
+	g.gtype = &next
+	return true
 }
 
 func (g globalTypeSemanticModel) GetEnabledActions() []model.Action {
-	panic("implement me")
+	return (*g.gtype).PossiblePrefixes()
 }
 
 func CreateGlobalTypeSemanticModel(globalTypeSexpFileName string) (model.SemanticModel, error) {
@@ -23,5 +28,5 @@ func CreateGlobalTypeSemanticModel(globalTypeSexpFileName string) (model.Semanti
 	if err != nil {
 		return nil, err
 	}
-	return globalTypeSemanticModel{gtype: gtype}, nil
+	return globalTypeSemanticModel{gtype: &gtype}, nil
 }
