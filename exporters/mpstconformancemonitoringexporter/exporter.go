@@ -3,11 +3,10 @@ package mpstconformancemonitoringexporter
 import (
 	"context"
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/causalorder"
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/component/componenterror"
 	"go.opentelemetry.io/collector/consumer/pdata"
 	"go.uber.org/zap"
 	"strings"
@@ -15,11 +14,11 @@ import (
 
 type mpstConformanceMonitoringExporter struct {
 	logger *zap.Logger
-	gtype  globaltype.GlobalType
+	model  *model.Model
 }
 
-func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Traces) map[string]causalorder.LocalTrace {
-	var processedTraces = map[string]causalorder.LocalTrace{}
+func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Traces) error {
+	processedTraces := make(map[string][]model.Action)
 	spans := traces.ResourceSpans()
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
@@ -41,19 +40,19 @@ func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Trace
 					action := action_.StringVal()
 					label := msgLabel_.StringVal()
 					if action == "send" {
-						message := globaltype.Message{
+						message := model.Action{
 							Label:  label,
-							Origin: currentEndpoint,
+							Src:    currentEndpoint,
 							Dest:   partner,
-							Action: "send",
+							IsSend: true,
 						}
 						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
 					} else if action == "recv" {
-						message := globaltype.Message{
+						message := model.Action{
 							Label:  label,
-							Origin: partner,
+							Src:    partner,
 							Dest:   currentEndpoint,
-							Action: "recv",
+							IsSend: false,
 						}
 						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
 					} else {
@@ -63,7 +62,10 @@ func (m mpstConformanceMonitoringExporter) extractLocalTraces(traces pdata.Trace
 			}
 		}
 	}
-	return processedTraces
+	for endpoint, localTrace := range processedTraces {
+		m.model.AcceptTrace(endpoint, localTrace)
+	}
+	return nil
 }
 
 func (m mpstConformanceMonitoringExporter) Start(ctx context.Context, host component.Host) error {
@@ -75,14 +77,17 @@ func (m mpstConformanceMonitoringExporter) Shutdown(ctx context.Context) error {
 }
 
 func (m mpstConformanceMonitoringExporter) ConsumeTraces(ctx context.Context, td pdata.Traces) error {
-	localTraces := m.extractLocalTraces(td)
-	err := checkSendRecvMatching(localTraces)
-	if err != nil {
-		return err
-	}
-	causalOrder := causalorder.Construct(m.logger, localTraces)
-	err = causalOrder.CheckProtocolConformance(m.gtype)
+	err := m.processLocalTraces(td)
 	return err
+	/*
+		err := checkSendRecvMatching(localTraces)
+		if err != nil {
+			return err
+		}
+		causalOrder := causalorder.Construct(m.logger, localTraces)
+		err = causalOrder.CheckProtocolConformance(m.gtype)
+		return err
+	*/
 }
 
 var (
@@ -91,6 +96,7 @@ var (
 	partnerKey  = "mpst/partner"
 )
 
+/*
 type participantPair struct {
 	from string
 	to   string
@@ -135,6 +141,7 @@ func checkSendRecvMatching(traces map[string]causalorder.LocalTrace) error {
 	}
 	return nil
 }
+*/
 
 func hasMpstMetadata(attributes pdata.AttributeMap) bool {
 	_, hasAction := attributes.Get(actionKey)
@@ -143,6 +150,7 @@ func hasMpstMetadata(attributes pdata.AttributeMap) bool {
 	return hasAction && hasLabel && hasPartner
 }
 
+/*
 func recvWithoutSendErr(orig string, dest string, msg globaltype.Message) error {
 	return fmt.Errorf("message labelled %s received by %s without matching send, allegedly from %s", msg.Label, dest, orig)
 }
@@ -154,19 +162,30 @@ func mismatchLabelErr(orig string, dest string, sendMsg globaltype.Message, recv
 func missingRecvMessageErr(orig string, dest string, msg globaltype.Message) error {
 	return fmt.Errorf("message labelled %s sent from %s is not received by %s", msg.Label, orig, dest)
 }
+*/
 
 func getEndpointFromLibraryName(libraryName string) string {
 	separated := strings.Split(libraryName, "/")
 	return separated[len(separated)-1]
 }
 func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConformanceMonitoringExporter, error) {
-	gtype, err := globaltype.LoadFromSexpFile(cfg.Protocol)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error in parsing global type s-expression")
+	var m model.Model
+	switch cfg.SemanticModelType {
+	case "gtype_lts":
+		gtypeModel, err := globaltype.CreateGlobalTypeSemanticModel(cfg.GlobalTypeSexpFileName)
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to load global type")
+		}
+		logger.Info("Loaded global type")
+		m = model.MakeModel(gtypeModel)
+	case "gtype_pedro":
+		return nil, errors.New("unimplemented: pedro semantics")
+		//TODO: Petri Net Semantics
+	default:
+		return nil, fmt.Errorf("unknown semantic model type %s", cfg.SemanticModelType)
 	}
-	logger.Info("Loaded global type", zap.String("global-type", gtype.String()))
 	return &mpstConformanceMonitoringExporter{
 		logger: logger,
-		gtype:  gtype,
+		model:  &m,
 	}, nil
 }

@@ -20,6 +20,7 @@ func TestLoadConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	mpstConfig := cfg.Exporters["mpstconformancemonitoring"]
-	assert.Equal(t, mpstConfig.(*Config).Protocol, "gtype.sexp")
+	mpstConfig := cfg.Exporters["mpstconformancemonitoring"].(*Config)
+	assert.Equal(t, "gtype-lts", mpstConfig.SemanticModelType)
+	assert.Equal(t, "gtype.sexp", mpstConfig.GlobalTypeSexpFileName)
 }

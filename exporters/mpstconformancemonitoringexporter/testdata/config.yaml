@@ -6,7 +6,8 @@ processors:
 
 exporters:
   mpstconformancemonitoring:
-    protocol: gtype.sexp
+    semantic_model_type: gtype-lts
+    protocol_sexp_filename: gtype.sexp
 
 service:
   pipelines:
