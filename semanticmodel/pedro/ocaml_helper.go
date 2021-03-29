@@ -24,10 +24,6 @@ func (*OcamlRuntime) Close() {
 	C.pedro_binding_deinit()
 }
 
-func (*OcamlRuntime) RunMain(filename string) {
-	C.pedro_call_main(C.CString(filename))
-}
-
 func (*OcamlRuntime) LoadFromFile(filename string) error {
 	ret := C.pedro_load_from_file(C.CString(filename))
 	if ret == nil {

@@ -41,7 +41,6 @@ char *pedro_binding_init(char *path) {
   char *argv[1] = {NULL};
   caml_startup(argv);
 
-  LOAD_OCAML_VALUE(main);
   LOAD_OCAML_VALUE(import_nuscr_file);
   LOAD_OCAML_VALUE(load_from_file);
   LOAD_OCAML_VALUE(save_to_file);
@@ -64,11 +63,6 @@ void pedro_binding_deinit(void) {
   }
   binding.caml_shutdown();
   memset(&binding, 0, sizeof(pedro_binding_t));
-}
-
-void pedro_call_main(char *filename) {
-  binding.caml_callback(binding.main, binding.caml_copy_string(filename));
-  free(filename);
 }
 
 char *pedro_load_from_file(char *filename) {
