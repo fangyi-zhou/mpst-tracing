@@ -16,10 +16,7 @@ func (p pedroSemanticModel) IsTerminated() bool {
 func (p pedroSemanticModel) TryReduce(action model.Action) bool {
 	actionString := action.String()
 	err := p.runtime.DoTransition(actionString)
-	if err != nil {
-		return false
-	}
-	return true
+	return err != nil
 }
 
 func (p pedroSemanticModel) GetEnabledActions() []model.Action {
