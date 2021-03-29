@@ -2,6 +2,7 @@ package pedro
 
 import (
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+	"log"
 )
 
 type pedroSemanticModel struct {
@@ -9,15 +10,29 @@ type pedroSemanticModel struct {
 }
 
 func (p pedroSemanticModel) IsTerminated() bool {
-	panic("implement me")
+	return p.runtime.HasFinished()
 }
 
 func (p pedroSemanticModel) TryReduce(action model.Action) bool {
-	panic("implement me")
+	actionString := action.String()
+	err := p.runtime.DoTransition(actionString)
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func (p pedroSemanticModel) GetEnabledActions() []model.Action {
-	panic("implement me")
+	transitions := p.runtime.GetEnabledTransitions()
+	actions := make([]model.Action, len(transitions))
+	for _, transitionString := range transitions {
+		action, err := model.NewActionFromString(transitionString)
+		if err != nil {
+			log.Panicf("internal error: unable to parse action: %s", transitionString)
+		}
+		actions = append(actions, action)
+	}
+	return actions
 }
 
 func CreatePedroSemanticModel(pedrolibFileName string, protocolFileName string, protocolName string) (model.SemanticModel, error) {
