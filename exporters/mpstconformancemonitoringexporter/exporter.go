@@ -177,7 +177,7 @@ func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConforman
 			return nil, errors.Wrap(err, "unable to load global type")
 		}
 		logger.Info("Loaded global type")
-		m = model.MakeModel(gtypeModel)
+		m = model.MakeModelWithLogger(gtypeModel, logger)
 	case "gtype_pedro":
 		return nil, errors.New("unimplemented: pedro semantics")
 		//TODO: Petri Net Semantics
