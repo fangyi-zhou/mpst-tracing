@@ -9,7 +9,8 @@ processors:
 exporters:
   logging:
   mpstconformancemonitoring:
-    protocol: twobuyer/TwoBuyer_global_type.sexp
+    semantic_model_type: gtype_lts
+    protocol_sexp_filename: twobuyer/TwoBuyer_global_type.sexp
 
 service:
   pipelines:
