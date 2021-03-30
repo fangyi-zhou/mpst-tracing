@@ -29,5 +29,6 @@ func (m *Model) AcceptTrace(participant string, traces []Action) {
 }
 
 func (m *Model) processTraces() {
+	m.logger.Info("Processing Traces")
 	// TODO
 }
