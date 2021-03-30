@@ -39,7 +39,7 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 					partner := partner_.StringVal()
 					action := action_.StringVal()
 					label := msgLabel_.StringVal()
-					if action == "send" {
+					if action == "Send" {
 						message := model.Action{
 							Label:  label,
 							Src:    currentEndpoint,
@@ -47,7 +47,7 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 							IsSend: true,
 						}
 						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
-					} else if action == "recv" {
+					} else if action == "Recv" {
 						message := model.Action{
 							Label:  label,
 							Src:    partner,
