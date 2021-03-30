@@ -3,7 +3,7 @@ module github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringex
 go 1.15
 
 require (
-	github.com/fangyi-zhou/mpst-tracing/semanticmodel v0.0.0-20210330132437-4b327c0d6af1
+	github.com/fangyi-zhou/mpst-tracing/semanticmodel v0.0.0-20210330221528-1534a6cc4038
 	github.com/golang/protobuf v1.5.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
