@@ -9,13 +9,16 @@ static pedro_binding_t binding;
 #define LOAD_SYM(SYMBOL)                                                       \
   SYMBOL##_t SYMBOL = dlsym(handle, #SYMBOL);                                  \
   if (!SYMBOL) {                                                               \
-    return dlerror();                                                          \
+    char *err = dlerror();                                                     \
+    pedro_binding_deinit();                                                    \
+    return err;                                                                \
   }                                                                            \
   binding.SYMBOL = SYMBOL;
 
 #define LOAD_OCAML_VALUE(VALUE)                                                \
   value *VALUE = caml_named_value(#VALUE);                                     \
   if (!VALUE) {                                                                \
+    pedro_binding_deinit();                                                    \
     return "Unable to get OCaml value " #VALUE;                                \
   }                                                                            \
   binding.VALUE = *VALUE;
@@ -41,6 +44,8 @@ char *pedro_binding_init(char *path) {
   char *argv[1] = {NULL};
   caml_startup(argv);
 
+  binding.caml_initialised = true;
+
   LOAD_OCAML_VALUE(import_nuscr_file);
   LOAD_OCAML_VALUE(load_from_file);
   LOAD_OCAML_VALUE(save_to_file);
@@ -58,10 +63,12 @@ char *pedro_binding_init(char *path) {
 }
 
 void pedro_binding_deinit(void) {
-  if (!binding.handle) {
-    return;
+  if (binding.caml_initialised) {
+    binding.caml_shutdown();
   }
-  binding.caml_shutdown();
+  if (binding.handle) {
+    dlclose(binding.handle);
+  }
   memset(&binding, 0, sizeof(pedro_binding_t));
 }
 

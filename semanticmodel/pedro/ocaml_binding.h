@@ -2,6 +2,7 @@
 #define PEDRO_BINDING_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #define PEDRO_API_HASH "1f3ac320d8ffc48138673157f3e44670f57a87af"
@@ -25,6 +26,9 @@ typedef value (*caml_copy_string_t)(char const *);
 typedef struct {
   // shared object handle, loaded from `dlopen`
   void *handle;
+
+  // indicate whether OCaml has been initialised;
+  bool caml_initialised;
 
   // Function pointers to OCaml runtime, loaded from `dlsym`
   FUNC_PTR(caml_startup);
