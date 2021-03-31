@@ -1,0 +1,25 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: localhost:55680
+
+processors:
+
+exporters:
+  logging:
+  mpstconformancemonitoring:
+    semantic_model_type: gtype_pedro
+    protocol_filename: twobuyer/TwoBuyer.scr
+    protocol_name: TwoBuyer
+    pedro_so_filename: ../Pedro/_build/default/src/pedrolib.so
+
+service:
+  pipelines:
+    traces:
+      receivers:
+      - otlp
+      processors:
+      exporters:
+      - logging
+      - mpstconformancemonitoring
