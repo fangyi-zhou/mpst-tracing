@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/golang/protobuf v1.5.1 // indirect
-	github.com/nsf/sexp v0.0.0-20130620094510-d3d2f2591f1d // indirect
+	github.com/nsf/sexp v0.0.0-20130620094510-d3d2f2591f1d
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/collector v0.22.0
