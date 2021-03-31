@@ -5,12 +5,17 @@ package pedro
 import "C"
 import (
 	"errors"
+	"path/filepath"
 	"unsafe"
 )
 
 type OcamlRuntime struct{}
 
-func LoadRuntime(path string) (*OcamlRuntime, error) {
+func LoadRuntime(libPath string) (*OcamlRuntime, error) {
+	path, err := filepath.Abs(libPath)
+	if err != nil {
+		return nil, err
+	}
 	errMsg := C.pedro_binding_init(C.CString(path))
 	if errMsg != nil {
 		errStr := C.GoString(errMsg)
@@ -25,7 +30,11 @@ func (*OcamlRuntime) Close() {
 }
 
 func (*OcamlRuntime) LoadFromFile(filename string) error {
-	ret := C.pedro_load_from_file(C.CString(filename))
+	path, err := filepath.Abs(filename)
+	if err != nil {
+		return err
+	}
+	ret := C.pedro_load_from_file(C.CString(path))
 	if ret == nil {
 		return nil
 	} else {
@@ -36,7 +45,11 @@ func (*OcamlRuntime) LoadFromFile(filename string) error {
 }
 
 func (*OcamlRuntime) ImportNuscrFile(filename string, protocolName string) error {
-	ret := C.pedro_import_nuscr_file(C.CString(filename), C.CString(protocolName))
+	path, err := filepath.Abs(filename)
+	if err != nil {
+		return err
+	}
+	ret := C.pedro_import_nuscr_file(C.CString(path), C.CString(protocolName))
 	if ret == nil {
 		return nil
 	} else {
@@ -47,7 +60,11 @@ func (*OcamlRuntime) ImportNuscrFile(filename string, protocolName string) error
 }
 
 func (*OcamlRuntime) SaveToFile(filename string) error {
-	ret := C.pedro_save_to_file(C.CString(filename))
+	path, err := filepath.Abs(filename)
+	if err != nil {
+		return err
+	}
+	ret := C.pedro_save_to_file(C.CString(path))
 	if ret != 0 {
 		return nil
 	} else {
