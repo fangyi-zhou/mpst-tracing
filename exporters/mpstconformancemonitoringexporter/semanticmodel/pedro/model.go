@@ -37,7 +37,7 @@ func CreatePedroSemanticModel(pedrolibFileName string, protocolFileName string, 
 	if err != nil {
 		return nil, err
 	}
-	err = runtime.ImportNuscrFile(protocolFileName, protocolFileName)
+	err = runtime.ImportNuscrFile(protocolFileName, protocolName)
 	if err != nil {
 		return nil, err
 	}
