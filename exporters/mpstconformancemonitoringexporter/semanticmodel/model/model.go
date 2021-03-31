@@ -40,11 +40,11 @@ func (m *Model) processTraces() {
 			}
 			action := trace[0]
 			if m.TryReduce(action) {
-				m.logger.Info("Action reduced successfully", zap.String("action", action.String()))
+				m.logger.Info("Action reduced successfully", zap.String("action", action.String()), zap.String("participant", participant))
 				m.traces[participant] = m.traces[participant][1:]
 				reduced = true
 			} else {
-				m.logger.Info("Cannot reduce action for participant", zap.String("action", action.String()))
+				m.logger.Info("Cannot reduce action for participant", zap.String("action", action.String()), zap.String("participant", participant))
 			}
 		}
 		if !reduced {
