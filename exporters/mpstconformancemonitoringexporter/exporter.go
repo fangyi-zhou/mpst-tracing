@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/pedro"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer/pdata"
@@ -168,6 +169,7 @@ func getEndpointFromLibraryName(libraryName string) string {
 	separated := strings.Split(libraryName, "/")
 	return separated[len(separated)-1]
 }
+
 func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConformanceMonitoringExporter, error) {
 	var m model.Model
 	switch cfg.SemanticModelType {
@@ -179,8 +181,12 @@ func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConforman
 		logger.Info("Loaded global type")
 		m = model.MakeModelWithLogger(gtypeModel, logger)
 	case "gtype_pedro":
-		return nil, errors.New("unimplemented: pedro semantics")
-		//TODO: Petri Net Semantics
+		pedroModel, err := pedro.CreatePedroSemanticModel(cfg.PedroSoFileName, cfg.ProtocolFileName, cfg.ProtocolName)
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to load pedro semantic model")
+		}
+		logger.Info("Loaded petri net model")
+		m = model.MakeModelWithLogger(pedroModel, logger)
 	default:
 		return nil, fmt.Errorf("unknown semantic model type %s", cfg.SemanticModelType)
 	}
