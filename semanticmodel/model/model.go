@@ -35,6 +35,7 @@ func (m *Model) processTraces() {
 		reduced := false
 		for participant, trace := range m.traces {
 			if len(trace) == 0 {
+				m.logger.Info("Trace queue is empty for participant", zap.String("participant", participant))
 				continue
 			}
 			action := trace[0]
@@ -42,6 +43,8 @@ func (m *Model) processTraces() {
 				m.logger.Info("Action reduced successfully", zap.String("action", action.String()))
 				m.traces[participant] = m.traces[participant][1:]
 				reduced = true
+			} else {
+				m.logger.Info("Cannot reduce action for participant", zap.String("action", action.String()))
 			}
 		}
 		if !reduced {
