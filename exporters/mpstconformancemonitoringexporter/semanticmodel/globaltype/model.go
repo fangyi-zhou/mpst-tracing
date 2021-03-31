@@ -1,16 +1,18 @@
 package globaltype
 
-import "github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
+import (
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
+)
 
 type globalTypeSemanticModel struct {
 	gtype *GlobalType
 }
 
-func (g globalTypeSemanticModel) IsTerminated() bool {
+func (g *globalTypeSemanticModel) IsTerminated() bool {
 	return (*g.gtype).IsDone()
 }
 
-func (g globalTypeSemanticModel) TryReduce(action model.Action) bool {
+func (g *globalTypeSemanticModel) TryReduce(action model.Action) bool {
 	next, err := (*g.gtype).ConsumePrefix(action)
 	if err != nil {
 		return false
@@ -19,7 +21,7 @@ func (g globalTypeSemanticModel) TryReduce(action model.Action) bool {
 	return true
 }
 
-func (g globalTypeSemanticModel) GetEnabledActions() []model.Action {
+func (g *globalTypeSemanticModel) GetEnabledActions() []model.Action {
 	return (*g.gtype).PossiblePrefixes()
 }
 
@@ -28,5 +30,5 @@ func CreateGlobalTypeSemanticModel(globalTypeSexpFileName string) (model.Semanti
 	if err != nil {
 		return nil, err
 	}
-	return globalTypeSemanticModel{gtype: &gtype}, nil
+	return &globalTypeSemanticModel{gtype: &gtype}, nil
 }
