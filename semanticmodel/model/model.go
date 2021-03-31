@@ -31,13 +31,10 @@ func (m *Model) AcceptTrace(participant string, traces []Action) {
 
 func (m *Model) processTraces() {
 	m.logger.Info("Processing Traces")
-	allHaveData := false
 	for {
-		allHaveData = true
 		reduced := false
 		for participant, trace := range m.traces {
 			if len(trace) == 0 {
-				allHaveData = false
 				continue
 			}
 			action := trace[0]
