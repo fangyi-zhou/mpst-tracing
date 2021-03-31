@@ -3,8 +3,8 @@ package mpstconformancemonitoringexporter
 import (
 	"context"
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype"
-	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/globaltype"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer/pdata"

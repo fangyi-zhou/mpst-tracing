@@ -1,7 +1,7 @@
 package pedro
 
 import (
-	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 	"log"
 )
 

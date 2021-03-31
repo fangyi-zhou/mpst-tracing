@@ -4,7 +4,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/pedro"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/pedro"
 	"log"
 	"os"
 )

@@ -1,6 +1,6 @@
 package globaltype
 
-import "github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+import "github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 
 type globalTypeSemanticModel struct {
 	gtype *GlobalType
