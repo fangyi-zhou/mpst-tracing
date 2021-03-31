@@ -5,9 +5,14 @@ processors:
   exampleprocessor:
 
 exporters:
-  mpstconformancemonitoring:
+  mpstconformancemonitoring/lts:
     semantic_model_type: gtype_lts
     protocol_sexp_filename: gtype.sexp
+  mpstconformancemonitoring/pedro:
+    semantic_model_type: gtype_pedro
+    pedro_so_filename: pedrolib.so
+    protocol_filename: MyProto.nuscr
+    protocol_name: MyProto
 
 service:
   pipelines:
@@ -17,4 +22,5 @@ service:
       processors:
       - exampleprocessor
       exporters:
-      - mpstconformancemonitoring
+      - mpstconformancemonitoring/lts
+      - mpstconformancemonitoring/pedro
