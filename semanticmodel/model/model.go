@@ -51,10 +51,14 @@ func (m *Model) processTraces() {
 			break
 		}
 	}
-	if allHaveData && !m.IsTerminated() {
+	m.checkStuck()
+	if m.isStuck {
 		m.logger.Error("Model is stuck")
-		m.isStuck = true
 	}
+}
+
+func (m *Model) checkStuck() {
+	// TODO: check whether model is stuck
 }
 
 func (m *Model) IsStuck() bool {
