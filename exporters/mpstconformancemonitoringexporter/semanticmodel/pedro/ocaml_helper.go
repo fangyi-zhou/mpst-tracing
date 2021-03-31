@@ -6,12 +6,17 @@ import "C"
 import (
 	"errors"
 	"path/filepath"
+	"sync"
 	"unsafe"
 )
+
+var globalLock = &sync.Mutex{}
 
 type OcamlRuntime struct{}
 
 func LoadRuntime(libPath string) (*OcamlRuntime, error) {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	path, err := filepath.Abs(libPath)
 	if err != nil {
 		return nil, err
@@ -26,10 +31,14 @@ func LoadRuntime(libPath string) (*OcamlRuntime, error) {
 }
 
 func (*OcamlRuntime) Close() {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	C.pedro_binding_deinit()
 }
 
 func (*OcamlRuntime) LoadFromFile(filename string) error {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	path, err := filepath.Abs(filename)
 	if err != nil {
 		return err
@@ -45,6 +54,8 @@ func (*OcamlRuntime) LoadFromFile(filename string) error {
 }
 
 func (*OcamlRuntime) ImportNuscrFile(filename string, protocolName string) error {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	path, err := filepath.Abs(filename)
 	if err != nil {
 		return err
@@ -60,6 +71,8 @@ func (*OcamlRuntime) ImportNuscrFile(filename string, protocolName string) error
 }
 
 func (*OcamlRuntime) SaveToFile(filename string) error {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	path, err := filepath.Abs(filename)
 	if err != nil {
 		return err
@@ -73,6 +86,8 @@ func (*OcamlRuntime) SaveToFile(filename string) error {
 }
 
 func (*OcamlRuntime) DoTransition(transition string) error {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	ret := C.pedro_do_transition(C.CString(transition))
 	if ret != 0 {
 		return nil
@@ -82,6 +97,8 @@ func (*OcamlRuntime) DoTransition(transition string) error {
 }
 
 func (*OcamlRuntime) GetEnabledTransitions() []string {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	var ret C.string_array_t
 	C.pedro_get_enabled_transitions(&ret)
 	retSize := ret.size
@@ -101,5 +118,7 @@ func (*OcamlRuntime) GetEnabledTransitions() []string {
 }
 
 func (*OcamlRuntime) HasFinished() bool {
+	globalLock.Lock()
+	defer globalLock.Unlock()
 	return C.pedro_has_finished() == 1
 }
