@@ -27,6 +27,10 @@ func createDefaultConfig() configmodels.Exporter {
 	}
 }
 
-func createTraceExporter(ctx context.Context, params component.ExporterCreateParams, cfg configmodels.Exporter) (component.TracesExporter, error) {
+func createTraceExporter(
+	ctx context.Context,
+	params component.ExporterCreateParams,
+	cfg configmodels.Exporter,
+) (component.TracesExporter, error) {
 	return newMpstConformanceExporter(params.Logger, cfg.(*Config))
 }

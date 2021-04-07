@@ -33,8 +33,8 @@ type messageIndex struct {
 type LocalTrace []globaltype.Message
 
 type TraceGraph struct {
-	items []globaltype.Message
-	graph graph.Directed
+	items  []globaltype.Message
+	graph  graph.Directed
 	logger *zap.Logger
 }
 
@@ -81,7 +81,10 @@ func Construct(logger *zap.Logger, traces map[string]LocalTrace) TraceGraph {
 					} else {
 						recvBuffer[mIdx] = buf[1:]
 					}
-					edge := msgGraph.NewEdge(makeNode(&traceGraph, idx), makeNode(&traceGraph, rIdx))
+					edge := msgGraph.NewEdge(
+						makeNode(&traceGraph, idx),
+						makeNode(&traceGraph, rIdx),
+					)
 					msgGraph.SetEdge(edge)
 				} else {
 					if buf, exists := sendBuffer[mIdx]; exists {
@@ -139,7 +142,11 @@ func (g TraceGraph) CheckProtocolConformance(gty globaltype.GlobalType) error {
 		if err != nil {
 			return err
 		}
-		g.logger.Info("Consuming prefix", zap.String("msg", msg.String()), zap.String("gtype-cont", gty.String()))
+		g.logger.Info(
+			"Consuming prefix",
+			zap.String("msg", msg.String()),
+			zap.String("gtype-cont", gty.String()),
+		)
 	}
 	if gty.IsDone() {
 		return nil

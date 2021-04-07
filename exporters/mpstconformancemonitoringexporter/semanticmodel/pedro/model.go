@@ -32,7 +32,11 @@ func (p pedroSemanticModel) GetEnabledActions() []model.Action {
 	return actions
 }
 
-func CreatePedroSemanticModel(pedrolibFileName string, protocolFileName string, protocolName string) (model.SemanticModel, error) {
+func CreatePedroSemanticModel(
+	pedrolibFileName string,
+	protocolFileName string,
+	protocolName string,
+) (model.SemanticModel, error) {
 	runtime, err := LoadRuntime(pedrolibFileName)
 	if err != nil {
 		return nil, err

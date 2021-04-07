@@ -29,18 +29,34 @@ type Model struct {
 }
 
 func MakeModel(semanticModel SemanticModel) Model {
-	return Model{SemanticModel: semanticModel, traces: make(map[string][]Action), logger: zap.NewNop(), state: NORMAL, traceLock: &sync.Mutex{}}
+	return Model{
+		SemanticModel: semanticModel,
+		traces:        make(map[string][]Action),
+		logger:        zap.NewNop(),
+		state:         NORMAL,
+		traceLock:     &sync.Mutex{},
+	}
 }
 
 func MakeModelWithLogger(semanticModel SemanticModel, logger *zap.Logger) Model {
-	return Model{SemanticModel: semanticModel, traces: make(map[string][]Action), logger: logger, state: NORMAL, traceLock: &sync.Mutex{}}
+	return Model{
+		SemanticModel: semanticModel,
+		traces:        make(map[string][]Action),
+		logger:        logger,
+		state:         NORMAL,
+		traceLock:     &sync.Mutex{},
+	}
 }
 
 func (m *Model) AcceptTrace(participant string, traces []Action) {
 	m.traceLock.Lock()
 	defer m.traceLock.Unlock()
 	m.traces[participant] = append(m.traces[participant], traces...)
-	m.logger.Info("AcceptTrace", zap.String("participant", participant), zap.Int("number", len(traces)))
+	m.logger.Info(
+		"AcceptTrace",
+		zap.String("participant", participant),
+		zap.Int("number", len(traces)),
+	)
 	m.processTraces()
 }
 
@@ -54,12 +70,19 @@ func (m *Model) processTraces() {
 		reduced := false
 		for participant, trace := range m.traces {
 			if len(trace) == 0 {
-				m.logger.Info("Trace queue is empty for participant", zap.String("participant", participant))
+				m.logger.Info(
+					"Trace queue is empty for participant",
+					zap.String("participant", participant),
+				)
 				continue
 			}
 			action := trace[0]
 			if m.TryReduce(action) {
-				m.logger.Info("Action reduced successfully", zap.String("action", action.String()), zap.String("participant", participant))
+				m.logger.Info(
+					"Action reduced successfully",
+					zap.String("action", action.String()),
+					zap.String("participant", participant),
+				)
 				m.traces[participant] = m.traces[participant][1:]
 				reduced = true
 			} else {

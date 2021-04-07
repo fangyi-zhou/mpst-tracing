@@ -37,7 +37,9 @@ func ensureKeyword(node *sexp.Node, keyword string) error {
 
 func LoadFromSexp(node *sexp.Node) (*MarkedPetriNet, error) {
 	if !node.IsList() {
-		return nil, fmt.Errorf("expect a list s-expression") // TODO: add location for error reporting
+		return nil, fmt.Errorf(
+			"expect a list s-expression",
+		) // TODO: add location for error reporting
 	}
 	petriNetKeyWord := node.Children.Children
 	if err := ensureKeyword(petriNetKeyWord, "petri-net"); err != nil {

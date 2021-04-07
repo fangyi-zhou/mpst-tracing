@@ -31,7 +31,9 @@ func (a Action) String() string {
 }
 
 func NewActionFromString(actionString string) (Action, error) {
-	actionRegex := regexp.MustCompile(`^(?P<src>\w+)(?P<action>[\!\?])(?P<dest>\w+)\<(?P<label>\w+)\>$`)
+	actionRegex := regexp.MustCompile(
+		`^(?P<src>\w+)(?P<action>[\!\?])(?P<dest>\w+)\<(?P<label>\w+)\>$`,
+	)
 	matches := actionRegex.FindStringSubmatch(actionString)
 	if matches == nil {
 		return Action{}, fmt.Errorf("unrecognised action string %s", actionString)

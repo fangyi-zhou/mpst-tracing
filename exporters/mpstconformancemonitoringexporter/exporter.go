@@ -47,7 +47,10 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 							Dest:   partner,
 							IsSend: true,
 						}
-						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
+						processedTraces[currentEndpoint] = append(
+							processedTraces[currentEndpoint],
+							message,
+						)
 					} else if action == "Recv" {
 						message := model.Action{
 							Label:  label,
@@ -77,7 +80,10 @@ func (m mpstConformanceMonitoringExporter) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func (m mpstConformanceMonitoringExporter) ConsumeTraces(ctx context.Context, td pdata.Traces) error {
+func (m mpstConformanceMonitoringExporter) ConsumeTraces(
+	ctx context.Context,
+	td pdata.Traces,
+) error {
 	err := m.processLocalTraces(td)
 	return err
 	/*
@@ -170,7 +176,10 @@ func getEndpointFromLibraryName(libraryName string) string {
 	return separated[len(separated)-1]
 }
 
-func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConformanceMonitoringExporter, error) {
+func newMpstConformanceExporter(
+	logger *zap.Logger,
+	cfg *Config,
+) (*mpstConformanceMonitoringExporter, error) {
 	var m model.Model
 	switch cfg.SemanticModelType {
 	case "gtype_lts":
@@ -181,7 +190,11 @@ func newMpstConformanceExporter(logger *zap.Logger, cfg *Config) (*mpstConforman
 		logger.Info("Loaded global type")
 		m = model.MakeModelWithLogger(gtypeModel, logger)
 	case "gtype_pedro":
-		pedroModel, err := pedro.CreatePedroSemanticModel(cfg.PedroSoFileName, cfg.ProtocolFileName, cfg.ProtocolName)
+		pedroModel, err := pedro.CreatePedroSemanticModel(
+			cfg.PedroSoFileName,
+			cfg.ProtocolFileName,
+			cfg.ProtocolName,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load pedro semantic model")
 		}

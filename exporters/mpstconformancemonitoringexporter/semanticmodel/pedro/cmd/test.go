@@ -27,7 +27,7 @@ func main() {
 	for _, t := range transitions1 {
 		fmt.Println(t)
 	}
-	err = pedroHandle.DoTransition("C!A<share>");
+	err = pedroHandle.DoTransition("C!A<share>")
 	if err != nil {
 		log.Panicf("%s", err)
 	}
@@ -37,7 +37,7 @@ func main() {
 	for _, t := range transitions2 {
 		fmt.Println(t)
 	}
-	err = pedroHandle.DoTransition("C?A<share>");
+	err = pedroHandle.DoTransition("C?A<share>")
 	if err != nil {
 		log.Panicf("%s", err)
 	}

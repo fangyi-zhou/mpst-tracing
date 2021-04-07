@@ -58,7 +58,9 @@ func (s Send) ConsumePrefix(m model.Action) (GlobalType, error) {
 			conts:  newCont,
 		}, nil
 	}
-	return nil, errors.New("cannot consume message " + m.String() + " in the global type " + s.String())
+	return nil, errors.New(
+		"cannot consume message " + m.String() + " in the global type " + s.String(),
+	)
 }
 
 func (s Send) IsDone() bool {
@@ -126,7 +128,9 @@ func (r Recv) ConsumePrefix(m model.Action) (GlobalType, error) {
 			}, nil
 		}
 	}
-	return nil, errors.New("cannot consume message " + m.String() + " in the global type " + r.String())
+	return nil, errors.New(
+		"cannot consume message " + m.String() + " in the global type " + r.String(),
+	)
 }
 
 func (r Recv) IsDone() bool {
