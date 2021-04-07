@@ -156,7 +156,7 @@ void pedro_get_enabled_transitions(string_array_t *out) {
 }
 
 int pedro_has_finished(void) {
-  value ret = binding.caml_callback(binding.do_transition, 1);
+  value ret = binding.caml_callback(binding.has_finished, 1);
   // interpret the return value as a boolean
   return (ret >> 1) ? 1 : 0;
 }
