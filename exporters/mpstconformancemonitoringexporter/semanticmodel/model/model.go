@@ -5,6 +5,15 @@ import (
 	"sync"
 )
 
+type modelState int
+
+//go:generate stringer -type=modelState
+const (
+	NORMAL modelState = iota
+	STUCK
+	TERMINATED
+)
+
 type SemanticModel interface {
 	IsTerminated() bool
 	TryReduce(action Action) bool
@@ -15,16 +24,16 @@ type Model struct {
 	SemanticModel
 	logger    *zap.Logger
 	traces    map[string][]Action
-	isStuck   bool
+	state     modelState
 	traceLock *sync.Mutex
 }
 
 func MakeModel(semanticModel SemanticModel) Model {
-	return Model{SemanticModel: semanticModel, traces: make(map[string][]Action), logger: zap.NewNop(), isStuck: false, traceLock: &sync.Mutex{}}
+	return Model{SemanticModel: semanticModel, traces: make(map[string][]Action), logger: zap.NewNop(), state: NORMAL, traceLock: &sync.Mutex{}}
 }
 
 func MakeModelWithLogger(semanticModel SemanticModel, logger *zap.Logger) Model {
-	return Model{SemanticModel: semanticModel, traces: make(map[string][]Action), logger: logger, isStuck: false, traceLock: &sync.Mutex{}}
+	return Model{SemanticModel: semanticModel, traces: make(map[string][]Action), logger: logger, state: NORMAL, traceLock: &sync.Mutex{}}
 }
 
 func (m *Model) AcceptTrace(participant string, traces []Action) {
@@ -36,7 +45,11 @@ func (m *Model) AcceptTrace(participant string, traces []Action) {
 }
 
 func (m *Model) processTraces() {
-	m.logger.Info("Processing Traces")
+	m.logger.Info("Processing Traces", zap.String("model-state", m.state.String()))
+	if m.state != NORMAL {
+		// No need to process if model is stuck or terminated
+		return
+	}
 	for {
 		reduced := false
 		for participant, trace := range m.traces {
@@ -57,16 +70,48 @@ func (m *Model) processTraces() {
 			break
 		}
 	}
-	m.checkStuck()
-	if m.isStuck {
-		m.logger.Error("Model is stuck")
-	}
+	m.updateStatus()
 }
 
-func (m *Model) checkStuck() {
-	// TODO: check whether model is stuck
+func (m *Model) updateStatus() {
+	// assumed state is NORMAL when calling this function
+	if m.SemanticModel.IsTerminated() {
+		m.state = TERMINATED
+		m.logger.Info("Model terminated")
+		return
+	}
+	if m.isStuck() {
+		m.state = STUCK
+		m.logger.Error("Model is stuck!")
+		return
+	}
+	// model is still NORMAL
+}
+
+// Determines whether a model is stuck by checking the enabled actions
+func (m *Model) isStuck() bool {
+	enabledActions := m.SemanticModel.GetEnabledActions()
+	actionsByParticipant := make(map[string][]Action)
+	// Group enabled actions by their subjects
+	for _, action := range enabledActions {
+		subject := action.Subject()
+		actionsByParticipant[subject] = append(actionsByParticipant[subject], action)
+	}
+	for subject, actions := range actionsByParticipant {
+		if len(m.traces[subject]) == 0 {
+			// The model is not necessarily stuck because the message may be yet to arrive
+			return false
+		}
+		firstAction := m.traces[subject][0]
+		for _, action := range actions {
+			if action == firstAction {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func (m *Model) IsStuck() bool {
-	return m.isStuck
+	return m.state == STUCK
 }
