@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define PEDRO_API_HASH "19f67a1cf3af7722c9c3ee55cc2952a1e598e493"
+#define PEDRO_API_HASH "1d0105bbc47c2ad64145980dd65edfe93a15cfba"
 
 // FIXME: This does not work across all archs
 typedef intptr_t value;
