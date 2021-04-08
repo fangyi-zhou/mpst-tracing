@@ -37,6 +37,12 @@ func TestActionStringify1(t *testing.T) {
 	assert.Equal(t, "A", action.Subject())
 }
 
+func TestActionParsingSilentTransition(t *testing.T) {
+	actionStr := "_12" // Pedro returns such formats for silent transitions
+	_, err := NewActionFromString(actionStr)
+	assert.Error(t, err)
+}
+
 func TestActionStringify2(t *testing.T) {
 	action := Action{
 		Src:    "A",

@@ -3,7 +3,6 @@ package pedro
 import (
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 	"go.uber.org/zap"
-	"log"
 )
 
 type pedroSemanticModel struct {
@@ -23,11 +22,12 @@ func (p *pedroSemanticModel) TryReduce(action model.Action) bool {
 
 func (p *pedroSemanticModel) GetEnabledActions() []model.Action {
 	transitions := p.runtime.GetEnabledTransitions()
-	actions := make([]model.Action, len(transitions))
+	// p.logger.Info("Raw enabled actions", zap.Strings("raw_actions", transitions))
+	actions := make([]model.Action, 0)
 	for _, transitionString := range transitions {
 		action, err := model.NewActionFromString(transitionString)
 		if err != nil {
-			log.Printf("internal error: unable to parse action: %s", transitionString)
+			p.logger.Info("skipping unrecognised action string", zap.String("raw", transitionString))
 			continue
 		}
 		actions = append(actions, action)

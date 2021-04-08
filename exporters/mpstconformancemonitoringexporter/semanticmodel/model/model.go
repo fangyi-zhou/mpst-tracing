@@ -110,6 +110,11 @@ func (m *Model) updateStatus() {
 // Determines whether a model is stuck by checking the enabled actions
 func (m *Model) isStuck() bool {
 	enabledActions := m.SemanticModel.GetEnabledActions()
+	// enabledActionStrings := make([]string, 0)
+	// for _, action := range enabledActions {
+	// 	enabledActionStrings = append(enabledActionStrings, action.String())
+	// }
+	// m.logger.Info("Enabled actions", zap.Strings("actions", enabledActionStrings))
 	actionsByParticipant := make(map[string][]Action)
 	// Group enabled actions by their subjects
 	for _, action := range enabledActions {
