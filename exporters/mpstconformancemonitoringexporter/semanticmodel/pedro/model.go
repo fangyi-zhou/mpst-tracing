@@ -25,7 +25,8 @@ func (p pedroSemanticModel) GetEnabledActions() []model.Action {
 	for _, transitionString := range transitions {
 		action, err := model.NewActionFromString(transitionString)
 		if err != nil {
-			log.Panicf("internal error: unable to parse action: %s", transitionString)
+			log.Printf("internal error: unable to parse action: %s", transitionString)
+			continue
 		}
 		actions = append(actions, action)
 	}
