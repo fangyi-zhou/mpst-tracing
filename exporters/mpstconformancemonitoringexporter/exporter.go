@@ -183,7 +183,10 @@ func newMpstConformanceExporter(
 	var m model.Model
 	switch cfg.SemanticModelType {
 	case "gtype_lts":
-		gtypeModel, err := globaltype.CreateGlobalTypeSemanticModel(cfg.GlobalTypeSexpFileName)
+		gtypeModel, err := globaltype.CreateGlobalTypeSemanticModel(
+			cfg.GlobalTypeSexpFileName,
+			logger,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load global type")
 		}
@@ -194,6 +197,7 @@ func newMpstConformanceExporter(
 			cfg.PedroSoFileName,
 			cfg.ProtocolFileName,
 			cfg.ProtocolName,
+			logger,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load pedro semantic model")

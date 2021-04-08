@@ -18,6 +18,7 @@ type SemanticModel interface {
 	IsTerminated() bool
 	TryReduce(action Action) bool
 	GetEnabledActions() []Action
+	SetLogger(logger *zap.Logger)
 }
 
 type Model struct {
@@ -29,13 +30,8 @@ type Model struct {
 }
 
 func MakeModel(semanticModel SemanticModel) Model {
-	return Model{
-		SemanticModel: semanticModel,
-		traces:        make(map[string][]Action),
-		logger:        zap.NewNop(),
-		state:         NORMAL,
-		traceLock:     &sync.Mutex{},
-	}
+	logger := zap.NewNop()
+	return MakeModelWithLogger(semanticModel, logger)
 }
 
 func MakeModelWithLogger(semanticModel SemanticModel, logger *zap.Logger) Model {
