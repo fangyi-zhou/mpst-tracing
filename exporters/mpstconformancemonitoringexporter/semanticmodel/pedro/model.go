@@ -25,6 +25,10 @@ func (p *pedroSemanticModel) GetEnabledActions() []model.Action {
 	// p.logger.Info("Raw enabled actions", zap.Strings("raw_actions", transitions))
 	actions := make([]model.Action, 0)
 	for _, transitionString := range transitions {
+		if len(transitionString) > 0 && transitionString[0] == '_' {
+			// Silent Transitions begin with underscore, skipping
+			continue
+		}
 		action, err := model.NewActionFromString(transitionString)
 		if err != nil {
 			p.logger.Info("skipping unrecognised action string", zap.String("raw", transitionString))
