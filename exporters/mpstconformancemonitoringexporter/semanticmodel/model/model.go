@@ -19,6 +19,7 @@ type SemanticModel interface {
 	TryReduce(action Action) bool
 	GetEnabledActions() []Action
 	SetLogger(logger *zap.Logger)
+	Shutdown()
 }
 
 type Model struct {

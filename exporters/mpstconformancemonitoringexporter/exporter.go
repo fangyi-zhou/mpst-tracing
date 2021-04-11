@@ -77,6 +77,7 @@ func (m mpstConformanceMonitoringExporter) Start(ctx context.Context, host compo
 }
 
 func (m mpstConformanceMonitoringExporter) Shutdown(ctx context.Context) error {
+	m.model.Shutdown()
 	return nil
 }
 

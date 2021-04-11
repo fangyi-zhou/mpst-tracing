@@ -43,6 +43,10 @@ func (p *pedroSemanticModel) SetLogger(logger *zap.Logger) {
 	p.logger = logger
 }
 
+func (p *pedroSemanticModel) Shutdown() {
+	p.runtime.Close()
+}
+
 func CreatePedroSemanticModel(
 	pedrolibFileName string,
 	protocolFileName string,
