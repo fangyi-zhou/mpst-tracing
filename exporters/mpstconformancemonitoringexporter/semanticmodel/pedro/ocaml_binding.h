@@ -1,11 +1,11 @@
 #ifndef PEDRO_BINDING_H
 #define PEDRO_BINDING_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 
-#define PEDRO_API_HASH "1d0105bbc47c2ad64145980dd65edfe93a15cfba"
+#include "version.h"
 
 // FIXME: This does not work across all archs
 typedef intptr_t value;
