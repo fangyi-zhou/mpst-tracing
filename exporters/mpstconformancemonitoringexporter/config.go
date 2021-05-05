@@ -1,10 +1,10 @@
 package mpstconformancemonitoringexporter
 
-import "go.opentelemetry.io/collector/config/configmodels"
+import "go.opentelemetry.io/collector/config"
 
 // Config defines configuration for Attributes processor.
 type Config struct {
-	configmodels.ExporterSettings `mapstructure:",squash"`
+	config.ExporterSettings `mapstructure:",squash"`
 	//SemanticModelType determines which semantic model is used, valid options are gtype_lts or gtype_pedro
 	SemanticModelType string `mapstructure:"semantic_model_type"`
 	//GlobalTypeSexpFileName is the path to a validated global protocol file, in s-expression form, used if gtype_lts model is used

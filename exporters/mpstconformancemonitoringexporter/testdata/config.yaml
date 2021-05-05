@@ -1,8 +1,8 @@
 receivers:
-  examplereceiver:
+  nop:
 
 processors:
-  exampleprocessor:
+  nop:
 
 exporters:
   mpstconformancemonitoring/lts:
@@ -18,9 +18,9 @@ service:
   pipelines:
     traces:
       receivers:
-      - examplereceiver
+      - nop
       processors:
-      - exampleprocessor
+      - nop
       exporters:
       - mpstconformancemonitoring/lts
       - mpstconformancemonitoring/pedro

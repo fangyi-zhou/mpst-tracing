@@ -3,12 +3,12 @@ package mpstconformancemonitoringexporter
 import (
 	"context"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/config/configmodels"
+	"go.opentelemetry.io/collector/config"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 )
 
 const (
-	typeStr configmodels.Type = "mpstconformancemonitoring"
+	typeStr config.Type = "mpstconformancemonitoring"
 )
 
 func NewFactory() component.ExporterFactory {
@@ -18,9 +18,9 @@ func NewFactory() component.ExporterFactory {
 		exporterhelper.WithTraces(createTraceExporter))
 }
 
-func createDefaultConfig() configmodels.Exporter {
+func createDefaultConfig() config.Exporter {
 	return &Config{
-		ExporterSettings: configmodels.ExporterSettings{
+		ExporterSettings: config.ExporterSettings{
 			NameVal: "MPSTConformanceMonitoring",
 			TypeVal: typeStr,
 		},
@@ -30,7 +30,7 @@ func createDefaultConfig() configmodels.Exporter {
 func createTraceExporter(
 	ctx context.Context,
 	params component.ExporterCreateParams,
-	cfg configmodels.Exporter,
+	cfg config.Exporter,
 ) (component.TracesExporter, error) {
 	return newMpstConformanceExporter(params.Logger, cfg.(*Config))
 }

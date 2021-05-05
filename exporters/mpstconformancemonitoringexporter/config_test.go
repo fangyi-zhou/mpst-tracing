@@ -11,7 +11,7 @@ import (
 )
 
 func TestLoadConfigLts(t *testing.T) {
-	factories, err := componenttest.ExampleComponents()
+	factories, err := componenttest.NopFactories()
 	assert.NoError(t, err)
 
 	factories.Exporters[typeStr] = NewFactory()
@@ -26,7 +26,7 @@ func TestLoadConfigLts(t *testing.T) {
 }
 
 func TestLoadConfigPedro(t *testing.T) {
-	factories, err := componenttest.ExampleComponents()
+	factories, err := componenttest.NopFactories()
 	assert.NoError(t, err)
 
 	factories.Exporters[typeStr] = NewFactory()
