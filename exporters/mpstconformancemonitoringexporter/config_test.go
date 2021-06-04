@@ -1,6 +1,7 @@
 package mpstconformancemonitoringexporter
 
 import (
+	"go.opentelemetry.io/collector/config"
 	"path"
 	"testing"
 
@@ -20,7 +21,9 @@ func TestLoadConfigLts(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	mpstConfig := cfg.Exporters["mpstconformancemonitoring/lts"].(*Config)
+	lts := config.NewIDWithName(typeStr, "lts")
+
+	mpstConfig := cfg.Exporters[lts].(*Config)
 	assert.Equal(t, "gtype_lts", mpstConfig.SemanticModelType)
 	assert.Equal(t, "gtype.sexp", mpstConfig.GlobalTypeSexpFileName)
 }
@@ -35,7 +38,9 @@ func TestLoadConfigPedro(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	mpstConfig := cfg.Exporters["mpstconformancemonitoring/pedro"].(*Config)
+	pedro := config.NewIDWithName(typeStr, "pedro")
+
+	mpstConfig := cfg.Exporters[pedro].(*Config)
 	assert.Equal(t, "gtype_pedro", mpstConfig.SemanticModelType)
 	assert.Equal(t, "pedrolib.so", mpstConfig.PedroSoFileName)
 	assert.Equal(t, "MyProto.nuscr", mpstConfig.ProtocolFileName)

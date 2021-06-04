@@ -8,6 +8,7 @@ import (
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/pedro"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/consumer/pdata"
 	"go.uber.org/zap"
 	"strings"
@@ -16,6 +17,10 @@ import (
 type mpstConformanceMonitoringExporter struct {
 	logger *zap.Logger
 	model  *model.Model
+}
+
+func (m mpstConformanceMonitoringExporter) Capabilities() consumer.Capabilities {
+	return consumer.Capabilities{MutatesData: false}
 }
 
 func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Traces) error {
