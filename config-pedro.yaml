@@ -3,6 +3,9 @@ receivers:
     protocols:
       grpc:
         endpoint: localhost:55680
+  jaeger:
+    protocols:
+      thrift_compact:
 
 processors:
 
