@@ -22,6 +22,7 @@ service:
     traces:
       receivers:
       - otlp
+      - jaeger
       processors:
       exporters:
       - logging
