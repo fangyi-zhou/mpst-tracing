@@ -24,6 +24,7 @@ func (m mpstConformanceMonitoringExporter) Capabilities() consumer.Capabilities 
 }
 
 func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Traces) error {
+	m.logger.Info("Processing Traces", zap.Int("count", traces.SpanCount()))
 	processedTraces := make(map[string][]model.Action)
 	spans := traces.ResourceSpans()
 	for i := 0; i < spans.Len(); i++ {
