@@ -1,5 +1,5 @@
 dist:
-    module: github.com/fangyi-zhou/mpst-tracing
+    module: github.com/fangyi-zhou/mpst-tracing/dist
     name: mpst-conformance-monitor
     description: MPST Conformance Monitor
     version: 0.1.0
