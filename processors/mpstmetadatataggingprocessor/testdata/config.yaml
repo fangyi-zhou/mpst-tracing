@@ -1,0 +1,18 @@
+receivers:
+  nop:
+
+processors:
+  mpstmetadatatagging:
+
+exporters:
+  nop:
+
+service:
+  pipelines:
+    traces:
+      receivers:
+      - nop
+      processors:
+      - mpstmetadatatagging
+      exporters:
+      - nop
