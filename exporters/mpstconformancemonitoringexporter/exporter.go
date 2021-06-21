@@ -39,7 +39,13 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 			for k := 0; k < innerSpans.Len(); k++ {
 				innerSpan := innerSpans.At(k)
 				attributes := innerSpan.Attributes()
-				if partner, label, action, err := extractMpstMetadata(attributes); err != nil {
+				if hasMpstMetadata(attributes) {
+					partner_, _ := attributes.Get(partnerKey)
+					msgLabel_, _ := attributes.Get(msgLabelKey)
+					action_, _ := attributes.Get(actionKey)
+					partner := partner_.StringVal()
+					action := action_.StringVal()
+					label := msgLabel_.StringVal()
 					if action == "Send" {
 						message := model.Action{
 							Label:  label,
@@ -151,15 +157,11 @@ func checkSendRecvMatching(traces map[string]causalorder.LocalTrace) error {
 }
 */
 
-func extractMpstMetadata(attributes pdata.AttributeMap) (string, string, string, error) {
-	action, hasAction := attributes.Get(actionKey)
-	label, hasLabel := attributes.Get(msgLabelKey)
-	partner, hasPartner := attributes.Get(partnerKey)
-	if hasAction && hasLabel && hasPartner {
-		return action.StringVal(), label.StringVal(), partner.StringVal(), nil
-	} else {
-		return "", "", "", errors.New("No Mpst Metadata present")
-	}
+func hasMpstMetadata(attributes pdata.AttributeMap) bool {
+	_, hasAction := attributes.Get(actionKey)
+	_, hasLabel := attributes.Get(msgLabelKey)
+	_, hasPartner := attributes.Get(partnerKey)
+	return hasAction && hasLabel && hasPartner
 }
 
 /*
