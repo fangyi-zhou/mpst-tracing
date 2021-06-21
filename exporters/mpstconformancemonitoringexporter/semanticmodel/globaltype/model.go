@@ -35,7 +35,10 @@ func (g *globalTypeSemanticModel) Shutdown() {
 	// Do nothing
 }
 
-func CreateGlobalTypeSemanticModel(globalTypeSexpFileName string, logger *zap.Logger) (model.SemanticModel, error) {
+func CreateGlobalTypeSemanticModel(
+	globalTypeSexpFileName string,
+	logger *zap.Logger,
+) (model.SemanticModel, error) {
 	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
 	if err != nil {
 		return nil, err

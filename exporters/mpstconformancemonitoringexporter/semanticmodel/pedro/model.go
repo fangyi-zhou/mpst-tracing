@@ -31,7 +31,10 @@ func (p *pedroSemanticModel) GetEnabledActions() []model.Action {
 		}
 		action, err := model.NewActionFromString(transitionString)
 		if err != nil {
-			p.logger.Info("skipping unrecognised action string", zap.String("raw", transitionString))
+			p.logger.Info(
+				"skipping unrecognised action string",
+				zap.String("raw", transitionString),
+			)
 			continue
 		}
 		actions = append(actions, action)
@@ -62,6 +65,10 @@ func CreatePedroSemanticModel(
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("Imported Nuscr File", zap.String("filename", protocolName), zap.String("protocol_name", protocolName))
+	logger.Info(
+		"Imported Nuscr File",
+		zap.String("filename", protocolName),
+		zap.String("protocol_name", protocolName),
+	)
 	return &pedroSemanticModel{runtime: runtime, logger: logger}, nil
 }
