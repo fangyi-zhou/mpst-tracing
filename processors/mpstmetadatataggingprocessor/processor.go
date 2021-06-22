@@ -31,20 +31,26 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 	for i := 0; i < rss.Len(); i++ {
 		rs := rss.At(i)
 		serviceName, serviceNameExists := rs.Resource().Attributes().Get("service.name")
+		var roleNameExists bool = false
 		var roleName string
 		if serviceNameExists {
-			roleName = serviceName.StringVal()
+			service := serviceName.StringVal()
+			roleName, roleNameExists = m.roleLookup[service]
 		}
 		ils := rs.InstrumentationLibrarySpans()
 		for j := 0; j < ils.Len(); j++ {
-			spans := ils.At(j).Spans()
+			il := ils.At(j)
+			if roleNameExists {
+				// Update role via instrumentation library name, as currently is done.
+				il.InstrumentationLibrary().SetName(roleName)
+			}
+			spans := il.Spans()
 			for k := 0; k < spans.Len(); k++ {
 				span := spans.At(k)
 				m.logger.Info(
 					"Found span",
 					zap.String("traceName", span.Name()),
 					zap.String("traceId", span.SpanID().HexString()),
-					zap.String("roleName", roleName),
 				)
 			}
 		}
