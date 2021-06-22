@@ -4,10 +4,15 @@ receivers:
       thrift_compact:
 
 processors:
+  mpstmetadatatagging:
 
 exporters:
   logging:
   mpstconformancemonitoring:
+    semantic_model_type: gtype_pedro
+    protocol_filename: twobuyer/TwoBuyer.scr
+    protocol_name: TwoBuyer
+    pedro_so_filename: ../Pedro/_build/default/src/pedrolib.so
 
 service:
   pipelines:
@@ -15,6 +20,7 @@ service:
       receivers:
       - jaeger
       processors:
+      - mpstmetadatatagging
       exporters:
       - logging
       - mpstconformancemonitoring
