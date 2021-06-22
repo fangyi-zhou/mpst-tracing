@@ -24,5 +24,11 @@ func TestLoadConfig(t *testing.T) {
 	require.NotNil(t, cfg)
 
 	mpstConfig := cfg.Processors[config.NewID(typeStr)].(*Config)
-	assert.NotNil(t, mpstConfig)
+	require.NotNil(t, mpstConfig)
+
+	roles := mpstConfig.Roles
+	client, exists := roles["client"]
+	assert.True(t, exists)
+	assert.Equal(t, "frontend", client.Name)
+
 }

@@ -3,6 +3,9 @@ receivers:
 
 processors:
   mpstmetadatatagging:
+    roles:
+      client:
+        name: frontend
 
 exporters:
   nop:

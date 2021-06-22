@@ -11,6 +11,7 @@ import (
 type MpstMetadataTaggingProcessor struct {
 	logger       *zap.Logger
 	nextConsumer consumer.Traces
+	roleLookup   map[string]string
 }
 
 func (m MpstMetadataTaggingProcessor) Start(ctx context.Context, host component.Host) error {
@@ -56,8 +57,13 @@ func newMpstMetadataTaggingProcessor(
 	config *Config,
 	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
+	roleLookup := make(map[string]string)
+	for role, roleData := range config.Roles {
+		roleLookup[roleData.Name] = role
+	}
 	return &MpstMetadataTaggingProcessor{
 		logger:       logger,
 		nextConsumer: nextConsumer,
+		roleLookup:   roleLookup,
 	}, nil
 }
