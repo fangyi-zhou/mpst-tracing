@@ -9,7 +9,8 @@ import (
 )
 
 type MpstMetadataTaggingProcessor struct {
-	Logger *zap.Logger
+	logger *zap.Logger
+	nextConsumer consumer.Traces
 }
 
 func (m MpstMetadataTaggingProcessor) Start(ctx context.Context, host component.Host) error {
@@ -25,14 +26,16 @@ func (m MpstMetadataTaggingProcessor) Capabilities() consumer.Capabilities {
 }
 
 func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdata.Traces) error {
-	panic("implement me")
+	return m.nextConsumer.ConsumeTraces(ctx, td)
 }
 
 func newMpstMetadataTaggingProcessor(
 	logger *zap.Logger,
 	config *Config,
+	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
 	return &MpstMetadataTaggingProcessor{
-		Logger: logger,
+		logger: logger,
+		nextConsumer: nextConsumer,
 	}, nil
 }

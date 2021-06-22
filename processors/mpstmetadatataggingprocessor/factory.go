@@ -30,7 +30,7 @@ func createTracesProcessor(
 	ctx context.Context,
 	settings component.ProcessorCreateSettings,
 	config config.Processor,
-	traces consumer.Traces,
+	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
-	return newMpstMetadataTaggingProcessor(settings.Logger, config.(*Config))
+	return newMpstMetadataTaggingProcessor(settings.Logger, config.(*Config), nextConsumer)
 }
