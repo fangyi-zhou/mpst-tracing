@@ -10,3 +10,8 @@ exporters:
   - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
     import: github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter
     path: ./
+
+processors:
+  - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
+    import: github.com/fangyi-zhou/mpst-tracing/processors/mpstmetadatataggingprocessor
+    path: ./
