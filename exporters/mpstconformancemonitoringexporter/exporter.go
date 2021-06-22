@@ -6,6 +6,7 @@ import (
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/pedro"
+	"github.com/fangyi-zhou/mpst-tracing/labels"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
@@ -98,12 +99,6 @@ func (m mpstConformanceMonitoringExporter) ConsumeTraces(
 	*/
 }
 
-var (
-	actionKey   = "mpst/action"
-	msgLabelKey = "mpst/msgLabel"
-	partnerKey  = "mpst/partner"
-)
-
 /*
 type participantPair struct {
 	from string
@@ -152,9 +147,9 @@ func checkSendRecvMatching(traces map[string]causalorder.LocalTrace) error {
 */
 
 func extractMpstMetadata(attributes pdata.AttributeMap) (string, string, string, error) {
-	action, hasAction := attributes.Get(actionKey)
-	label, hasLabel := attributes.Get(msgLabelKey)
-	partner, hasPartner := attributes.Get(partnerKey)
+	action, hasAction := attributes.Get(labels.ActionKey)
+	label, hasLabel := attributes.Get(labels.MsgLabelKey)
+	partner, hasPartner := attributes.Get(labels.PartnerKey)
 	if hasAction && hasLabel && hasPartner {
 		return action.StringVal(), label.StringVal(), partner.StringVal(), nil
 	} else {
