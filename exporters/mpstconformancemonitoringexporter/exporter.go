@@ -36,6 +36,7 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 			library := slice.InstrumentationLibrary()
 			libraryName := library.Name()
 			currentEndpoint := getEndpointFromLibraryName(libraryName)
+			m.logger.Info("Found Traces for endpoint", zap.String("Role", currentEndpoint))
 			innerSpans := slice.Spans()
 			for k := 0; k < innerSpans.Len(); k++ {
 				innerSpan := innerSpans.At(k)
