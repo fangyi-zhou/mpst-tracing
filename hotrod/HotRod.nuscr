@@ -1,0 +1,9 @@
+global protocol HotRod(role client, role driver, role customer, role router) {
+    Customer from client to customer;
+    CustomerResp from customer to client;
+    FindNearest from client to driver;
+    FindNearestResp from driver to client;
+    Route from client to router;
+    RouteResp from router to client;
+    // We should consider how to repeat routes somehow
+}
