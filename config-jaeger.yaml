@@ -8,6 +8,12 @@ processors:
     roles:
       client:
         name: frontend
+      driver:
+        name: driver
+      router:
+        name: route
+      customer:
+        name: customer
 
 exporters:
   logging:
