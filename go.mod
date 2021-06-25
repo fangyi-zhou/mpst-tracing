@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/nsf/sexp v0.0.0-20130620094510-d3d2f2591f1d
 	github.com/pkg/errors v0.9.1
+	github.com/scylladb/go-set v1.0.2 // indirect
 	github.com/spf13/viper v1.8.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	go.opentelemetry.io/collector v0.28.0

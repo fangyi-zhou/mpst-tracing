@@ -32,3 +32,38 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, "frontend", client.Name)
 
 }
+
+func TestConfigValidateEmpty(t *testing.T) {
+	cfg := Config{
+		ProcessorSettings: config.ProcessorSettings{},
+		Roles:             make(map[string]metadataTag),
+	}
+
+	err := cfg.Validate()
+	assert.Error(t, err)
+}
+
+func TestConfigValidateDupe(t *testing.T) {
+	cfg := Config{
+		ProcessorSettings: config.ProcessorSettings{},
+		Roles:             make(map[string]metadataTag),
+	}
+
+	cfg.Roles["client"] = metadataTag{Name: "client"}
+	cfg.Roles["server"] = metadataTag{Name: "client"}
+
+	err := cfg.Validate()
+	assert.Error(t, err)
+}
+
+func TestConfigValidateCorrect(t *testing.T) {
+	cfg := Config{
+		ProcessorSettings: config.ProcessorSettings{},
+		Roles:             make(map[string]metadataTag),
+	}
+
+	cfg.Roles["client"] = metadataTag{Name: "client"}
+
+	err := cfg.Validate()
+	assert.NoError(t, err)
+}
