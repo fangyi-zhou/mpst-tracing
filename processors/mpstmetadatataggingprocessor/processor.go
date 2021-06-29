@@ -8,10 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
+type roleName string
+type messageName string
+
 type MpstMetadataTaggingProcessor struct {
-	logger       *zap.Logger
-	nextConsumer consumer.Traces
-	roleLookup   map[string]string
+	logger        *zap.Logger
+	nextConsumer  consumer.Traces
+	roleLookup    map[string]roleName
+	messageLookup map[roleName]map[string]messageName
 }
 
 func (m MpstMetadataTaggingProcessor) Start(ctx context.Context, host component.Host) error {
@@ -32,17 +36,17 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 		rs := rss.At(i)
 		serviceName, serviceNameExists := rs.Resource().Attributes().Get("service.name")
 		var roleNameExists bool = false
-		var roleName string
+		var role roleName
 		if serviceNameExists {
 			service := serviceName.StringVal()
-			roleName, roleNameExists = m.roleLookup[service]
+			role, roleNameExists = m.roleLookup[service]
 		}
 		ils := rs.InstrumentationLibrarySpans()
 		for j := 0; j < ils.Len(); j++ {
 			il := ils.At(j)
 			if roleNameExists {
 				// Update role via instrumentation library name, as currently is done.
-				il.InstrumentationLibrary().SetName(roleName)
+				il.InstrumentationLibrary().SetName(string(role))
 			} else {
 				m.logger.Warn("Unable to find role name from trace", zap.String("identifier", serviceName.StringVal()))
 			}
@@ -66,13 +70,20 @@ func newMpstMetadataTaggingProcessor(
 	config *Config,
 	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
-	roleLookup := make(map[string]string)
+	roleLookup := make(map[string]roleName)
+	messageLookup := make(map[roleName]map[string]messageName)
 	for role, roleData := range config.Roles {
+		role := roleName(role)
 		roleLookup[roleData.Name] = role
+		messageLookup[role] = make(map[string]messageName)
+		for message, messageData := range roleData.Messages {
+			messageLookup[role][messageData.Name] = messageName(message)
+		}
 	}
 	return &MpstMetadataTaggingProcessor{
-		logger:       logger,
-		nextConsumer: nextConsumer,
-		roleLookup:   roleLookup,
+		logger:        logger,
+		nextConsumer:  nextConsumer,
+		roleLookup:    roleLookup,
+		messageLookup: messageLookup,
 	}, nil
 }

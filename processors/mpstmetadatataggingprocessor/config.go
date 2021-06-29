@@ -28,7 +28,7 @@ func (c *Config) Validate() error {
 }
 
 type metadataTag struct {
-	Name     string    `mapstructure:"name"`
+	Name     string                     `mapstructure:"name"`
 	Messages map[string]messageMetadata `mapstructure:"messages"`
 }
 
