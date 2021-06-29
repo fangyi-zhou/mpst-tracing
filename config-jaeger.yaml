@@ -8,12 +8,28 @@ processors:
     roles:
       client:
         name: frontend
+        messages:
+          - Customer:
+              name: "HTTP GET /customer"
+          - FindNearest:
+              name: "HTTP GET /driver.DriverService/FindNearest"
+          - Route:
+              name: "HTTP GET /route"
       driver:
         name: driver
+        messages:
+          - FindNearestResp:
+              name: "HTTP GET /driver.DriverService/FindNearest"
       router:
         name: route
+        messages:
+          - Route:
+              name: "HTTP GET /route"
       customer:
         name: customer
+        messages:
+          - CustomerResp:
+              name: "HTTP GET /customer"
 
 exporters:
   logging:

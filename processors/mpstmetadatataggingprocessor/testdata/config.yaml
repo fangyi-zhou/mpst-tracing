@@ -6,6 +6,11 @@ processors:
     roles:
       client:
         name: frontend
+        messages:
+          - Foo:
+              name: foo
+          - Bar:
+              name: bar
 
 exporters:
   nop:

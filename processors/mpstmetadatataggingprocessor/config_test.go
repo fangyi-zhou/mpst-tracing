@@ -31,6 +31,13 @@ func TestLoadConfig(t *testing.T) {
 	assert.True(t, exists)
 	assert.Equal(t, "frontend", client.Name)
 
+	foo, exists := client.Messages["Foo"]
+	assert.True(t, exists)
+	assert.Equal(t, "foo", foo.Name)
+
+	bar, exists := client.Messages["Bar"]
+	assert.True(t, exists)
+	assert.Equal(t, "bar", bar.Name)
 }
 
 func TestConfigValidateEmpty(t *testing.T) {
