@@ -2,6 +2,7 @@ package mpstmetadatataggingprocessor
 
 import (
 	"context"
+	"github.com/fangyi-zhou/mpst-tracing/labels"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/consumer/pdata"
@@ -52,13 +53,19 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 			}
 			spans := il.Spans()
 			for k := 0; k < spans.Len(); k++ {
-				// TODO: attach appropriate metadata here
-				//span := spans.At(k)
-				//m.logger.Info(
-				//	"Found span",
-				//	zap.String("traceName", span.Name()),
-				//	zap.String("traceId", span.SpanID().HexString()),
-				//)
+				span := spans.At(k)
+				traceName := span.Name()
+				if roleNameExists {
+					message, messageNameExists := m.messageLookup[role][traceName]
+					if messageNameExists {
+						// TODO: attach appropriate metadata (partner, action) here
+						span.Attributes().InsertString(labels.MsgLabelKey, string(message))
+						m.logger.Info(
+							"Attached label to trace",
+							zap.String("label", string(message)),
+						)
+					}
+				}
 			}
 		}
 	}
