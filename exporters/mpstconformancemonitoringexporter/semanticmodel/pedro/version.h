@@ -1,6 +1,6 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define PEDRO_API_HASH "80a74b414aeb11972c7328c63be2e308cfe54b85"
+#define PEDRO_API_HASH "e914f3d64f1b51e4d406545f0b4ea5412d003284"
 
 #endif // VERSION_H
