@@ -2,10 +2,11 @@ package mpstmetadatataggingprocessor
 
 import (
 	"context"
+
 	"github.com/fangyi-zhou/mpst-tracing/labels"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/consumer/pdata"
+	"go.opentelemetry.io/collector/model/pdata"
 	"go.uber.org/zap"
 )
 
