@@ -1,7 +1,7 @@
 protocol TwoBuyer(role A, role B, role S) {
   query from A to S;
-  quote from S to A;
-  quote from S to B;
+  quoteA from S to A;
+  quoteB from S to B;
   share from B to A;
   choice at A {
     buy from A to S;
