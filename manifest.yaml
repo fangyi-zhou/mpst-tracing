@@ -6,6 +6,9 @@ dist:
     output_path: ./_build
     otelcol_version: 0.35.0
 
+receivers:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.35.0
+
 exporters:
   - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
     import: github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter
