@@ -23,7 +23,7 @@ func TestLoadConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	mpstConfig := cfg.Processors[config.NewID(typeStr)].(*Config)
+	mpstConfig := cfg.Processors[config.NewComponentID(typeStr)].(*Config)
 	require.NotNil(t, mpstConfig)
 
 	roles := mpstConfig.Roles

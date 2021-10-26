@@ -7,10 +7,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/scylladb/go-set v1.0.2
 	github.com/stretchr/testify v1.7.0
-	go.opentelemetry.io/collector v0.35.0
-	go.opentelemetry.io/collector/model v0.35.0
-	go.uber.org/multierr v1.7.0 // indirect
-	go.uber.org/zap v1.19.0
-	golang.org/x/sys v0.0.0-20210616045830-e2b7044e8c71 // indirect
-	golang.org/x/tools v0.1.3 // indirect
+	go.opentelemetry.io/collector v0.37.0
+	go.opentelemetry.io/collector/model v0.37.0
+	go.uber.org/zap v1.19.1
 )

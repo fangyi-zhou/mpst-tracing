@@ -24,7 +24,7 @@ func TestLoadConfigLts(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	lts := config.NewIDWithName(typeStr, "lts")
+	lts := config.NewComponentIDWithName(typeStr, "lts")
 
 	mpstConfig := cfg.Exporters[lts].(*Config)
 	assert.Equal(t, "gtype_lts", mpstConfig.SemanticModelType)
@@ -44,7 +44,7 @@ func TestLoadConfigPedro(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	pedro := config.NewIDWithName(typeStr, "pedro")
+	pedro := config.NewComponentIDWithName(typeStr, "pedro")
 
 	mpstConfig := cfg.Exporters[pedro].(*Config)
 	assert.Equal(t, "gtype_pedro", mpstConfig.SemanticModelType)
