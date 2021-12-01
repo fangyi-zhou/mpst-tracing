@@ -51,6 +51,7 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 				il.InstrumentationLibrary().SetName(string(role))
 			} else {
 				m.logger.Warn("Unable to find role name from trace", zap.String("identifier", serviceName.StringVal()))
+				continue
 			}
 			spans := il.Spans()
 			for k := 0; k < spans.Len(); k++ {
