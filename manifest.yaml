@@ -4,16 +4,16 @@ dist:
     description: MPST Conformance Monitor
     version: 0.1.0
     output_path: ./_build
-    otelcol_version: 0.40.0
+    otelcol_version: 0.41.0
 
 receivers:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.40.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/jaegerreceiver v0.41.0
 
 exporters:
   - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
     import: github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter
     path: ./
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/jaegerexporter v0.40.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/jaegerexporter v0.41.0
 
 processors:
   - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
