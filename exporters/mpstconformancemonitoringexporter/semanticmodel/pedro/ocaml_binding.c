@@ -53,6 +53,7 @@ char *pedro_binding_init(char *path) {
   LOAD_OCAML_VALUE(do_transition);
   LOAD_OCAML_VALUE(has_finished);
   LOAD_OCAML_VALUE(commit_hash);
+  LOAD_OCAML_VALUE(get_all_roles);
 
   char *hash = (char *)*commit_hash;
   if (strcmp(hash, PEDRO_API_HASH)) {
@@ -126,14 +127,12 @@ int pedro_do_transition(char *transition) {
   return (ret >> 1) ? 1 : 0;
 }
 
-void pedro_get_enabled_transitions(string_array_t *out) {
+static void list_to_string_array(value list, string_array_t *out) {
   // FIXME: Check memory allocation failures and handle them gracefully
   size_t ptr_buf_size = 4;
   size_t idx = 0;
   char **ptr_out = malloc(ptr_buf_size * sizeof(char *));
-  // 1 is an unit
-  value ret = binding.caml_callback(binding.get_enabled_transitions, 1);
-  value i = ret;
+  value i = list;
 
   // 1 is the empty list
   while (i != 1) {
@@ -153,6 +152,18 @@ void pedro_get_enabled_transitions(string_array_t *out) {
   }
   out->data = ptr_out;
   out->size = idx;
+}
+
+void pedro_get_enabled_transitions(string_array_t *out) {
+  // 1 is an unit
+  value ret = binding.caml_callback(binding.get_enabled_transitions, 1);
+  list_to_string_array(ret, out);
+}
+
+void pedro_get_all_roles(string_array_t *out) {
+  // 1 is an unit
+  value ret = binding.caml_callback(binding.get_all_roles, 1);
+  list_to_string_array(ret, out);
 }
 
 int pedro_has_finished(void) {

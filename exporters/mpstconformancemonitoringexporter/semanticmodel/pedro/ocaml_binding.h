@@ -53,6 +53,8 @@ typedef struct {
   value has_finished;
   // val commit_hash : string
   value commit_hash;
+  // val get_all_roles : unit -> string list
+  value get_all_roles;
 } pedro_binding_t;
 
 #undef FUNC_PTR
@@ -64,6 +66,7 @@ char *pedro_load_from_file(char *);
 int pedro_save_to_file(char *);
 int pedro_do_transition(char *);
 void pedro_get_enabled_transitions(string_array_t *t);
+void pedro_get_all_roles(string_array_t *t);
 int pedro_has_finished(void);
 
 #endif // PEDRO_BINDING_H

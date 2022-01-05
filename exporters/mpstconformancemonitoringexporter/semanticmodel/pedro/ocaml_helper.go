@@ -96,25 +96,35 @@ func (*OcamlRuntime) DoTransition(transition string) error {
 	}
 }
 
+func stringArrayTToStringArray(arr C.string_array_t) []string {
+	i := 0
+	size := int(arr.size)
+	retArr := make([]string, size)
+	ptr := unsafe.Pointer(arr.data)
+	for i < size {
+		retArr[i] = C.GoString(*(**C.char)(ptr))
+		C.free(unsafe.Pointer(*(**C.char)(ptr)))
+		ptr = unsafe.Pointer(uintptr(ptr) + unsafe.Sizeof(ptr))
+		i++
+	}
+	C.free(unsafe.Pointer(arr.data))
+	return retArr
+}
+
 func (*OcamlRuntime) GetEnabledTransitions() []string {
 	globalLock.Lock()
 	defer globalLock.Unlock()
 	var ret C.string_array_t
 	C.pedro_get_enabled_transitions(&ret)
-	retSize := ret.size
-	retArray := ret.data
-	i := 0
-	size := int(retSize)
-	transitions := make([]string, size)
-	ptr := unsafe.Pointer(retArray)
-	for i < size {
-		transitions[i] = C.GoString(*(**C.char)(ptr))
-		C.free(unsafe.Pointer(*(**C.char)(ptr)))
-		ptr = unsafe.Pointer(uintptr(ptr) + unsafe.Sizeof(ptr))
-		i++
-	}
-	C.free(unsafe.Pointer(retArray))
-	return transitions
+	return stringArrayTToStringArray(ret)
+}
+
+func (*OcamlRuntime) GetAllRoles() []string {
+	globalLock.Lock()
+	defer globalLock.Unlock()
+	var ret C.string_array_t
+	C.pedro_get_all_roles(&ret)
+	return stringArrayTToStringArray(ret)
 }
 
 func (*OcamlRuntime) HasFinished() bool {
