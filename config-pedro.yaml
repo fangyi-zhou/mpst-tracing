@@ -16,6 +16,10 @@ exporters:
     protocol_filename: twobuyer/TwoBuyer.scr
     protocol_name: TwoBuyer
     pedro_so_filename: ../Pedro/_build/default/src/pedrolib.so
+  jaeger:
+    endpoint: localhost:14250
+    tls:
+      insecure: true
 
 service:
   pipelines:
@@ -27,3 +31,4 @@ service:
       exporters:
       - logging
       - mpstconformancemonitoring
+      - jaeger
