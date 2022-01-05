@@ -3,8 +3,6 @@ package mpstconformancemonitoringexporter
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/pedro"
@@ -14,7 +12,37 @@ import (
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/model/pdata"
 	"go.uber.org/zap"
+	"strings"
 )
+
+type mpstMetadata struct {
+	action      string
+	label       string
+	partner     string
+	currentRole string
+}
+
+func getEndpointFromLibraryName(libraryName string) string {
+	separated := strings.Split(libraryName, "/")
+	return separated[len(separated)-1]
+}
+
+func extractMpstMetadata(attributes pdata.AttributeMap) (mpstMetadata, error) {
+	action, hasAction := attributes.Get(labels.ActionKey)
+	label, hasLabel := attributes.Get(labels.MsgLabelKey)
+	partner, hasPartner := attributes.Get(labels.PartnerKey)
+	currentRole, hasCurrentRole := attributes.Get(labels.CurrentRoleKey)
+	if hasAction && hasLabel && hasPartner && hasCurrentRole {
+		return mpstMetadata{
+			action:      action.StringVal(),
+			label:       label.StringVal(),
+			partner:     partner.StringVal(),
+			currentRole: getEndpointFromLibraryName(currentRole.StringVal()),
+		}, nil
+	} else {
+		return mpstMetadata{}, errors.New("No Mpst Metadata present")
+	}
+}
 
 type mpstConformanceMonitoringExporter struct {
 	logger *zap.Logger
@@ -34,36 +62,32 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 		spanSlices := span.InstrumentationLibrarySpans()
 		for j := 0; j < spanSlices.Len(); j++ {
 			slice := spanSlices.At(j)
-			library := slice.InstrumentationLibrary()
-			libraryName := library.Name()
-			currentEndpoint := getEndpointFromLibraryName(libraryName)
-			m.logger.Info("Found Traces for endpoint", zap.String("Role", currentEndpoint))
 			innerSpans := slice.Spans()
 			for k := 0; k < innerSpans.Len(); k++ {
 				innerSpan := innerSpans.At(k)
 				attributes := innerSpan.Attributes()
-				if action, label, partner, err := extractMpstMetadata(attributes); err == nil {
-					if action == "Send" {
+				if metadata, err := extractMpstMetadata(attributes); err == nil {
+					if metadata.action == "Send" {
 						message := model.Action{
-							Label:  label,
-							Src:    currentEndpoint,
-							Dest:   partner,
+							Label:  metadata.label,
+							Src:    metadata.currentRole,
+							Dest:   metadata.partner,
 							IsSend: true,
 						}
-						processedTraces[currentEndpoint] = append(
-							processedTraces[currentEndpoint],
+						processedTraces[metadata.currentRole] = append(
+							processedTraces[metadata.currentRole],
 							message,
 						)
-					} else if action == "Recv" {
+					} else if metadata.action == "Recv" {
 						message := model.Action{
-							Label:  label,
-							Src:    partner,
-							Dest:   currentEndpoint,
+							Label:  metadata.label,
+							Src:    metadata.partner,
+							Dest:   metadata.currentRole,
 							IsSend: false,
 						}
-						processedTraces[currentEndpoint] = append(processedTraces[currentEndpoint], message)
+						processedTraces[metadata.currentRole] = append(processedTraces[metadata.currentRole], message)
 					} else {
-						m.logger.Warn("Invalid action", zap.String("action", action))
+						m.logger.Warn("Invalid action", zap.String("action", metadata.action))
 					}
 				}
 			}
@@ -148,17 +172,6 @@ func checkSendRecvMatching(traces map[string]causalorder.LocalTrace) error {
 }
 */
 
-func extractMpstMetadata(attributes pdata.AttributeMap) (string, string, string, error) {
-	action, hasAction := attributes.Get(labels.ActionKey)
-	label, hasLabel := attributes.Get(labels.MsgLabelKey)
-	partner, hasPartner := attributes.Get(labels.PartnerKey)
-	if hasAction && hasLabel && hasPartner {
-		return action.StringVal(), label.StringVal(), partner.StringVal(), nil
-	} else {
-		return "", "", "", errors.New("No Mpst Metadata present")
-	}
-}
-
 /*
 func recvWithoutSendErr(orig string, dest string, msg globaltype.Message) error {
 	return fmt.Errorf("message labelled %s received by %s without matching send, allegedly from %s", msg.Label, dest, orig)
@@ -172,11 +185,6 @@ func missingRecvMessageErr(orig string, dest string, msg globaltype.Message) err
 	return fmt.Errorf("message labelled %s sent from %s is not received by %s", msg.Label, orig, dest)
 }
 */
-
-func getEndpointFromLibraryName(libraryName string) string {
-	separated := strings.Split(libraryName, "/")
-	return separated[len(separated)-1]
-}
 
 func newMpstConformanceExporter(
 	logger *zap.Logger,

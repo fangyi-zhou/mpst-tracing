@@ -48,7 +48,7 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 			il := ils.At(j)
 			if roleNameExists {
 				// Update role via instrumentation library name, as currently is done.
-				il.InstrumentationLibrary().SetName(string(role))
+				attachCurrentRoleTag(il, string(role))
 			} else {
 				m.logger.Warn("Unable to find role name from trace", zap.String("identifier", serviceName.StringVal()))
 				continue
@@ -76,6 +76,14 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 		}
 	}
 	return m.nextConsumer.ConsumeTraces(ctx, td)
+}
+
+func attachCurrentRoleTag(il pdata.InstrumentationLibrarySpans, role string) {
+	spans := il.Spans()
+	for i := 0; i < spans.Len(); i++ {
+		span := spans.At(i)
+		span.Attributes().InsertString(labels.CurrentRoleKey, role)
+	}
 }
 
 func newMpstMetadataTaggingProcessor(
