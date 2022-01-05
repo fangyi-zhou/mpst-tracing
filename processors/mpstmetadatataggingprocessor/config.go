@@ -3,6 +3,7 @@ package mpstmetadatataggingprocessor
 import (
 	"errors"
 	"fmt"
+
 	"github.com/scylladb/go-set/strset"
 	"go.opentelemetry.io/collector/config"
 )

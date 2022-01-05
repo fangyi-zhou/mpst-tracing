@@ -1,9 +1,10 @@
 package mpstconformancemonitoringexporter
 
 import (
-	"go.opentelemetry.io/collector/config"
 	"path"
 	"testing"
+
+	"go.opentelemetry.io/collector/config"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

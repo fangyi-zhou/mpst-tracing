@@ -1,8 +1,9 @@
 package model
 
 import (
-	"go.uber.org/zap"
 	"sync"
+
+	"go.uber.org/zap"
 )
 
 type modelState int
@@ -54,6 +55,9 @@ func (m *Model) AcceptTrace(participant string, traces []Action) {
 		zap.String("participant", participant),
 		zap.Int("number", len(traces)),
 	)
+	// for _, trace := range traces {
+	// 	m.logger.Info("Trace", zap.String("trace", trace.String()))
+	// }
 	m.processTraces()
 }
 
@@ -83,7 +87,10 @@ func (m *Model) processTraces() {
 				m.traces[participant] = m.traces[participant][1:]
 				reduced = true
 			} else {
-				m.logger.Info("Cannot reduce action for participant", zap.String("action", action.String()), zap.String("participant", participant))
+				m.logger.Info("Cannot reduce action for participant", zap.String(
+					"action",
+					action.String(),
+				), zap.String("participant", participant))
 			}
 		}
 		if !reduced {

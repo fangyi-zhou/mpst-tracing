@@ -3,8 +3,9 @@ package globaltype
 import (
 	"bufio"
 	"fmt"
-	"github.com/nsf/sexp"
 	"os"
+
+	"github.com/nsf/sexp"
 )
 
 func LoadFromSexp(sexp *sexp.Node) (GlobalType, error) {
