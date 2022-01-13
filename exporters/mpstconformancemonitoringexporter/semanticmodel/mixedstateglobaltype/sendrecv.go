@@ -25,7 +25,7 @@ func (s Send) PossiblePrefixes() []model.Action {
 	})
 	contPrefixes := s.cont.PossiblePrefixes()
 	for _, contPrefix := range contPrefixes {
-		if contPrefix.Subject() != s.origin {
+		if contPrefix.Subject() != s.origin && contPrefix.Subject() != s.dest {
 			prefixes = append(prefixes, contPrefix)
 		}
 	}
