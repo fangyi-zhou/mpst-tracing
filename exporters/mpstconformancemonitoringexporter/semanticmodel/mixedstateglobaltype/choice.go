@@ -76,3 +76,11 @@ func (c Choice) stringWithBuilder(b *strings.Builder) {
 	}
 	b.WriteString("}\n")
 }
+
+func (c Choice) ResidualActions(choicer string) [][]model.Action {
+	res := make([][]model.Action, 0)
+	for _, choice := range c.choices {
+		res = append(res, choice.ResidualActions(choicer)...)
+	}
+	return res
+}

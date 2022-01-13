@@ -69,6 +69,26 @@ func (s Send) String() string {
 	return b.String()
 }
 
+func (s Send) ResidualActions(choicer string) [][]model.Action {
+	if s.origin == choicer {
+		return [][]model.Action{{}}
+	}
+	action := model.Action{
+		Src:    s.origin,
+		Dest:   s.dest,
+		Label:  s.label,
+		IsSend: true,
+	}
+	if s.dest == choicer {
+		return [][]model.Action{{action}}
+	}
+	res := s.cont.ResidualActions(choicer)
+	for idx, actions := range res {
+		res[idx] = append([]model.Action{action}, actions...)
+	}
+	return res
+}
+
 func (s Send) stringWithBuilder(b *strings.Builder) {
 	b.WriteString(s.origin)
 	b.WriteString(" --> ")
@@ -143,4 +163,21 @@ func (r Recv) stringWithBuilder(b *strings.Builder) {
 	b.WriteString(r.label)
 	b.WriteString(": ")
 	r.cont.stringWithBuilder(b)
+}
+
+func (r Recv) ResidualActions(choicer string) [][]model.Action {
+	if r.dest == choicer || r.origin == choicer {
+		return [][]model.Action{{}}
+	}
+	res := r.cont.ResidualActions(choicer)
+	action := model.Action{
+		Src:    r.origin,
+		Dest:   r.dest,
+		Label:  r.label,
+		IsSend: false,
+	}
+	for idx, actions := range res {
+		res[idx] = append([]model.Action{action}, actions...)
+	}
+	return res
 }

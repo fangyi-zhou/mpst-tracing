@@ -11,6 +11,7 @@ type MixedStateGlobalType interface {
 	ConsumePrefix(model *mixedStateGlobalTypeSemanticModel, message model.Action) (MixedStateGlobalType, error)
 	IsDone() bool
 	String() string
+	ResidualActions(choicer string) [][]model.Action
 
 	stringWithBuilder(*strings.Builder)
 }

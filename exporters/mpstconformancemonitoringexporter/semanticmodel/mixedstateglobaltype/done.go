@@ -29,6 +29,10 @@ func (Done) stringWithBuilder(b *strings.Builder) {
 	b.WriteString("end")
 }
 
+func (Done) ResidualActions(_ string) [][]model.Action {
+	return [][]model.Action{{}}
+}
+
 func NewDone() Done {
 	return Done{}
 }
