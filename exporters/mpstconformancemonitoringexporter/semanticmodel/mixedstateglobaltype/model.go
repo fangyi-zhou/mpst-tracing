@@ -28,9 +28,11 @@ func (g *mixedStateGlobalTypeSemanticModel) TryReduce(action model.Action) bool 
 			} else {
 				g.residualActions[idx] = actions[1:]
 			}
+			g.logger.Info("Reduced residual action", zap.String("action", action.String()))
 			return true
 		}
 	}
+	g.logger.Info("Global Type", zap.String("global", (*g.gtype).String()))
 	next, err := (*g.gtype).ConsumePrefix(g, action)
 	if err != nil {
 		return false
