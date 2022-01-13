@@ -5,17 +5,17 @@ import (
 	"go.uber.org/zap"
 )
 
-type globalTypeSemanticModel struct {
+type mixedStateGlobalTypeSemanticModel struct {
 	gtype  *MixedStateGlobalType
 	logger *zap.Logger
 }
 
-func (g *globalTypeSemanticModel) IsTerminated() bool {
+func (g *mixedStateGlobalTypeSemanticModel) IsTerminated() bool {
 	return (*g.gtype).IsDone()
 }
 
-func (g *globalTypeSemanticModel) TryReduce(action model.Action) bool {
-	next, err := (*g.gtype).ConsumePrefix(action)
+func (g *mixedStateGlobalTypeSemanticModel) TryReduce(action model.Action) bool {
+	next, err := (*g.gtype).ConsumePrefix(g, action)
 	if err != nil {
 		return false
 	}
@@ -23,15 +23,15 @@ func (g *globalTypeSemanticModel) TryReduce(action model.Action) bool {
 	return true
 }
 
-func (g *globalTypeSemanticModel) GetEnabledActions() []model.Action {
+func (g *mixedStateGlobalTypeSemanticModel) GetEnabledActions() []model.Action {
 	return (*g.gtype).PossiblePrefixes()
 }
 
-func (g *globalTypeSemanticModel) SetLogger(logger *zap.Logger) {
+func (g *mixedStateGlobalTypeSemanticModel) SetLogger(logger *zap.Logger) {
 	g.logger = logger
 }
 
-func (g *globalTypeSemanticModel) Shutdown() {
+func (g *mixedStateGlobalTypeSemanticModel) Shutdown() {
 	// Do nothing
 }
 
@@ -43,5 +43,5 @@ func CreateMixedStateGlobalTypeSemanticModel(
 	if err != nil {
 		return nil, err
 	}
-	return &globalTypeSemanticModel{gtype: &gtype, logger: logger}, nil
+	return &mixedStateGlobalTypeSemanticModel{gtype: &gtype, logger: logger}, nil
 }

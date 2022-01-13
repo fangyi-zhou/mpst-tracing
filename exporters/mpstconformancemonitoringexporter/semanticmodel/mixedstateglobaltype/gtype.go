@@ -8,7 +8,7 @@ import (
 
 type MixedStateGlobalType interface {
 	PossiblePrefixes() []model.Action
-	ConsumePrefix(message model.Action) (MixedStateGlobalType, error)
+	ConsumePrefix(model *mixedStateGlobalTypeSemanticModel, message model.Action) (MixedStateGlobalType, error)
 	IsDone() bool
 	String() string
 

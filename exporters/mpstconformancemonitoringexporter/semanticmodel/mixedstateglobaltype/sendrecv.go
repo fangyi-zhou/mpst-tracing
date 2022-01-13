@@ -32,7 +32,7 @@ func (s Send) PossiblePrefixes() []model.Action {
 	return prefixes
 }
 
-func (s Send) ConsumePrefix(m model.Action) (MixedStateGlobalType, error) {
+func (s Send) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, m model.Action) (MixedStateGlobalType, error) {
 	if m.Src == s.origin && m.Dest == s.dest && m.IsSend {
 		if m.Label == s.label {
 			// Send prefix consumed
@@ -43,7 +43,7 @@ func (s Send) ConsumePrefix(m model.Action) (MixedStateGlobalType, error) {
 	}
 	if s.origin != m.Subject() && s.dest != m.Subject() {
 		// Reduction under Prefix
-		consumed, err := s.cont.ConsumePrefix(m)
+		consumed, err := s.cont.ConsumePrefix(g, m)
 		if err != nil {
 			return nil, err
 		}
@@ -102,13 +102,13 @@ func (r Recv) PossiblePrefixes() []model.Action {
 	return prefixes
 }
 
-func (r Recv) ConsumePrefix(m model.Action) (MixedStateGlobalType, error) {
+func (r Recv) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, m model.Action) (MixedStateGlobalType, error) {
 	if m.Src == r.origin && m.Dest == r.dest && !m.IsSend {
 		return r.cont, nil
 	}
 	if m.Subject() != r.dest {
 		// Reduction under prefix
-		newCont, err := r.cont.ConsumePrefix(m)
+		newCont, err := r.cont.ConsumePrefix(g, m)
 		if err != nil {
 			return nil, err
 		} else {

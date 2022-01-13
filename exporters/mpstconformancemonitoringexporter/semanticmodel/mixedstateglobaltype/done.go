@@ -13,7 +13,7 @@ func (Done) PossiblePrefixes() []model.Action {
 	return make([]model.Action, 0)
 }
 
-func (Done) ConsumePrefix(_ model.Action) (MixedStateGlobalType, error) {
+func (Done) ConsumePrefix(_ *mixedStateGlobalTypeSemanticModel, _ model.Action) (MixedStateGlobalType, error) {
 	return nil, errors.New("end cannot consume prefix")
 }
 
