@@ -37,7 +37,7 @@ func loadGType(node *sexp.Node) (MixedStateGlobalType, error) {
 func loadChoiceG(node *sexp.Node) (MixedStateGlobalType, error) {
 	// node is the keyword ChoiceG
 	// the next s-expression is the choice role
-
+	choicer := node.Next.Value
 	// The list of continuations follows
 	choices := node.Next.Next
 	if choices == nil || choices.IsScalar() {
@@ -53,31 +53,10 @@ func loadChoiceG(node *sexp.Node) (MixedStateGlobalType, error) {
 		gtypes = append(gtypes, gtype)
 		choice = choice.Next
 	}
-	return combineGtypes(gtypes)
-}
-
-func combineGtypes(gtypes []MixedStateGlobalType) (MixedStateGlobalType, error) {
-	if len(gtypes) == 0 {
-		// nuscr should probably report an error of an empty choice, but we handle this case for completeness
-		return NewDone(), nil
-	} else if len(gtypes) == 1 {
-		// nuscr should probably also report an error in the case of a degenerate choice, we also handle for completeness
-		return gtypes[0], nil
-	}
-	combined := Send{conts: make(map[string]MixedStateGlobalType)}
-	for _, gtype := range gtypes {
-		switch gtype := gtype.(type) {
-		case Send:
-			combined.origin = gtype.origin
-			combined.dest = gtype.dest
-			for label, k := range gtype.conts {
-				combined.conts[label] = k
-			}
-		default:
-			return nil, fmt.Errorf("cannot combine gtypes %s", gtype)
-		}
-	}
-	return combined, nil
+	return Choice{
+		choicer: choicer,
+		choices: gtypes,
+	}, nil
 }
 
 func loadMessageG(node *sexp.Node) (MixedStateGlobalType, error) {
@@ -109,13 +88,12 @@ func loadMessageG(node *sexp.Node) (MixedStateGlobalType, error) {
 	return Send{
 		origin: sendRoleExp.Value,
 		dest:   recvRoleExp.Value,
-		conts: map[string]MixedStateGlobalType{
-			label: Recv{
-				origin: sendRoleExp.Value,
-				dest:   recvRoleExp.Value,
-				label:  label,
-				cont:   cont,
-			},
+		label:  label,
+		cont: Recv{
+			origin: sendRoleExp.Value,
+			dest:   recvRoleExp.Value,
+			label:  label,
+			cont:   cont,
 		},
 	}, nil
 }

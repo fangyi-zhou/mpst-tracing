@@ -10,24 +10,23 @@ import (
 type Send struct {
 	origin string
 	dest   string
-	conts  map[string]MixedStateGlobalType
+	label  string
+	cont   MixedStateGlobalType
 }
 
 func (s Send) PossiblePrefixes() []model.Action {
 	var prefixes []model.Action
-	for label, cont := range s.conts {
-		// First add the send action
-		prefixes = append(prefixes, model.Action{
-			Label:  label,
-			Src:    s.origin,
-			Dest:   s.dest,
-			IsSend: true,
-		})
-		contPrefixes := cont.PossiblePrefixes()
-		for _, contPrefix := range contPrefixes {
-			if contPrefix.Subject() != s.origin {
-				prefixes = append(prefixes, contPrefix)
-			}
+	// First add the send action
+	prefixes = append(prefixes, model.Action{
+		Label:  s.label,
+		Src:    s.origin,
+		Dest:   s.dest,
+		IsSend: true,
+	})
+	contPrefixes := s.cont.PossiblePrefixes()
+	for _, contPrefix := range contPrefixes {
+		if contPrefix.Subject() != s.origin {
+			prefixes = append(prefixes, contPrefix)
 		}
 	}
 	return prefixes
@@ -35,28 +34,24 @@ func (s Send) PossiblePrefixes() []model.Action {
 
 func (s Send) ConsumePrefix(m model.Action) (MixedStateGlobalType, error) {
 	if m.Src == s.origin && m.Dest == s.dest && m.IsSend {
-		cont, exists := s.conts[m.Label]
-		if exists {
+		if m.Label == s.label {
 			// Send prefix consumed
-			return cont, nil
+			return s.cont, nil
 		} else {
 			return nil, errors.New("label " + m.Label + " not permitted in the global type " + s.String())
 		}
 	}
 	if s.origin != m.Subject() && s.dest != m.Subject() {
 		// Reduction under Prefix
-		var newCont = map[string]MixedStateGlobalType{}
-		for label, cont := range s.conts {
-			consumed, err := cont.ConsumePrefix(m)
-			if err != nil {
-				return nil, err
-			}
-			newCont[label] = consumed
+		consumed, err := s.cont.ConsumePrefix(m)
+		if err != nil {
+			return nil, err
 		}
 		return Send{
 			origin: s.origin,
 			dest:   s.dest,
-			conts:  newCont,
+			label:  s.label,
+			cont:   consumed,
 		}, nil
 	}
 	return nil, errors.New(
@@ -78,14 +73,10 @@ func (s Send) stringWithBuilder(b *strings.Builder) {
 	b.WriteString(s.origin)
 	b.WriteString(" --> ")
 	b.WriteString(s.dest)
-	b.WriteString(": {\n")
-	for label, cont := range s.conts {
-		b.WriteString(label)
-		b.WriteString(": ")
-		cont.stringWithBuilder(b)
-		b.WriteString("\n")
-	}
-	b.WriteString("}\n")
+	b.WriteString(": <")
+	b.WriteString(s.label)
+	b.WriteString("> .\n")
+	s.cont.stringWithBuilder(b)
 }
 
 type Recv struct {
