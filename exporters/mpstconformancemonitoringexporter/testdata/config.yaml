@@ -8,6 +8,9 @@ exporters:
   mpstconformancemonitoring/lts:
     semantic_model_type: gtype_lts
     protocol_sexp_filename: gtype.sexp
+  mpstconformancemonitoring/mixed_state:
+    semantic_model_type: gtype_mixed_state
+    protocol_sexp_filename: gtype.sexp
   mpstconformancemonitoring/pedro:
     semantic_model_type: gtype_pedro
     pedro_so_filename: pedrolib.so
@@ -23,4 +26,5 @@ service:
       - nop
       exporters:
       - mpstconformancemonitoring/lts
+      - mpstconformancemonitoring/mixed_state
       - mpstconformancemonitoring/pedro

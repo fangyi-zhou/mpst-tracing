@@ -3,6 +3,7 @@ package mpstconformancemonitoringexporter
 import (
 	"context"
 	"fmt"
+	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/mixedstateglobaltype"
 	"strings"
 
 	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/globaltype"
@@ -215,6 +216,16 @@ func newMpstConformanceExporter(
 		}
 		logger.Info("Loaded petri net model")
 		m = model.MakeModelWithLogger(pedroModel, logger)
+	case "gtype_mixed_state":
+		gtypeModel, err := mixedstateglobaltype.CreateMixedStateGlobalTypeSemanticModel(
+			cfg.GlobalTypeSexpFileName,
+			logger,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "unable to load global type")
+		}
+		logger.Info("Loaded global type (with mixed states)")
+		m = model.MakeModelWithLogger(gtypeModel, logger)
 	default:
 		return nil, fmt.Errorf("unknown semantic model type %s", cfg.SemanticModelType)
 	}
