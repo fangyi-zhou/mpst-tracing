@@ -1,6 +1,7 @@
 package mpstconformancemonitoringexporter
 
 import (
+	"go.opentelemetry.io/collector/service/servicetest"
 	"path"
 	"testing"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
-	"go.opentelemetry.io/collector/config/configtest"
 )
 
 func TestLoadConfigLts(t *testing.T) {
@@ -18,7 +18,7 @@ func TestLoadConfigLts(t *testing.T) {
 
 	factories.Exporters[typeStr] = NewFactory()
 
-	cfg, err := configtest.LoadConfigAndValidate(
+	cfg, err := servicetest.LoadConfigAndValidate(
 		path.Join(".", "testdata", "config.yaml"),
 		factories,
 	)
@@ -38,7 +38,7 @@ func TestLoadConfigPedro(t *testing.T) {
 
 	factories.Exporters[typeStr] = NewFactory()
 
-	cfg, err := configtest.LoadConfigAndValidate(
+	cfg, err := servicetest.LoadConfigAndValidate(
 		path.Join(".", "testdata", "config.yaml"),
 		factories,
 	)

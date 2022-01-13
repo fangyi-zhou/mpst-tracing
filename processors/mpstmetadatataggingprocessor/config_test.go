@@ -1,6 +1,7 @@
 package mpstmetadatataggingprocessor
 
 import (
+	"go.opentelemetry.io/collector/service/servicetest"
 	"path"
 	"testing"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/config"
-	"go.opentelemetry.io/collector/config/configtest"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -17,7 +17,7 @@ func TestLoadConfig(t *testing.T) {
 
 	factories.Processors[typeStr] = NewFactory()
 
-	cfg, err := configtest.LoadConfigAndValidate(
+	cfg, err := servicetest.LoadConfigAndValidate(
 		path.Join(".", "testdata", "config.yaml"),
 		factories,
 	)
