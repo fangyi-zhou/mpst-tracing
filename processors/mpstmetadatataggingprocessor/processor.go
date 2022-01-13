@@ -20,11 +20,11 @@ type MpstMetadataTaggingProcessor struct {
 	messageLookup map[roleName]map[string]messageName
 }
 
-func (m MpstMetadataTaggingProcessor) Start(ctx context.Context, host component.Host) error {
+func (m MpstMetadataTaggingProcessor) Start(_ context.Context, _ component.Host) error {
 	return nil
 }
 
-func (m MpstMetadataTaggingProcessor) Shutdown(ctx context.Context) error {
+func (m MpstMetadataTaggingProcessor) Shutdown(_ context.Context) error {
 	return nil
 }
 
@@ -37,7 +37,7 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 	for i := 0; i < rss.Len(); i++ {
 		rs := rss.At(i)
 		serviceName, serviceNameExists := rs.Resource().Attributes().Get("service.name")
-		var roleNameExists bool = false
+		var roleNameExists = false
 		var role roleName
 		if serviceNameExists {
 			service := serviceName.StringVal()

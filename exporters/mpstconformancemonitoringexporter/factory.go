@@ -26,7 +26,7 @@ func createDefaultConfig() config.Exporter {
 }
 
 func createTraceExporter(
-	ctx context.Context,
+	_ context.Context,
 	params component.ExporterCreateSettings,
 	cfg config.Exporter,
 ) (component.TracesExporter, error) {

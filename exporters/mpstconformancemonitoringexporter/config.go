@@ -13,6 +13,6 @@ type Config struct {
 	ProtocolFileName string `mapstructure:"protocol_filename"`
 	//ProtocolName is the name of global protocol in file specified at ProtocolFileName
 	ProtocolName string `mapstructure:"protocol_name"`
-	//PedroSoFileName is the path to plibpedroedrolib.so
+	//PedroSoFileName is the path to pedrolib.so
 	PedroSoFileName string `mapstructure:"pedro_so_filename"`
 }

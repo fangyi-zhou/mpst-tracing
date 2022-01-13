@@ -10,7 +10,7 @@ import (
 
 func LoadFromSexp(sexp *sexp.Node) (MixedStateGlobalType, error) {
 	if !sexp.IsList() {
-		return nil, fmt.Errorf("Expect the top level s-expression to be a list")
+		return nil, fmt.Errorf("expect the top level s-expression to be a list")
 	}
 	return loadGType(sexp.Children)
 }
@@ -41,7 +41,7 @@ func loadChoiceG(node *sexp.Node) (MixedStateGlobalType, error) {
 	// The list of continuations follows
 	choices := node.Next.Next
 	if choices == nil || choices.IsScalar() {
-		return nil, fmt.Errorf("Expect a list of choices")
+		return nil, fmt.Errorf("expect a list of choices")
 	}
 	choice := choices.Children
 	gtypes := make([]MixedStateGlobalType, 0)
@@ -62,24 +62,24 @@ func loadChoiceG(node *sexp.Node) (MixedStateGlobalType, error) {
 func loadMessageG(node *sexp.Node) (MixedStateGlobalType, error) {
 	msgExp := node.Next
 	if msgExp == nil || msgExp.IsScalar() {
-		return nil, fmt.Errorf("Expect a message")
+		return nil, fmt.Errorf("expect a message")
 	}
 	labelExp := msgExp.Children
 	if labelExp.Children.Value != "label" {
-		return nil, fmt.Errorf("Expect keyword label, got %s", labelExp.Children.Value)
+		return nil, fmt.Errorf("expect keyword label, got %s", labelExp.Children.Value)
 	}
 	label := labelExp.Children.Next.Value
 	sendRoleExp := msgExp.Next
 	if sendRoleExp == nil {
-		return nil, fmt.Errorf("Expect a sending role")
+		return nil, fmt.Errorf("expect a sending role")
 	}
 	recvRoleExp := sendRoleExp.Next
 	if recvRoleExp == nil {
-		return nil, fmt.Errorf("Expect a receiving role")
+		return nil, fmt.Errorf("expect a receiving role")
 	}
 	contExp := recvRoleExp.Next
 	if contExp == nil {
-		return nil, fmt.Errorf("Expect a continuation")
+		return nil, fmt.Errorf("expect a continuation")
 	}
 	cont, err := loadGType(contExp)
 	if err != nil {
@@ -107,9 +107,9 @@ func LoadFromSexpFile(filename string) (MixedStateGlobalType, error) {
 		return nil, err
 	}
 	reader := bufio.NewReader(file)
-	sexp, err := sexp.Parse(reader, sourceFile)
+	parsed, err := sexp.Parse(reader, sourceFile)
 	if err != nil {
 		return nil, err
 	}
-	return LoadFromSexp(sexp)
+	return LoadFromSexp(parsed)
 }

@@ -28,7 +28,7 @@ func createDefaultConfig() config.Processor {
 }
 
 func createTracesProcessor(
-	ctx context.Context,
+	_ context.Context,
 	settings component.ProcessorCreateSettings,
 	config config.Processor,
 	nextConsumer consumer.Traces,

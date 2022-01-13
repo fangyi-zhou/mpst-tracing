@@ -1,4 +1,4 @@
-This repos contains preliminary investigations of using opentelemetry and multiparty session types to monitor protocol conformance:
+This repo contains preliminary investigations of using opentelemetry and multiparty session types to monitor protocol conformance:
 
 # Layout
 

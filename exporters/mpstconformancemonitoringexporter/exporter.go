@@ -101,17 +101,17 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 	return nil
 }
 
-func (m mpstConformanceMonitoringExporter) Start(ctx context.Context, host component.Host) error {
+func (m mpstConformanceMonitoringExporter) Start(_ context.Context, _ component.Host) error {
 	return nil
 }
 
-func (m mpstConformanceMonitoringExporter) Shutdown(ctx context.Context) error {
+func (m mpstConformanceMonitoringExporter) Shutdown(_ context.Context) error {
 	m.model.Shutdown()
 	return nil
 }
 
 func (m mpstConformanceMonitoringExporter) ConsumeTraces(
-	ctx context.Context,
+	_ context.Context,
 	td pdata.Traces,
 ) error {
 	err := m.processLocalTraces(td)
