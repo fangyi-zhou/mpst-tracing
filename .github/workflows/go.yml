@@ -39,4 +39,6 @@ jobs:
         version: v1.29
         working-directory: ${{ matrix.pkg }}
         skip-go-installation: true
+        skip-pkg-cache: true
+        skip-build-cache: true
 
