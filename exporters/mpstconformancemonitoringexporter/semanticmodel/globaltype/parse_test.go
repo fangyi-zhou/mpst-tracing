@@ -7,7 +7,7 @@ import (
 )
 
 func testParseFile(t *testing.T, file string) {
-	file = path.Join("testdata", "TwoBuyer_global_type.sexp")
+	file = path.Join("testdata", file)
 	gtype, err := LoadFromSexpFile(file)
 	assert.NoError(t, err)
 	assert.NotNil(t, gtype)
