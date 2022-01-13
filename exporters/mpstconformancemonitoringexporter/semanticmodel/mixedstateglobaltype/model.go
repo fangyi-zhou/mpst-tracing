@@ -8,6 +8,8 @@ import (
 type mixedStateGlobalTypeSemanticModel struct {
 	gtype  *MixedStateGlobalType
 	logger *zap.Logger
+	// It is important that all elements in the array must be non-empty
+	residualActions [][]model.Action
 }
 
 func (g *mixedStateGlobalTypeSemanticModel) IsTerminated() bool {
@@ -15,6 +17,20 @@ func (g *mixedStateGlobalTypeSemanticModel) IsTerminated() bool {
 }
 
 func (g *mixedStateGlobalTypeSemanticModel) TryReduce(action model.Action) bool {
+	// First see if any residual actions can reduce
+	// They should be disjoint from main actions (hopefully...)
+	for idx, actions := range g.residualActions {
+		if actions[0] == action {
+			if len(actions) == 1 {
+				// Clean up by moving the last in the array to current position
+				g.residualActions[idx] = g.residualActions[len(g.residualActions)-1]
+				g.residualActions = g.residualActions[:len(g.residualActions)-1]
+			} else {
+				g.residualActions[idx] = actions[1:]
+			}
+			return true
+		}
+	}
 	next, err := (*g.gtype).ConsumePrefix(g, action)
 	if err != nil {
 		return false
@@ -33,6 +49,10 @@ func (g *mixedStateGlobalTypeSemanticModel) SetLogger(logger *zap.Logger) {
 
 func (g *mixedStateGlobalTypeSemanticModel) Shutdown() {
 	// Do nothing
+}
+
+func (g *mixedStateGlobalTypeSemanticModel) AddResidualActions(residuals [][]model.Action) {
+	g.residualActions = append(g.residualActions, residuals...)
 }
 
 func CreateMixedStateGlobalTypeSemanticModel(

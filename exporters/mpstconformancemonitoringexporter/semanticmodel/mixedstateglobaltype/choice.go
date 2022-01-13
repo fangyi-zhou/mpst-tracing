@@ -23,19 +23,29 @@ func (c Choice) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, message mode
 	if message.Subject() == c.choicer {
 		// Choicer reduction
 		success := false
-		//successIdx := -1
+		successIdx := -1
 		var cont MixedStateGlobalType = nil
-		for _, choice := range c.choices {
+		for idx, choice := range c.choices {
 			next, err := choice.ConsumePrefix(g, message)
 			if err != nil {
 				success = true
 				cont = next
-				//successIdx = idx
+				successIdx = idx
 				break
 			}
 		}
 		if success {
-			// TODO: Add residual actions
+			residuals := make([][]model.Action, 0)
+			for idx, choice := range c.choices {
+				if idx != successIdx {
+					for _, residual := range choice.ResidualActions(c.choicer) {
+						if len(residual) > 0 {
+							residuals = append(residuals, residual)
+						}
+					}
+				}
+			}
+			g.AddResidualActions(residuals)
 			return cont, nil
 		}
 	} else {
