@@ -27,7 +27,7 @@ func (c Choice) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, message mode
 		var cont MixedStateGlobalType = nil
 		for idx, choice := range c.choices {
 			next, err := choice.ConsumePrefix(g, message)
-			if err != nil {
+			if err == nil {
 				success = true
 				cont = next
 				successIdx = idx
@@ -52,7 +52,7 @@ func (c Choice) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, message mode
 		// Non-choicer reduction
 		for idx, choice := range c.choices {
 			next, err := choice.ConsumePrefix(g, message)
-			if err != nil {
+			if err == nil {
 				newChoices := make([]MixedStateGlobalType, len(c.choices))
 				copy(newChoices, c.choices)
 				newChoices[idx] = next
