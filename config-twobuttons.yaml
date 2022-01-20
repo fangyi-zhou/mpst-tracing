@@ -11,6 +11,10 @@ exporters:
   mpstconformancemonitoring:
     semantic_model_type: gtype_mixed_state
     protocol_sexp_filename: twobuttons/TwoButtons.sexp
+  jaeger:
+    endpoint: localhost:14250
+    tls:
+      insecure: true
 
 service:
   pipelines:
@@ -21,3 +25,4 @@ service:
       exporters:
       - logging
       - mpstconformancemonitoring
+      - jaeger
