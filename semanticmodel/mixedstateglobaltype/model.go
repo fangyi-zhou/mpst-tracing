@@ -1,7 +1,7 @@
 package mixedstateglobaltype
 
 import (
-	model2 "github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"go.uber.org/zap"
 )
 
@@ -9,14 +9,14 @@ type mixedStateGlobalTypeSemanticModel struct {
 	gtype  *MixedStateGlobalType
 	logger *zap.Logger
 	// It is important that all elements in the array must be non-empty
-	residualActions [][]model2.Action
+	residualActions [][]model.Action
 }
 
 func (g *mixedStateGlobalTypeSemanticModel) IsTerminated() bool {
 	return (*g.gtype).IsDone()
 }
 
-func (g *mixedStateGlobalTypeSemanticModel) TryReduce(action model2.Action) bool {
+func (g *mixedStateGlobalTypeSemanticModel) TryReduce(action model.Action) bool {
 	// First see if any residual actions can reduce
 	// They should be disjoint from main actions (hopefully...)
 	for idx, actions := range g.residualActions {
@@ -41,7 +41,7 @@ func (g *mixedStateGlobalTypeSemanticModel) TryReduce(action model2.Action) bool
 	return true
 }
 
-func (g *mixedStateGlobalTypeSemanticModel) GetEnabledActions() []model2.Action {
+func (g *mixedStateGlobalTypeSemanticModel) GetEnabledActions() []model.Action {
 	return (*g.gtype).PossiblePrefixes()
 }
 
@@ -53,14 +53,14 @@ func (g *mixedStateGlobalTypeSemanticModel) Shutdown() {
 	// Do nothing
 }
 
-func (g *mixedStateGlobalTypeSemanticModel) AddResidualActions(residuals [][]model2.Action) {
+func (g *mixedStateGlobalTypeSemanticModel) AddResidualActions(residuals [][]model.Action) {
 	g.residualActions = append(g.residualActions, residuals...)
 }
 
 func CreateMixedStateGlobalTypeSemanticModel(
 	globalTypeSexpFileName string,
 	logger *zap.Logger,
-) (model2.SemanticModel, error) {
+) (model.SemanticModel, error) {
 	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
 	if err != nil {
 		return nil, err

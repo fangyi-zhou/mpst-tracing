@@ -1,7 +1,7 @@
 package globaltype
 
 import (
-	model2 "github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"go.uber.org/zap"
 )
 
@@ -14,7 +14,7 @@ func (g *globalTypeSemanticModel) IsTerminated() bool {
 	return (*g.gtype).IsDone()
 }
 
-func (g *globalTypeSemanticModel) TryReduce(action model2.Action) bool {
+func (g *globalTypeSemanticModel) TryReduce(action model.Action) bool {
 	next, err := (*g.gtype).ConsumePrefix(action)
 	if err != nil {
 		return false
@@ -23,7 +23,7 @@ func (g *globalTypeSemanticModel) TryReduce(action model2.Action) bool {
 	return true
 }
 
-func (g *globalTypeSemanticModel) GetEnabledActions() []model2.Action {
+func (g *globalTypeSemanticModel) GetEnabledActions() []model.Action {
 	return (*g.gtype).PossiblePrefixes()
 }
 
@@ -38,7 +38,7 @@ func (g *globalTypeSemanticModel) Shutdown() {
 func CreateGlobalTypeSemanticModel(
 	globalTypeSexpFileName string,
 	logger *zap.Logger,
-) (model2.SemanticModel, error) {
+) (model.SemanticModel, error) {
 	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
 	if err != nil {
 		return nil, err

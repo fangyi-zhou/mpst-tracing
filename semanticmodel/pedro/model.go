@@ -1,7 +1,7 @@
 package pedro
 
 import (
-	model2 "github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"go.uber.org/zap"
 )
 
@@ -14,22 +14,22 @@ func (p *pedroSemanticModel) IsTerminated() bool {
 	return p.runtime.HasFinished()
 }
 
-func (p *pedroSemanticModel) TryReduce(action model2.Action) bool {
+func (p *pedroSemanticModel) TryReduce(action model.Action) bool {
 	actionString := action.String()
 	err := p.runtime.DoTransition(actionString)
 	return err == nil
 }
 
-func (p *pedroSemanticModel) GetEnabledActions() []model2.Action {
+func (p *pedroSemanticModel) GetEnabledActions() []model.Action {
 	transitions := p.runtime.GetEnabledTransitions()
 	// p.logger.Info("Raw enabled actions", zap.Strings("raw_actions", transitions))
-	actions := make([]model2.Action, 0)
+	actions := make([]model.Action, 0)
 	for _, transitionString := range transitions {
 		if len(transitionString) > 0 && transitionString[0] == '_' {
 			// Silent Transitions begin with underscore, skipping
 			continue
 		}
-		action, err := model2.NewActionFromString(transitionString)
+		action, err := model.NewActionFromString(transitionString)
 		if err != nil {
 			p.logger.Info(
 				"skipping unrecognised action string",
@@ -55,7 +55,7 @@ func CreatePedroSemanticModel(
 	protocolFileName string,
 	protocolName string,
 	logger *zap.Logger,
-) (model2.SemanticModel, error) {
+) (model.SemanticModel, error) {
 	runtime, err := LoadRuntime(pedrolibFileName)
 	if err != nil {
 		return nil, err
