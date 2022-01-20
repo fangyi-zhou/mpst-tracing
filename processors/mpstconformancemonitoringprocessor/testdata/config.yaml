@@ -2,9 +2,6 @@ receivers:
   nop:
 
 processors:
-  nop:
-
-exporters:
   mpstconformancemonitoring/lts:
     semantic_model_type: gtype_lts
     protocol_sexp_filename: gtype.sexp
@@ -17,14 +14,17 @@ exporters:
     protocol_filename: MyProto.nuscr
     protocol_name: MyProto
 
+exporters:
+  nop:
+
 service:
   pipelines:
     traces:
       receivers:
-      - nop
+        - nop
       processors:
-      - nop
+        - mpstconformancemonitoring/lts
+        - mpstconformancemonitoring/mixed_state
+        - mpstconformancemonitoring/pedro
       exporters:
-      - mpstconformancemonitoring/lts
-      - mpstconformancemonitoring/mixed_state
-      - mpstconformancemonitoring/pedro
+        - nop

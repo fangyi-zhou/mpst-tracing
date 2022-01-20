@@ -8,14 +8,14 @@ receivers:
       thrift_compact:
 
 processors:
-
-exporters:
-  logging:
   mpstconformancemonitoring:
     semantic_model_type: gtype_pedro
     protocol_filename: twobuyer/TwoBuyer.scr
     protocol_name: TwoBuyer
     pedro_so_filename: ../Pedro/_build/default/src/pedrolib.so
+
+exporters:
+  logging:
   jaeger:
     endpoint: localhost:14250
     tls:
@@ -28,7 +28,7 @@ service:
       - otlp
       - jaeger
       processors:
+        - mpstconformancemonitoring
       exporters:
       - logging
-      - mpstconformancemonitoring
       - jaeger

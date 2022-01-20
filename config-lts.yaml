@@ -5,12 +5,12 @@ receivers:
         endpoint: localhost:30080
 
 processors:
-
-exporters:
-  logging:
   mpstconformancemonitoring:
     semantic_model_type: gtype_lts
     protocol_sexp_filename: twobuyer/TwoBuyer_global_type.sexp
+
+exporters:
+  logging:
 
 service:
   pipelines:
@@ -18,6 +18,6 @@ service:
       receivers:
       - otlp
       processors:
+      - mpstconformancemonitoring
       exporters:
       - logging
-      - mpstconformancemonitoring

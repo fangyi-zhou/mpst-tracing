@@ -12,9 +12,6 @@ receivers:
     gomod: go.opentelemetry.io/collector v0.42.0
 
 exporters:
-  - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
-    import: github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter
-    path: ./
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/jaegerexporter v0.42.0
   - import: go.opentelemetry.io/collector/exporter/loggingexporter
     gomod: go.opentelemetry.io/collector v0.42.0
@@ -22,4 +19,7 @@ exporters:
 processors:
   - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
     import: github.com/fangyi-zhou/mpst-tracing/processors/mpstmetadatataggingprocessor
+    path: ./
+  - gomod: github.com/fangyi-zhou/mpst-tracing v0.0.0
+    import: github.com/fangyi-zhou/mpst-tracing/processors/mpstconformancemonitoringprocessor
     path: ./

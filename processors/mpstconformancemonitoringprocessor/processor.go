@@ -1,4 +1,4 @@
-package mpstconformancemonitoringexporter
+package mpstconformancemonitoringprocessor
 
 import (
 	"context"
@@ -46,16 +46,17 @@ func extractMpstMetadata(attributes pdata.AttributeMap) (mpstMetadata, error) {
 	}
 }
 
-type mpstConformanceMonitoringExporter struct {
-	logger *zap.Logger
-	model  *model.Model
+type mpstConformanceMonitoringProcessor struct {
+	logger       *zap.Logger
+	nextConsumer consumer.Traces
+	model        *model.Model
 }
 
-func (m mpstConformanceMonitoringExporter) Capabilities() consumer.Capabilities {
-	return consumer.Capabilities{MutatesData: false}
+func (m mpstConformanceMonitoringProcessor) Capabilities() consumer.Capabilities {
+	return consumer.Capabilities{MutatesData: true}
 }
 
-func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Traces) error {
+func (m mpstConformanceMonitoringProcessor) processLocalTraces(traces pdata.Traces) error {
 	m.logger.Info("Processing Traces", zap.Int("count", traces.SpanCount()))
 	processedTraces := make(map[string][]model.Action)
 	spans := traces.ResourceSpans()
@@ -101,21 +102,24 @@ func (m mpstConformanceMonitoringExporter) processLocalTraces(traces pdata.Trace
 	return nil
 }
 
-func (m mpstConformanceMonitoringExporter) Start(_ context.Context, _ component.Host) error {
+func (m mpstConformanceMonitoringProcessor) Start(_ context.Context, _ component.Host) error {
 	return nil
 }
 
-func (m mpstConformanceMonitoringExporter) Shutdown(_ context.Context) error {
+func (m mpstConformanceMonitoringProcessor) Shutdown(_ context.Context) error {
 	m.model.Shutdown()
 	return nil
 }
 
-func (m mpstConformanceMonitoringExporter) ConsumeTraces(
-	_ context.Context,
+func (m mpstConformanceMonitoringProcessor) ConsumeTraces(
+	ctx context.Context,
 	td pdata.Traces,
 ) error {
 	err := m.processLocalTraces(td)
-	return err
+	if err != nil {
+		return err
+	}
+	return m.nextConsumer.ConsumeTraces(ctx, td)
 	/*
 		err := checkSendRecvMatching(localTraces)
 		if err != nil {
@@ -188,10 +192,11 @@ func missingRecvMessageErr(orig string, dest string, msg globaltype.Message) err
 }
 */
 
-func newMpstConformanceExporter(
+func newMpstConformanceProcessor(
 	logger *zap.Logger,
 	cfg *Config,
-) (*mpstConformanceMonitoringExporter, error) {
+	nextConsumer consumer.Traces,
+) (component.TracesProcessor, error) {
 	var m model.Model
 	switch cfg.SemanticModelType {
 	case "gtype_lts":
@@ -229,8 +234,9 @@ func newMpstConformanceExporter(
 	default:
 		return nil, fmt.Errorf("unknown semantic model type %s", cfg.SemanticModelType)
 	}
-	return &mpstConformanceMonitoringExporter{
-		logger: logger,
-		model:  &m,
+	return &mpstConformanceMonitoringProcessor{
+		logger:       logger,
+		nextConsumer: nextConsumer,
+		model:        &m,
 	}, nil
 }

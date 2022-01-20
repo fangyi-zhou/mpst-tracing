@@ -5,12 +5,12 @@ receivers:
         endpoint: localhost:30080
 
 processors:
-
-exporters:
-  logging:
   mpstconformancemonitoring:
     semantic_model_type: gtype_mixed_state
     protocol_sexp_filename: twobuttons/TwoButtons.sexp
+
+exporters:
+  logging:
   jaeger:
     endpoint: localhost:14250
     tls:
@@ -22,7 +22,7 @@ service:
       receivers:
       - otlp
       processors:
+      - mpstconformancemonitoring
       exporters:
       - logging
-      - mpstconformancemonitoring
       - jaeger

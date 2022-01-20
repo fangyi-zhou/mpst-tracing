@@ -1,4 +1,4 @@
-package mpstconformancemonitoringexporter
+package mpstconformancemonitoringprocessor
 
 import (
 	"go.opentelemetry.io/collector/service/servicetest"
@@ -16,7 +16,7 @@ func TestLoadConfigLts(t *testing.T) {
 	factories, err := componenttest.NopFactories()
 	assert.NoError(t, err)
 
-	factories.Exporters[typeStr] = NewFactory()
+	factories.Processors[typeStr] = NewFactory()
 
 	cfg, err := servicetest.LoadConfigAndValidate(
 		path.Join(".", "testdata", "config.yaml"),
@@ -27,7 +27,7 @@ func TestLoadConfigLts(t *testing.T) {
 
 	lts := config.NewComponentIDWithName(typeStr, "lts")
 
-	mpstConfig := cfg.Exporters[lts].(*Config)
+	mpstConfig := cfg.Processors[lts].(*Config)
 	assert.Equal(t, "gtype_lts", mpstConfig.SemanticModelType)
 	assert.Equal(t, "gtype.sexp", mpstConfig.GlobalTypeSexpFileName)
 }
@@ -36,7 +36,7 @@ func TestLoadConfigPedro(t *testing.T) {
 	factories, err := componenttest.NopFactories()
 	assert.NoError(t, err)
 
-	factories.Exporters[typeStr] = NewFactory()
+	factories.Processors[typeStr] = NewFactory()
 
 	cfg, err := servicetest.LoadConfigAndValidate(
 		path.Join(".", "testdata", "config.yaml"),
@@ -47,7 +47,7 @@ func TestLoadConfigPedro(t *testing.T) {
 
 	pedro := config.NewComponentIDWithName(typeStr, "pedro")
 
-	mpstConfig := cfg.Exporters[pedro].(*Config)
+	mpstConfig := cfg.Processors[pedro].(*Config)
 	assert.Equal(t, "gtype_pedro", mpstConfig.SemanticModelType)
 	assert.Equal(t, "pedrolib.so", mpstConfig.PedroSoFileName)
 	assert.Equal(t, "MyProto.nuscr", mpstConfig.ProtocolFileName)

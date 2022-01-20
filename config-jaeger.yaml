@@ -30,14 +30,14 @@ processors:
         messages:
           - CustomerResp:
               name: "HTTP GET /customer"
-
-exporters:
-  logging:
   mpstconformancemonitoring:
     semantic_model_type: gtype_pedro
     protocol_filename: twobuyer/TwoBuyer.scr
     protocol_name: TwoBuyer
     pedro_so_filename: ../Pedro/_build/default/src/pedrolib.so
+
+exporters:
+  logging:
   jaeger:
     endpoint: localhost:14250
     tls:
@@ -50,7 +50,7 @@ service:
       - jaeger
       processors:
       - mpstmetadatatagging
+      - mpstconformancemonitoring
       exporters:
       - logging
-      - mpstconformancemonitoring
       - jaeger
