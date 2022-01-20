@@ -2,7 +2,7 @@ package mixedstateglobaltype
 
 import (
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
 )
 

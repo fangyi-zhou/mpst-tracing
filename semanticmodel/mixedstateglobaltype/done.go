@@ -1,10 +1,9 @@
-package globaltype
+package mixedstateglobaltype
 
 import (
 	"errors"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
-
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 )
 
 type Done struct{}
@@ -13,7 +12,7 @@ func (Done) PossiblePrefixes() []model.Action {
 	return make([]model.Action, 0)
 }
 
-func (Done) ConsumePrefix(_ model.Action) (GlobalType, error) {
+func (Done) ConsumePrefix(_ *mixedStateGlobalTypeSemanticModel, _ model.Action) (MixedStateGlobalType, error) {
 	return nil, errors.New("end cannot consume prefix")
 }
 
@@ -27,6 +26,10 @@ func (Done) String() string {
 
 func (Done) stringWithBuilder(b *strings.Builder) {
 	b.WriteString("end")
+}
+
+func (Done) ResidualActions(_ string) [][]model.Action {
+	return [][]model.Action{{}}
 }
 
 func NewDone() Done {

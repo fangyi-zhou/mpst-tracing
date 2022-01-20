@@ -1,9 +1,8 @@
 package mixedstateglobaltype
 
 import (
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
-
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/model"
 )
 
 type MixedStateGlobalType interface {

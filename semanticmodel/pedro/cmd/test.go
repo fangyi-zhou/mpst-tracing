@@ -5,10 +5,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/pedro"
 	"log"
 	"os"
-
-	"github.com/fangyi-zhou/mpst-tracing/exporters/mpstconformancemonitoringexporter/semanticmodel/pedro"
 )
 
 // go run cmd/test.go ~/repos/Pedro/_build/default/src/pedrolib.so ~/repos/Pedro/examples/Simple.scr TwoBuyer
