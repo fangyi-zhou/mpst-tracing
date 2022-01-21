@@ -19,7 +19,9 @@ func CreateMixedStateGlobalTypeModelFactory(
 	return &MixedStateGlobalTypeModelFactory{initialGtype: gtype}, nil
 }
 
-func (f MixedStateGlobalTypeModelFactory) MakeModelWithLogger(logger *zap.Logger) (model.Model, error) {
+func (f MixedStateGlobalTypeModelFactory) MakeModelWithLogger(
+	logger *zap.Logger,
+) (model.Model, error) {
 	semanticModel := &mixedStateGlobalTypeSemanticModel{
 		gtype:  &f.initialGtype,
 		logger: logger,

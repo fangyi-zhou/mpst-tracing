@@ -2,8 +2,9 @@ package mixedstateglobaltype
 
 import (
 	"fmt"
-	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
+
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 )
 
 type Choice struct {
@@ -19,7 +20,10 @@ func (c Choice) PossiblePrefixes() []model.Action {
 	return prefixes
 }
 
-func (c Choice) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, message model.Action) (MixedStateGlobalType, error) {
+func (c Choice) ConsumePrefix(
+	g *mixedStateGlobalTypeSemanticModel,
+	message model.Action,
+) (MixedStateGlobalType, error) {
 	if message.Subject() == c.choicer {
 		// Choicer reduction
 		success := false

@@ -1,9 +1,10 @@
 package globaltype
 
 import (
-	"github.com/stretchr/testify/assert"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func testParseFile(t *testing.T, file string) {

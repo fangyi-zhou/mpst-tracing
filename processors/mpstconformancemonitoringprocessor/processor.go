@@ -3,11 +3,12 @@ package mpstconformancemonitoringprocessor
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype"
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/mixedstateglobaltype"
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/pedro"
-	"strings"
 
 	"github.com/fangyi-zhou/mpst-tracing/labels"
 	"github.com/pkg/errors"

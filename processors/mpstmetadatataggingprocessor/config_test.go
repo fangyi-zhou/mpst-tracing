@@ -1,9 +1,10 @@
 package mpstmetadatataggingprocessor
 
 import (
-	"go.opentelemetry.io/collector/service/servicetest"
 	"path"
 	"testing"
+
+	"go.opentelemetry.io/collector/service/servicetest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

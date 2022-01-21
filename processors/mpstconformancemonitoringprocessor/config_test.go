@@ -1,9 +1,10 @@
 package mpstconformancemonitoringprocessor
 
 import (
-	"go.opentelemetry.io/collector/service/servicetest"
 	"path"
 	"testing"
+
+	"go.opentelemetry.io/collector/service/servicetest"
 
 	"go.opentelemetry.io/collector/config"
 

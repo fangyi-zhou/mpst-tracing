@@ -2,8 +2,9 @@ package mixedstateglobaltype
 
 import (
 	"errors"
-	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"strings"
+
+	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 )
 
 type Send struct {
@@ -31,7 +32,10 @@ func (s Send) PossiblePrefixes() []model.Action {
 	return prefixes
 }
 
-func (s Send) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, m model.Action) (MixedStateGlobalType, error) {
+func (s Send) ConsumePrefix(
+	g *mixedStateGlobalTypeSemanticModel,
+	m model.Action,
+) (MixedStateGlobalType, error) {
 	if m.Src == s.origin && m.Dest == s.dest && m.IsSend {
 		if m.Label == s.label {
 			// Send prefix consumed
@@ -121,7 +125,10 @@ func (r Recv) PossiblePrefixes() []model.Action {
 	return prefixes
 }
 
-func (r Recv) ConsumePrefix(g *mixedStateGlobalTypeSemanticModel, m model.Action) (MixedStateGlobalType, error) {
+func (r Recv) ConsumePrefix(
+	g *mixedStateGlobalTypeSemanticModel,
+	m model.Action,
+) (MixedStateGlobalType, error) {
 	if m.Src == r.origin && m.Dest == r.dest && !m.IsSend {
 		return r.cont, nil
 	}
