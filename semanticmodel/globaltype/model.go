@@ -34,14 +34,3 @@ func (g *globalTypeSemanticModel) SetLogger(logger *zap.Logger) {
 func (g *globalTypeSemanticModel) Shutdown() {
 	// Do nothing
 }
-
-func CreateGlobalTypeSemanticModel(
-	globalTypeSexpFileName string,
-	logger *zap.Logger,
-) (model.SemanticModel, error) {
-	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
-	if err != nil {
-		return nil, err
-	}
-	return &globalTypeSemanticModel{gtype: &gtype, logger: logger}, nil
-}

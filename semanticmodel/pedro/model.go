@@ -49,26 +49,3 @@ func (p *pedroSemanticModel) SetLogger(logger *zap.Logger) {
 func (p *pedroSemanticModel) Shutdown() {
 	p.runtime.Close()
 }
-
-func CreatePedroSemanticModel(
-	pedrolibFileName string,
-	protocolFileName string,
-	protocolName string,
-	logger *zap.Logger,
-) (model.SemanticModel, error) {
-	runtime, err := LoadRuntime(pedrolibFileName)
-	if err != nil {
-		return nil, err
-	}
-	logger.Info("Loaded Pedro Runtime")
-	err = runtime.ImportNuscrFile(protocolFileName, protocolName)
-	if err != nil {
-		return nil, err
-	}
-	logger.Info(
-		"Imported Nuscr File",
-		zap.String("filename", protocolName),
-		zap.String("protocol_name", protocolName),
-	)
-	return &pedroSemanticModel{runtime: runtime, logger: logger}, nil
-}

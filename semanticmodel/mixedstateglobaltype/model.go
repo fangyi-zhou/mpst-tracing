@@ -56,14 +56,3 @@ func (g *mixedStateGlobalTypeSemanticModel) Shutdown() {
 func (g *mixedStateGlobalTypeSemanticModel) AddResidualActions(residuals [][]model.Action) {
 	g.residualActions = append(g.residualActions, residuals...)
 }
-
-func CreateMixedStateGlobalTypeSemanticModel(
-	globalTypeSexpFileName string,
-	logger *zap.Logger,
-) (model.SemanticModel, error) {
-	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
-	if err != nil {
-		return nil, err
-	}
-	return &mixedStateGlobalTypeSemanticModel{gtype: &gtype, logger: logger}, nil
-}

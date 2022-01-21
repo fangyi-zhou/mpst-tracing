@@ -49,7 +49,8 @@ func extractMpstMetadata(attributes pdata.AttributeMap) (mpstMetadata, error) {
 type mpstConformanceMonitoringProcessor struct {
 	logger       *zap.Logger
 	nextConsumer consumer.Traces
-	model        *model.Model
+	modelFactory model.ModelFactory
+	model        model.Model
 }
 
 func (m mpstConformanceMonitoringProcessor) Capabilities() consumer.Capabilities {
@@ -197,46 +198,46 @@ func newMpstConformanceProcessor(
 	cfg *Config,
 	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
-	var m model.Model
+	var factory model.ModelFactory
+	var err error
 	switch cfg.SemanticModelType {
 	case "gtype_lts":
-		gtypeModel, err := globaltype.CreateGlobalTypeSemanticModel(
+		factory, err = globaltype.CreateGlobalTypeModelFactory(
 			cfg.GlobalTypeSexpFileName,
-			logger,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load global type")
 		}
 		logger.Info("Loaded global type")
-		m = model.MakeModelWithLogger(gtypeModel, logger)
 	case "gtype_pedro":
-		pedroModel, err := pedro.CreatePedroSemanticModel(
+		factory, err = pedro.CreatePedroModelFactory(
 			cfg.PedroSoFileName,
 			cfg.ProtocolFileName,
 			cfg.ProtocolName,
-			logger,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load pedro semantic model")
 		}
-		logger.Info("Loaded petri net model")
-		m = model.MakeModelWithLogger(pedroModel, logger)
+		logger.Info("Loaded petri net")
 	case "gtype_mixed_state":
-		gtypeModel, err := mixedstateglobaltype.CreateMixedStateGlobalTypeSemanticModel(
+		factory, err = mixedstateglobaltype.CreateMixedStateGlobalTypeModelFactory(
 			cfg.GlobalTypeSexpFileName,
-			logger,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load global type")
 		}
 		logger.Info("Loaded global type (with mixed states)")
-		m = model.MakeModelWithLogger(gtypeModel, logger)
 	default:
 		return nil, fmt.Errorf("unknown semantic model type %s", cfg.SemanticModelType)
+	}
+	m, err := factory.MakeModelWithLogger(logger)
+	if err != nil {
+		return nil, err
 	}
 	return &mpstConformanceMonitoringProcessor{
 		logger:       logger,
 		nextConsumer: nextConsumer,
-		model:        &m,
+		modelFactory: factory,
+		model:        m,
 	}, nil
 }

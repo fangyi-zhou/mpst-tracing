@@ -31,9 +31,8 @@ type Model struct {
 	traceLock *sync.Mutex
 }
 
-func MakeModel(semanticModel SemanticModel) Model {
-	logger := zap.NewNop()
-	return MakeModelWithLogger(semanticModel, logger)
+type ModelFactory interface {
+	MakeModelWithLogger(logger *zap.Logger) (Model, error)
 }
 
 func MakeModelWithLogger(semanticModel SemanticModel, logger *zap.Logger) Model {
