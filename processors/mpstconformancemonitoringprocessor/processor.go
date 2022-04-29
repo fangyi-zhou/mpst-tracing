@@ -55,11 +55,11 @@ type mpstConformanceMonitoringProcessor struct {
 	model        model.Model
 }
 
-func (m mpstConformanceMonitoringProcessor) Capabilities() consumer.Capabilities {
+func (m *mpstConformanceMonitoringProcessor) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: true}
 }
 
-func (m mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Traces) error {
+func (m *mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Traces) error {
 	m.logger.Info("Processing Traces", zap.Int("count", traces.SpanCount()))
 	processedTraces := make(map[string][]model.Action)
 	spans := traces.ResourceSpans()
@@ -73,27 +73,43 @@ func (m mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Tra
 				innerSpan := innerSpans.At(k)
 				attributes := innerSpan.Attributes()
 				if metadata, err := extractMpstMetadata(attributes); err == nil {
+					message := model.Action{
+						Label: metadata.label,
+					}
+					ok := false
 					if metadata.action == "Send" {
-						message := model.Action{
-							Label:  metadata.label,
-							Src:    metadata.currentRole,
-							Dest:   metadata.partner,
-							IsSend: true,
-						}
+						message.Src = metadata.currentRole
+						message.Dest = metadata.partner
+						message.IsSend = true
+						ok = true
+					} else if metadata.action == "Recv" {
+						message.Dest = metadata.currentRole
+						message.Src = metadata.partner
+						message.IsSend = false
+						ok = true
+					} else {
+						m.logger.Warn("Invalid action", zap.String("action", metadata.action))
+					}
+					if ok {
+						// See: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/batchpersignal/batchpersignal.go
+						trace := ptrace.NewTraces()
+						newRS := trace.ResourceSpans().AppendEmpty()
+						span.Resource().CopyTo(newRS.Resource())
+						newSS := newRS.ScopeSpans().AppendEmpty()
+						slice.Scope().CopyTo(newSS.Scope())
+						target := newRS.ScopeSpans().At(0).Spans().AppendEmpty()
+						innerSpan.CopyTo(target)
+						done := make(chan struct{})
+						message.Done = done
+						go func() {
+							_ = <-done
+							//m.logger.Info("Done", zap.String("action", message.String()))
+							m.nextConsumer.ConsumeTraces(context.TODO(), trace)
+						}()
 						processedTraces[metadata.currentRole] = append(
 							processedTraces[metadata.currentRole],
 							message,
 						)
-					} else if metadata.action == "Recv" {
-						message := model.Action{
-							Label:  metadata.label,
-							Src:    metadata.partner,
-							Dest:   metadata.currentRole,
-							IsSend: false,
-						}
-						processedTraces[metadata.currentRole] = append(processedTraces[metadata.currentRole], message)
-					} else {
-						m.logger.Warn("Invalid action", zap.String("action", metadata.action))
 					}
 				}
 			}
@@ -105,16 +121,16 @@ func (m mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Tra
 	return nil
 }
 
-func (m mpstConformanceMonitoringProcessor) Start(_ context.Context, _ component.Host) error {
+func (m *mpstConformanceMonitoringProcessor) Start(_ context.Context, _ component.Host) error {
 	return nil
 }
 
-func (m mpstConformanceMonitoringProcessor) Shutdown(_ context.Context) error {
+func (m *mpstConformanceMonitoringProcessor) Shutdown(_ context.Context) error {
 	m.model.Shutdown()
 	return nil
 }
 
-func (m mpstConformanceMonitoringProcessor) ConsumeTraces(
+func (m *mpstConformanceMonitoringProcessor) ConsumeTraces(
 	ctx context.Context,
 	td ptrace.Traces,
 ) error {

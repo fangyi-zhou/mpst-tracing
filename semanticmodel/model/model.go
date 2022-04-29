@@ -55,7 +55,11 @@ func (m *Model) AcceptTrace(participant string, traces []Action) {
 		zap.Int("number", len(traces)),
 	)
 	// for _, trace := range traces {
-	// 	m.logger.Info("Trace", zap.String("trace", trace.String()))
+	// 	m.logger.Info(
+	// 		"Trace",
+	// 		zap.String("trace", trace.String()),
+	// 		zap.Bool("hasDone", trace.Done != nil),
+	// 	)
 	// }
 	m.processTraces()
 }
@@ -85,6 +89,10 @@ func (m *Model) processTraces() {
 				)
 				m.traces[participant] = m.traces[participant][1:]
 				reduced = true
+				if action.Done != nil {
+					//m.logger.Info("Sending DONE")
+					action.Done <- struct{}{}
+				}
 			} else {
 				m.logger.Info("Cannot reduce action for participant", zap.String(
 					"action",

@@ -10,6 +10,7 @@ type Action struct {
 	Dest   string
 	Label  string
 	IsSend bool
+	Done   chan<- struct{}
 }
 
 func (a Action) Subject() string {
@@ -49,5 +50,6 @@ func NewActionFromString(actionString string) (Action, error) {
 		Dest:   matches[3],
 		Label:  matches[4],
 		IsSend: isSend,
+		Done:   nil,
 	}, nil
 }
