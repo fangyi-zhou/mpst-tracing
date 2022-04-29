@@ -1,0 +1,1 @@
+../semanticmodel/globaltype/testdata/TwoBuyer_global_type.sexp
