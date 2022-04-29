@@ -165,9 +165,9 @@ func (r Recv) stringWithBuilder(b *strings.Builder) {
 	b.WriteString(r.origin)
 	b.WriteString(" -~> ")
 	b.WriteString(r.dest)
-	b.WriteString(" ")
+	b.WriteString(" <")
 	b.WriteString(r.label)
-	b.WriteString(": ")
+	b.WriteString(":> ")
 	r.cont.stringWithBuilder(b)
 }
 
