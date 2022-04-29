@@ -2,11 +2,11 @@ package mpstmetadatataggingprocessor
 
 import (
 	"context"
+	"go.opentelemetry.io/collector/pdata/ptrace"
 
 	"github.com/fangyi-zhou/mpst-tracing/labels"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/model/pdata"
 	"go.uber.org/zap"
 )
 
@@ -32,7 +32,7 @@ func (m MpstMetadataTaggingProcessor) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: true}
 }
 
-func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdata.Traces) error {
+func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td ptrace.Traces) error {
 	rss := td.ResourceSpans()
 	for i := 0; i < rss.Len(); i++ {
 		rs := rss.At(i)
@@ -43,9 +43,9 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 			service := serviceName.StringVal()
 			role, roleNameExists = m.roleLookup[service]
 		}
-		ils := rs.InstrumentationLibrarySpans()
-		for j := 0; j < ils.Len(); j++ {
-			il := ils.At(j)
+		ss := rs.ScopeSpans()
+		for j := 0; j < ss.Len(); j++ {
+			il := ss.At(j)
 			if roleNameExists {
 				// Update role via instrumentation library name, as currently is done.
 				attachCurrentRoleTag(il, string(role))
@@ -78,8 +78,8 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td pdat
 	return m.nextConsumer.ConsumeTraces(ctx, td)
 }
 
-func attachCurrentRoleTag(il pdata.InstrumentationLibrarySpans, role string) {
-	spans := il.Spans()
+func attachCurrentRoleTag(ss ptrace.ScopeSpans, role string) {
+	spans := ss.Spans()
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
 		span.Attributes().InsertString(labels.CurrentRoleKey, role)

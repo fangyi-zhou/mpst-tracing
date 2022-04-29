@@ -3,6 +3,8 @@ package mpstconformancemonitoringprocessor
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.opentelemetry.io/collector/pdata/ptrace"
 	"strings"
 
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype"
@@ -14,7 +16,6 @@ import (
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/model/pdata"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +31,7 @@ func getEndpointFromLibraryName(libraryName string) string {
 	return separated[len(separated)-1]
 }
 
-func extractMpstMetadata(attributes pdata.AttributeMap) (mpstMetadata, error) {
+func extractMpstMetadata(attributes pcommon.Map) (mpstMetadata, error) {
 	action, hasAction := attributes.Get(labels.ActionKey)
 	label, hasLabel := attributes.Get(labels.MsgLabelKey)
 	partner, hasPartner := attributes.Get(labels.PartnerKey)
@@ -58,13 +59,13 @@ func (m mpstConformanceMonitoringProcessor) Capabilities() consumer.Capabilities
 	return consumer.Capabilities{MutatesData: true}
 }
 
-func (m mpstConformanceMonitoringProcessor) processLocalTraces(traces pdata.Traces) error {
+func (m mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Traces) error {
 	m.logger.Info("Processing Traces", zap.Int("count", traces.SpanCount()))
 	processedTraces := make(map[string][]model.Action)
 	spans := traces.ResourceSpans()
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
-		spanSlices := span.InstrumentationLibrarySpans()
+		spanSlices := span.ScopeSpans()
 		for j := 0; j < spanSlices.Len(); j++ {
 			slice := spanSlices.At(j)
 			innerSpans := slice.Spans()
@@ -115,7 +116,7 @@ func (m mpstConformanceMonitoringProcessor) Shutdown(_ context.Context) error {
 
 func (m mpstConformanceMonitoringProcessor) ConsumeTraces(
 	ctx context.Context,
-	td pdata.Traces,
+	td ptrace.Traces,
 ) error {
 	err := m.processLocalTraces(td)
 	if err != nil {
