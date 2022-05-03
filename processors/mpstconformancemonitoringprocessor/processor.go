@@ -149,7 +149,8 @@ func (m *mpstConformanceMonitoringProcessor) ConsumeTraces(
 	if err != nil {
 		return err
 	}
-	return m.nextConsumer.ConsumeTraces(ctx, td)
+	return nil
+	//return m.nextConsumer.ConsumeTraces(ctx, td)
 }
 
 func newMpstConformanceProcessor(
