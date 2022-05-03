@@ -91,7 +91,8 @@ func (m *Model) processTraces() {
 				reduced = true
 				if action.Done != nil {
 					//m.logger.Info("Sending DONE")
-					action.Done <- struct{}{}
+					// Successfully validated
+					action.Done <- true
 				}
 			} else {
 				m.logger.Info("Cannot reduce action for participant", zap.String(

@@ -99,12 +99,23 @@ func (m *mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Tr
 						slice.Scope().CopyTo(newSS.Scope())
 						target := newRS.ScopeSpans().At(0).Spans().AppendEmpty()
 						innerSpan.CopyTo(target)
-						done := make(chan struct{})
+						done := make(chan bool)
 						message.Done = done
 						go func() {
-							_ = <-done
+							validated := <-done
 							//m.logger.Info("Done", zap.String("action", message.String()))
-							m.nextConsumer.ConsumeTraces(context.TODO(), trace)
+							attr := trace.ResourceSpans().
+								At(0).
+								ScopeSpans().
+								At(0).
+								Spans().
+								At(0).
+								Attributes()
+							attr.InsertBool(labels.ValidatedKey, validated)
+							err := m.nextConsumer.ConsumeTraces(context.TODO(), trace)
+							if err != nil {
+								m.logger.Fatal("error", zap.Error(err))
+							}
 						}()
 						processedTraces[metadata.currentRole] = append(
 							processedTraces[metadata.currentRole],

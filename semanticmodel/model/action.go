@@ -10,7 +10,7 @@ type Action struct {
 	Dest   string
 	Label  string
 	IsSend bool
-	Done   chan<- struct{}
+	Done   chan<- bool
 }
 
 func (a Action) Subject() string {
