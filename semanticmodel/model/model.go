@@ -65,11 +65,11 @@ func (m *Model) AcceptTrace(participant string, traces []Action) {
 }
 
 func (m *Model) processTraces() {
-	m.logger.Info("Processing Traces", zap.String("model-state", m.state.String()))
 	if m.state != NORMAL {
 		// No need to process if model is stuck or terminated
 		return
 	}
+	m.logger.Info("Processing Traces", zap.String("model-state", m.state.String()))
 	for {
 		reduced := false
 		for participant, trace := range m.traces {
@@ -106,6 +106,21 @@ func (m *Model) processTraces() {
 		}
 	}
 	m.updateStatus()
+	if m.state != NORMAL {
+		// Calling callback with false
+		for participant, trace := range m.traces {
+			m.logger.Info(
+				"Invoking callback for existing traces",
+				zap.String("participant", participant),
+				zap.Stringer("state", m.state),
+			)
+			for _, action := range trace {
+				action.Done <- false
+			}
+			m.traces[participant] = nil
+		}
+		return
+	}
 }
 
 func (m *Model) updateStatus() {
