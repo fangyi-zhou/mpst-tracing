@@ -104,14 +104,17 @@ func (m *mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Tr
 						go func() {
 							validated := <-done
 							//m.logger.Info("Done", zap.String("action", message.String()))
-							attr := trace.ResourceSpans().
+							span := trace.ResourceSpans().
 								At(0).
 								ScopeSpans().
 								At(0).
 								Spans().
-								At(0).
-								Attributes()
+								At(0)
+							attr := span.Attributes()
 							attr.InsertBool(labels.ValidatedKey, validated)
+							if !validated && span.Status().Code() != ptrace.StatusCodeError {
+								span.Status().SetCode(ptrace.StatusCodeError)
+							}
 							err := m.nextConsumer.ConsumeTraces(context.TODO(), trace)
 							if err != nil {
 								m.logger.Fatal("error", zap.Error(err))
