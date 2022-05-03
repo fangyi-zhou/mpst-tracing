@@ -11,6 +11,10 @@ processors:
 
 exporters:
   logging:
+  jaeger:
+    endpoint: localhost:14250
+    tls:
+      insecure: true
 
 service:
   pipelines:
@@ -21,3 +25,4 @@ service:
       - mpstconformancemonitoring
       exporters:
       - logging
+      - jaeger
