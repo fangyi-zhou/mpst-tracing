@@ -1,0 +1,35 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: localhost:30080
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+          - http://localhost:8080
+          - http://127.0.0.1:8080
+          - http://0.0.0.0:8080
+
+processors:
+  mpstconformancemonitoring:
+    semantic_model_type: gtype_lts
+    protocol_sexp_filename: travelagency/TravelAgency.sexp
+
+exporters:
+  logging:
+  jaeger:
+    endpoint: localhost:14250
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers:
+      - otlp
+      processors:
+      - mpstconformancemonitoring
+      exporters:
+      - logging
+      - jaeger
