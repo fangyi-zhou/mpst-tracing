@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protocol;
 
-option go_package = "./";
+option go_package = "github.com/fangyi-zhou/mpst-tracing/semanticmodel/globaltype/protocol/";
 
 message Action {
   message Index {
