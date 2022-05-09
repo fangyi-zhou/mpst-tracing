@@ -70,10 +70,14 @@ func patchIdx(
 		}
 		gtype := gtype.(*Recv)
 		cont := action.GetContinuations()[0]
-		var exists bool
-		gtype.cont, exists = actions[cont.GetNext()]
-		if !exists {
-			return nil, fmt.Errorf("non-existent index: %d", cont.GetNext())
+		if cont.GetNext() == -1 {
+			gtype.cont = Done{}
+		} else {
+			var exists bool
+			gtype.cont, exists = actions[cont.GetNext()]
+			if !exists {
+				return nil, fmt.Errorf("non-existent index: %d", cont.GetNext())
+			}
 		}
 		return gtype, nil
 	} else {

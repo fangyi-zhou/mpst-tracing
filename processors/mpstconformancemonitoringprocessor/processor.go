@@ -167,6 +167,7 @@ func newMpstConformanceProcessor(
 	case "gtype_lts":
 		factory, err = globaltype.CreateGlobalTypeModelFactory(
 			cfg.GlobalTypeSexpFileName,
+			cfg.GlobalTypeProtobufFileName,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "unable to load global type")

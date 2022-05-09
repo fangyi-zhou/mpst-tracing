@@ -1,6 +1,7 @@
 package globaltype
 
 import (
+	"fmt"
 	"github.com/fangyi-zhou/mpst-tracing/semanticmodel/model"
 	"go.uber.org/zap"
 )
@@ -11,12 +12,24 @@ type GlobalTypeModelFactory struct {
 
 func CreateGlobalTypeModelFactory(
 	globalTypeSexpFileName string,
+	globalTypeProtobufFileName string,
 ) (model.ModelFactory, error) {
-	gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
-	if err != nil {
-		return nil, err
+	if globalTypeSexpFileName != "" {
+		gtype, err := LoadFromSexpFile(globalTypeSexpFileName)
+		if err != nil {
+			return nil, err
+		}
+		return &GlobalTypeModelFactory{initialGtype: gtype}, nil
+	} else if globalTypeProtobufFileName != "" {
+		gtype, err := LoadFromProtobuf(globalTypeProtobufFileName)
+		if err != nil {
+			return nil, err
+		}
+		return &GlobalTypeModelFactory{initialGtype: gtype}, nil
 	}
-	return &GlobalTypeModelFactory{initialGtype: gtype}, nil
+	return nil, fmt.Errorf(
+		"must provide a global protocol via either a s-expression or a protobuf file",
+	)
 }
 
 func (f GlobalTypeModelFactory) MakeModelWithLogger(logger *zap.Logger) (model.Model, error) {
