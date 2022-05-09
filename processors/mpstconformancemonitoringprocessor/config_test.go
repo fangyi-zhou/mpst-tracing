@@ -33,6 +33,26 @@ func TestLoadConfigLts(t *testing.T) {
 	assert.Equal(t, "gtype.sexp", mpstConfig.GlobalTypeSexpFileName)
 }
 
+func TestLoadConfigLtsProtobuf(t *testing.T) {
+	factories, err := componenttest.NopFactories()
+	assert.NoError(t, err)
+
+	factories.Processors[typeStr] = NewFactory()
+
+	cfg, err := servicetest.LoadConfigAndValidate(
+		path.Join(".", "testdata", "config.yaml"),
+		factories,
+	)
+	require.NoError(t, err)
+	require.NotNil(t, cfg)
+
+	lts := config.NewComponentIDWithName(typeStr, "lts-protobuf")
+
+	mpstConfig := cfg.Processors[lts].(*Config)
+	assert.Equal(t, "gtype_lts", mpstConfig.SemanticModelType)
+	assert.Equal(t, "gtype.protocol", mpstConfig.GlobalTypeProtobufFileName)
+}
+
 func TestLoadConfigPedro(t *testing.T) {
 	factories, err := componenttest.NopFactories()
 	assert.NoError(t, err)

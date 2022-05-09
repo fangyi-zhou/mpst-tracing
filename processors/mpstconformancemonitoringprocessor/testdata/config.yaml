@@ -5,6 +5,9 @@ processors:
   mpstconformancemonitoring/lts:
     semantic_model_type: gtype_lts
     protocol_sexp_filename: gtype.sexp
+  mpstconformancemonitoring/lts-protobuf:
+    semantic_model_type: gtype_lts
+    protocol_protobuf_filename: gtype.protocol
   mpstconformancemonitoring/mixed_state:
     semantic_model_type: gtype_mixed_state
     protocol_sexp_filename: gtype.sexp
@@ -24,6 +27,7 @@ service:
         - nop
       processors:
         - mpstconformancemonitoring/lts
+        - mpstconformancemonitoring/lts-protobuf
         - mpstconformancemonitoring/mixed_state
         - mpstconformancemonitoring/pedro
       exporters:
