@@ -23,7 +23,7 @@ func convertFromAction(action *protobuf.Action) (GlobalType, error) {
 	fromRole := action.GetFromRole()
 	toRole := action.GetToRole()
 	if action.GetType() == protobuf.Action_SEND {
-		return Send{
+		return &Send{
 			origin: fromRole,
 			dest:   toRole,
 			conts:  nil,
@@ -32,7 +32,7 @@ func convertFromAction(action *protobuf.Action) (GlobalType, error) {
 		if len(action.GetContinuations()) != 1 {
 			return nil, fmt.Errorf("current does not support multiple receives")
 		}
-		return Recv{
+		return &Recv{
 			origin: fromRole,
 			dest:   toRole,
 			label:  action.GetContinuations()[0].GetLabel(),
@@ -49,7 +49,7 @@ func patchIdx(
 	actions map[int32]GlobalType,
 ) (GlobalType, error) {
 	if action.GetType() == protobuf.Action_SEND {
-		gtype := gtype.(Send)
+		gtype := gtype.(*Send)
 		gtype.conts = make(map[string]GlobalType)
 		for _, cont := range action.GetContinuations() {
 			label := cont.GetLabel()
@@ -68,7 +68,7 @@ func patchIdx(
 		if len(action.GetContinuations()) != 1 {
 			return nil, fmt.Errorf("current does not support multiple receives")
 		}
-		gtype := gtype.(Recv)
+		gtype := gtype.(*Recv)
 		cont := action.GetContinuations()[0]
 		var exists bool
 		gtype.cont, exists = actions[cont.GetNext()]
