@@ -14,7 +14,7 @@ receivers:
 processors:
   mpstconformancemonitoring:
     semantic_model_type: gtype_lts
-    protocol_sexp_filename: twobuyer/TwoBuyer_global_type.sexp
+    protocol_protobuf_filename: twobuyer/TwoBuyer.protocol
 
 exporters:
   logging:
