@@ -9,27 +9,27 @@ import (
 )
 
 const (
-	typeStr config.Type = "mpstmetadatatagging"
+	typeStr component.Type = "mpstmetadatatagging"
 )
 
 func NewFactory() component.ProcessorFactory {
 	return component.NewProcessorFactory(
 		typeStr,
 		createDefaultConfig,
-		component.WithTracesProcessor(createTracesProcessor),
+		component.WithTracesProcessor(createTracesProcessor, component.StabilityLevelDevelopment),
 	)
 }
 
-func createDefaultConfig() config.Processor {
+func createDefaultConfig() component.ProcessorConfig {
 	return &Config{
-		ProcessorSettings: config.NewProcessorSettings(config.NewComponentID(typeStr)),
+		ProcessorSettings: config.NewProcessorSettings(component.NewID(typeStr)),
 	}
 }
 
 func createTracesProcessor(
 	_ context.Context,
 	settings component.ProcessorCreateSettings,
-	config config.Processor,
+	config component.ProcessorConfig,
 	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
 	return newMpstMetadataTaggingProcessor(settings.Logger, config.(*Config), nextConsumer)

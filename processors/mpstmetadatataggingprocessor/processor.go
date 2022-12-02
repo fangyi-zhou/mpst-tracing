@@ -40,7 +40,7 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td ptra
 		var roleNameExists = false
 		var role roleName
 		if serviceNameExists {
-			service := serviceName.StringVal()
+			service := serviceName.Str()
 			role, roleNameExists = m.roleLookup[service]
 		}
 		ss := rs.ScopeSpans()
@@ -50,7 +50,7 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td ptra
 				// Update role via instrumentation library name, as currently is done.
 				attachCurrentRoleTag(il, string(role))
 			} else {
-				m.logger.Warn("Unable to find role name from trace", zap.String("identifier", serviceName.StringVal()))
+				m.logger.Warn("Unable to find role name from trace", zap.String("identifier", serviceName.Str()))
 				continue
 			}
 			spans := il.Spans()
@@ -65,7 +65,7 @@ func (m MpstMetadataTaggingProcessor) ConsumeTraces(ctx context.Context, td ptra
 						// 	m.logger.Info("attribute", zap.String("key", key), zap.String("val", val.StringVal()))
 						// 	return true
 						// })
-						span.Attributes().InsertString(labels.MsgLabelKey, string(message))
+						span.Attributes().PutStr(labels.MsgLabelKey, string(message))
 						m.logger.Info(
 							"Attached label to trace",
 							zap.String("label", string(message)),
@@ -82,7 +82,7 @@ func attachCurrentRoleTag(ss ptrace.ScopeSpans, role string) {
 	spans := ss.Spans()
 	for i := 0; i < spans.Len(); i++ {
 		span := spans.At(i)
-		span.Attributes().InsertString(labels.CurrentRoleKey, role)
+		span.Attributes().PutStr(labels.CurrentRoleKey, role)
 	}
 }
 

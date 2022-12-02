@@ -9,25 +9,25 @@ import (
 )
 
 const (
-	typeStr config.Type = "mpstconformancemonitoring"
+	typeStr component.Type = "mpstconformancemonitoring"
 )
 
 func NewFactory() component.ProcessorFactory {
 	return component.NewProcessorFactory(
 		typeStr,
 		createDefaultConfig,
-		component.WithTracesProcessor(createTraceProcessor))
+		component.WithTracesProcessor(createTraceProcessor, component.StabilityLevelDevelopment))
 }
 
-func createDefaultConfig() config.Processor {
+func createDefaultConfig() component.ProcessorConfig {
 	return &Config{
-		ProcessorSettings: config.NewProcessorSettings(config.NewComponentID(typeStr)),
+		ProcessorSettings: config.NewProcessorSettings(component.NewID(typeStr)),
 	}
 }
 
 func createTraceProcessor(_ context.Context,
 	params component.ProcessorCreateSettings,
-	cfg config.Processor,
+	cfg component.ProcessorConfig,
 	nextConsumer consumer.Traces,
 ) (component.TracesProcessor, error) {
 	return newMpstConformanceProcessor(params.Logger, cfg.(*Config), nextConsumer)

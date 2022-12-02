@@ -38,10 +38,10 @@ func extractMpstMetadata(attributes pcommon.Map) (mpstMetadata, error) {
 	currentRole, hasCurrentRole := attributes.Get(labels.CurrentRoleKey)
 	if hasAction && hasLabel && hasPartner && hasCurrentRole {
 		return mpstMetadata{
-			action:      action.StringVal(),
-			label:       label.StringVal(),
-			partner:     partner.StringVal(),
-			currentRole: getEndpointFromLibraryName(currentRole.StringVal()),
+			action:      action.Str(),
+			label:       label.Str(),
+			partner:     partner.Str(),
+			currentRole: getEndpointFromLibraryName(currentRole.Str()),
 		}, nil
 	} else {
 		return mpstMetadata{}, errors.New("No Mpst Metadata present")
@@ -111,7 +111,7 @@ func (m *mpstConformanceMonitoringProcessor) processLocalTraces(traces ptrace.Tr
 								Spans().
 								At(0)
 							attr := span.Attributes()
-							attr.InsertBool(labels.ValidatedKey, validated)
+							attr.PutBool(labels.ValidatedKey, validated)
 							if !validated && span.Status().Code() != ptrace.StatusCodeError {
 								span.Status().SetCode(ptrace.StatusCodeError)
 							}
