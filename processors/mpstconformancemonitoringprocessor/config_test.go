@@ -1,12 +1,11 @@
 package mpstconformancemonitoringprocessor
 
 import (
+	"go.opentelemetry.io/collector/component"
 	"path"
 	"testing"
 
 	"go.opentelemetry.io/collector/service/servicetest"
-
-	"go.opentelemetry.io/collector/config"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,7 +25,7 @@ func TestLoadConfigLts(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	lts := config.NewComponentIDWithName(typeStr, "lts")
+	lts := component.NewIDWithName(typeStr, "lts")
 
 	mpstConfig := cfg.Processors[lts].(*Config)
 	assert.Equal(t, "gtype_lts", mpstConfig.SemanticModelType)
@@ -46,7 +45,7 @@ func TestLoadConfigPedro(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cfg)
 
-	pedro := config.NewComponentIDWithName(typeStr, "pedro")
+	pedro := component.NewIDWithName(typeStr, "pedro")
 
 	mpstConfig := cfg.Processors[pedro].(*Config)
 	assert.Equal(t, "gtype_pedro", mpstConfig.SemanticModelType)
